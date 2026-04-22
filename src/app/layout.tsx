@@ -1,7 +1,8 @@
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
+import { Barlow, Inter } from "next/font/google";
 import "./globals.css";
-import { Inter, Barlow } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "NextEcom",
@@ -32,14 +33,16 @@ export default function RootLayout({
       <body
         className={`${interFont.className} ${barlowFont.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
