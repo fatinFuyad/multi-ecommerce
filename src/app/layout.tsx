@@ -5,9 +5,9 @@ import { Barlow, Inter } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NextEcom",
+  title: "MultiEcom",
   description:
-    "Welcome to NextEcom, your ultimate destination for seamless online shopping! Discover a vast array of products from trusted sellers, all in one convenient marketplace. With NextEcom, shopping is made easy, fast, and enjoyable. Find everything you need, from fashion and electronics to home essentials, and experience the joy of hassle-free online shopping. Start exploring today!"
+    "Welcome to MultiEcom, your ultimate destination for seamless online shopping! Discover a vast array of products from trusted sellers, all in one convenient marketplace. With MultiEcom, shopping is made easy, fast, and enjoyable. Find everything you need, from fashion and electronics to home essentials, and experience the joy of hassle-free online shopping. Start exploring today!"
 };
 
 const interFont = Inter({

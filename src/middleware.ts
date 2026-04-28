@@ -1,13 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
+// '/route(.*)' means this route and all subsequent routes
+// '/route/(.*) means after the subsequent routes
+const protectedRoutes = createRouteMatcher([
+  "/dashboard(.*)",
+  "/checkout",
+  "/profile",
+  "/profile/(.*)"
+]);
 export default clerkMiddleware(async (auth, req) => {
-  const protectedRoutes = createRouteMatcher([
-    "/dashboard(.*)",
-    "/checkout",
-    "/profile",
-    "/profile/(.*)"
-  ]);
-
   if (protectedRoutes(req)) {
     await auth().protect();
   }
