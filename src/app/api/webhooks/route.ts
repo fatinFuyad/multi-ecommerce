@@ -1,4 +1,4 @@
-import dbConnect from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/dbConnect";
 import User from "@/models/User";
 import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";

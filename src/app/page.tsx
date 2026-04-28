@@ -1,4 +1,4 @@
-import { ModeToggle } from "@/components/shared/dark-mode";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   SignInButton,
@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="grid gap-8 p-6">
       <header className="flex justify-end items-center p-4 gap-4 h-16">
-        <ModeToggle />
+        <ThemeToggle />
         {/* Show the sign-in and sign-up buttons when the user is signed out */}
         <SignedOut>
           <SignInButton />

@@ -1,8 +1,9 @@
-import { ThemeProvider } from "@/components/shared/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Barlow, Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "MultiEcom",
@@ -41,6 +42,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster />
           </ThemeProvider>
         </ClerkProvider>
       </body>

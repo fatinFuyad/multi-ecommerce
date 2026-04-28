@@ -1,5 +1,18 @@
-import mongoose from "mongoose";
-const userSchema = new mongoose.Schema(
+import mongoose, { Document } from "mongoose";
+
+export interface IUser {
+  // _id: string;
+  name: string;
+  email: string;
+  picture: string;
+  role: "ADMIN" | "SELLER" | "USER";
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface UserData extends IUser, Document {}
+
+const userSchema = new mongoose.Schema<UserData>(
   {
     _id: String, // overriding mongoose default ObjectId
     name: {
@@ -14,7 +27,7 @@ const userSchema = new mongoose.Schema(
     picture: String,
     role: {
       type: String,
-      enum: ["ADMIN", "SELLER", "USER"],
+      enum: ["ADMIN", "MINE", "USER"],
       default: "USER"
     }
   },
@@ -23,5 +36,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.model("User", userSchema);
+const User =
+  mongoose.models.User<UserData> || mongoose.model("User", userSchema);
 export default User;
