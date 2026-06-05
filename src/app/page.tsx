@@ -2,6 +2,7 @@ import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   SignInButton,
+  SignOutButton,
   SignUpButton,
   SignedIn,
   SignedOut,
@@ -22,6 +23,7 @@ export default function Home() {
         {/* Show the user button when the user is signed in */}
         <SignedIn>
           <UserButton />
+          <SignOutButton />
         </SignedIn>
       </header>
       <h1 className="text-4xl">Mulit Ecommerce Application</h1>
@@ -35,6 +37,9 @@ export default function Home() {
         </Button>
         <Button asChild>
           <Link href={"/dashboard/seller"}>Seller</Link>
+        </Button>
+        <Button variant={"secondary"} asChild>
+          <Link href={"/payments"}>Payments</Link>
         </Button>
         <Button variant={"destructive"}>Warning</Button>
         <Button variant={"link"}>Link</Button>

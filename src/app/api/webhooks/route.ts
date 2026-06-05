@@ -1,5 +1,5 @@
 import { dbConnect } from "@/lib/dbConnect";
-import User from "@/models/User";
+import User, { IUser } from "@/models/User";
 import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
@@ -55,17 +55,21 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   console.log(`Webhook userId: ${id}, EventType: ${eventType}`);
+
+  // connect to database
+  await dbConnect();
+
   if (evt.type === "user.created") {
-    await dbConnect();
     const user = {
-      _id: evt.data.id,
+      clerkId: evt.data.id,
       name: `${evt.data.first_name} ${evt.data.last_name}`,
-      email: evt.data.email_addresses.at(0)?.email_address,
+      email: evt.data.email_addresses[0].email_address,
       picture: evt.data.image_url,
       role: "USER"
-    };
-    const newUser = await User.create(user);
-    console.log(newUser);
+    } satisfies IUser;
+
+    await User.create(user);
+    // console.log(newUser);
 
     await clerkClient().users.updateUserMetadata(evt.data.id, {
       privateMetadata: {
@@ -73,14 +77,18 @@ export async function POST(req: Request) {
       }
     });
   }
+
   if (evt.type === "user.updated") {
-    await User.findByIdAndUpdate(evt.data.id, {
-      role: evt.data.private_metadata.role
-    });
+    await User.findOneAndUpdate(
+      { clerkId: evt.data.id },
+      {
+        role: evt.data.private_metadata.role
+      }
+    );
   }
 
   if (evt.type === "user.deleted") {
-    await User.findByIdAndDelete(evt.data.id);
+    await User.findOneAndDelete({ clerkId: evt.data.id });
   }
   return new Response("Successful", { status: 200 });
 }

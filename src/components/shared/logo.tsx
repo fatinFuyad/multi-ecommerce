@@ -3,6 +3,7 @@ import Image from "next/image";
 
 // Logo image
 import LogoImg from "@/public/assets/icons/logo.png";
+import Link from "next/link";
 
 interface LogoProps {
   width: string;
@@ -12,12 +13,16 @@ interface LogoProps {
 function Logo({ width, height }: LogoProps) {
   return (
     <div className="z-50 relative aspect-square" style={{ width, height }}>
-      <Image
-        src={LogoImg}
-        alt="GoShop"
-        fill={true} //
-        className="aspect-square object-contain"
-      />
+      <Link href={"/"}>
+        <Image
+          src={LogoImg}
+          alt="GoShop"
+          fill={true}
+          priority
+          sizes="30%"
+          className="aspect-square object-contain"
+        />
+      </Link>
     </div>
   );
 }

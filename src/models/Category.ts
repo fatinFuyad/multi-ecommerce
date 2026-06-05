@@ -10,8 +10,7 @@ export interface ICategory {
   updatedAt?: Date;
 }
 
-export interface CategoryData extends ICategory, Document<ObjectId> {}
-
+export interface CategoryData extends Document<ObjectId>, ICategory {}
 const categorySchema = new mongoose.Schema<CategoryData>(
   {
     name: {

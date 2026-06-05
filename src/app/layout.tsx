@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Barlow, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import ModalProvider from "../providers/modal-provider";
 
 export const metadata: Metadata = {
   title: "MultiEcom",
@@ -41,7 +42,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <ModalProvider>{children}</ModalProvider>
             <Toaster />
           </ThemeProvider>
         </ClerkProvider>

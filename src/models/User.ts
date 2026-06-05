@@ -1,7 +1,7 @@
 import mongoose, { Document } from "mongoose";
 
 export interface IUser {
-  // _id: string;
+  clerkId: string;
   name: string;
   email: string;
   picture: string;
@@ -14,7 +14,7 @@ export interface UserData extends IUser, Document {}
 
 const userSchema = new mongoose.Schema<UserData>(
   {
-    _id: String, // overriding mongoose default ObjectId
+    clerkId: String, // overriding mongoose default ObjectId
     name: {
       type: String,
       required: [true, "User should provider user's name"]
@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema<UserData>(
     picture: String,
     role: {
       type: String,
-      enum: ["ADMIN", "MINE", "USER"],
+      enum: ["ADMIN", "SELLER", "USER"],
       default: "USER"
     }
   },

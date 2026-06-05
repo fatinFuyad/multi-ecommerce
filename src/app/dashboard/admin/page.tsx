@@ -1,4 +1,6 @@
-function AdminDashboardPage() {
+import { currentUser } from "@clerk/nextjs/server";
+
+async function AdminDashboardPage() {
   return (
     <div className="grid gap-6 p-8">
       <h1 className="text-4xl text-cyan-400">Admin Page</h1>

@@ -3,17 +3,15 @@ import Category, { CategoryData, ICategory } from "@/models/Category";
 import { currentUser } from "@clerk/nextjs/server";
 import { ObjectId } from "mongoose";
 
-// Function: upsertCategory
-// Description: Upserts a category into the database, updating if it exists or creating a new one if not.
-// Permission Level: Admin only
-// Parameters:
-//   - category: Category object containing details of the category to be upserted.
-// Returns: Updated or newly created category details.
+export interface ReqCategory extends ICategory {
+  _id?: ObjectId;
+}
 
-async function restrictToAdmin() {
+export async function restrictToAdmin() {
   // Ensure user is authenticated
   const user = await currentUser();
-  console.log(user);
+
+  console.log(user?.privateMetadata.role + " Action");
   if (!user) throw new Error("Unauthenticated. Please sign in to continue.");
 
   // Verify admin permission
@@ -23,19 +21,18 @@ async function restrictToAdmin() {
     );
 }
 
-interface ReqCategory extends ICategory {
-  _id?: ObjectId;
-}
+// Function: Creates or updates a category into the database
+// Permission Level: Admin only
+// Parameters:
+//   - category: Category object containing details of the category to be upserted.
+// Returns: Updated or newly created category details.
 
-async function createUpdateCategory(
+export async function createUpdateCategory(
   category: ReqCategory
 ): Promise<CategoryData | null> {
   if (!category) throw new Error("Category data can't be empty");
-
-  // check database connection
-  await dbConnect();
-
   const isUpdateSession = Boolean(category._id);
+
   // check whether category with same name or URL already exists
   let existingCategory: CategoryData | null;
   if (isUpdateSession) {
@@ -74,14 +71,16 @@ async function createUpdateCategory(
   }
 }
 
+// Create category route handler
 export async function POST(req: Request) {
   try {
     // Verify admin permission
     await restrictToAdmin();
 
+    await dbConnect();
     const category: ICategory = await req.json();
     const newCategory = await createUpdateCategory(category);
-    return Response.json(newCategory, { status: 201 });
+    return Response.json({ category: newCategory }, { status: 201 });
   } catch (error: any) {
     console.log(error.message || error.errMsg);
     return Response.json(
@@ -96,23 +95,20 @@ export async function POST(req: Request) {
   }
 }
 
-export async function PATCH(req: Request) {
+// Function: Retrieves all categories from the database.
+// Permission Level: Public
+// Returns: Array of categories sorted by updatedAt date in descending order.
+export async function GET() {
   try {
-    // Verify admin permission
-    await restrictToAdmin();
-
-    const category: ReqCategory = await req.json();
-    const updatedCategory = await createUpdateCategory(category);
-
-    return Response.json(updatedCategory, { status: 200 });
+    await dbConnect();
+    const categories = await Category.find().sort({ updatedAt: -1 });
+    return Response.json({ categories, success: true }, { status: 200 });
   } catch (error: any) {
-    console.log(error.message || error.errMsg);
+    console.log(error.message);
     return Response.json(
       {
         success: false,
-        message:
-          error.message ||
-          "An internal error occured while updating the category."
+        message: error.message
       },
       { status: 500 }
     );

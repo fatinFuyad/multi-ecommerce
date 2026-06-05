@@ -1,15 +1,9 @@
 "use client";
 
-// React
-import axios from "axios";
-// model
-
 // Form handling utilities
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-
-// Schema
+import z from "zod";
 
 // UI Components
 import { AlertDialog } from "@/components/ui/alert-dialog";
@@ -35,28 +29,27 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { CategoryFormSchema } from "@/lib/schemas";
-import { CategoryData, ICategory } from "@/models/Category";
+import { CategoryData } from "@/models/Category";
+import { createCategory, updateCategory } from "@/queries/category";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
+import { ObjectId } from "mongoose";
 
 interface CategoryDetailsProps {
   //   data?: z.infer<typeof CategoryFormSchema>;
   data?: CategoryData;
-  cloudinaryKey: string;
 }
 
-export default function CategoryDetails({
-  data,
-  cloudinaryKey
-}: CategoryDetailsProps) {
+export default function CategoryDetails({ data }: CategoryDetailsProps) {
   const { toast } = useToast(); // Hook for displaying toast messages
   const router = useRouter(); // Hook for routing
+
   // ...// 1. Define your form.
   const form = useForm<z.infer<typeof CategoryFormSchema>>({
     resolver: zodResolver(CategoryFormSchema),
     defaultValues: {
       name: data?.name || "",
-      image: data?.image ? [{ url: data.url }] : [],
+      image: data?.image ? [{ url: data.image }] : [],
       url: data?.url || "",
       featured: data?.featured || false
     }
@@ -66,29 +59,14 @@ export default function CategoryDetails({
   // 2. Define a submit handler.
   // ⚠️ Client side can't access backend models
   async function onSubmit(values: z.infer<typeof CategoryFormSchema>) {
-    console.log(values);
     try {
       // we can create a new route for updating categories. then we don't need to pass id
-      let response;
-      if (data?._id) {
-        response = await axios.patch<CategoryData>("/api/categories", {
-          _id: data._id,
-          name: values.name,
-          image: values.image[0].url,
-          url: values.url,
-          featured: values.featured
-        });
+      let result;
+      const isUpdateSession = Boolean(data?._id);
+      if (isUpdateSession && data?._id) {
+        result = await updateCategory(data._id, values);
       } else {
-        response = await axios.post<CategoryData, any, ICategory>(
-          "/api/categories",
-          {
-            // id: data?._id ? data._id : undefined,
-            name: values.name,
-            image: values.image[0].url,
-            url: values.url,
-            featured: values.featured
-          }
-        );
+        result = await createCategory(values);
       }
 
       // Upserting category data // ⚠️ handle backend separetely
@@ -96,13 +74,13 @@ export default function CategoryDetails({
 
       // Displaying success message
       toast({
-        title: data?._id
+        title: isUpdateSession
           ? "Category has been updated."
-          : `Congratulations! ${response.data.name} has now been created.`
+          : `Congratulations! ${result?.name} has now been created.`
       });
 
       // Redirect or Refresh data
-      if (data?._id) {
+      if (isUpdateSession) {
         router.refresh();
       } else {
         router.push("/dashboard/admin/categories");
@@ -141,7 +119,6 @@ export default function CategoryDetails({
                     <FormControl>
                       <ImageUpload
                         type="profile"
-                        cloudinaryKey={cloudinaryKey}
                         value={field.value.map((image) => image.url)}
                         disabled={isLoading}
                         onChange={(url) => field.onChange([{ url }])}
@@ -171,26 +148,6 @@ export default function CategoryDetails({
                   </FormItem>
                 )}
               />
-              {/* 
-              // Previous code only for testing with image url
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image</FormLabel>
-                    <FormControl>
-                      <Input
-                        // type="email"
-                        autoComplete="true"
-                        placeholder="Enter image url"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
               <FormField
                 control={form.control}
                 name="url"

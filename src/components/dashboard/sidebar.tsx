@@ -1,14 +1,11 @@
-// React, Next.js
-import { FC } from "react";
-
 // Clerk
 import { currentUser } from "@clerk/nextjs/server";
 
 // Custom Ui Components
-import UserInfo from "./user-info";
+import { adminDashboardSidebarOptions } from "@/constants/data";
 import Logo from "../shared/logo";
 import SidebarNavAdmin from "./nav-admin";
-import { adminDashboardSidebarOptions } from "@/constants/data";
+import UserInfo from "./user-info";
 
 interface SidebarProps {
   isAdmin?: boolean;
