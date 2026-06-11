@@ -1,11 +1,11 @@
 import { dbConnect } from "@/lib/dbConnect";
 import Category from "@/models/Category";
-import { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 import { ReqCategory, createUpdateCategory, restrictToAdmin } from "../route";
 
 interface RouteParams {
   params: {
-    categoryId: ObjectId;
+    categoryId: mongoose.Types.ObjectId;
   };
 }
 

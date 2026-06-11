@@ -1,4 +1,4 @@
-import mongoose, { Document, ObjectId } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface ICategory {
   name: string;
@@ -6,11 +6,13 @@ export interface ICategory {
   // image: { url: string }[];
   url: string;
   featured?: boolean;
+  subCategories?: mongoose.Types.ObjectId[];
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface CategoryData extends Document<ObjectId>, ICategory {}
+export interface CategoryData
+  extends Document<mongoose.Types.ObjectId>, ICategory {}
 const categorySchema = new mongoose.Schema<CategoryData>(
   {
     name: {
@@ -34,7 +36,8 @@ const categorySchema = new mongoose.Schema<CategoryData>(
     featured: {
       type: Boolean,
       default: false
-    }
+    },
+    subCategories: [mongoose.Types.ObjectId]
   },
   { timestamps: true }
 );
@@ -42,14 +45,6 @@ const categorySchema = new mongoose.Schema<CategoryData>(
 // console.log(mongoose.models);
 
 // on inital time the models will be and empty {}; and so reading any property will be undefined
-
-// interface doc extends Document<ObjectId, any, ICategory> {}
-
-// const Category =
-//   // mongoose.models?.Category ||
-//   mongoose.model<ICategory>("Category", categorySchema);
-
-// interface DOC extends ICategory, Document<ObjectId> {}
 
 const Category =
   mongoose.models.Category<CategoryData> ||

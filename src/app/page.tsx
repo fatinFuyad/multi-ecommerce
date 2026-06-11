@@ -41,11 +41,12 @@ export default function Home() {
         <Button variant={"secondary"} asChild>
           <Link href={"/payments"}>Payments</Link>
         </Button>
-        <Button variant={"destructive"}>Warning</Button>
-        <Button variant={"link"}>Link</Button>
-        <Button variant={"outline"}>Outline</Button>
-        <Button variant={"ghost"}>Click Here</Button>
-        <Button variant={"secondary"}>Click Here</Button>
+        <Button variant={"outline"} asChild>
+          <Link href={"/dashboard/admin/categories/new"}>Categoy</Link>
+        </Button>
+        <Button variant={"outline"} asChild>
+          <Link href={"/dashboard/admin/subCategories/new"}>Sub-category</Link>
+        </Button>
       </main>
     </div>
   );

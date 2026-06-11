@@ -1,5 +1,6 @@
-import { CloudUpload } from "lucide-react";
-import { CldUploadWidget } from "next-cloudinary";
+import { Button } from "@/components/ui/button";
+import { CloudUpload, UploadCloud } from "lucide-react";
+import { CldUploadButton, CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -36,7 +37,7 @@ function ImageUpload({
   if (type !== "profile") return <div>Not profile image type</div>;
   return (
     <div
-      style={{ pointerEvents: "auto" }}
+      // style={{ pointerEvents: "auto" }}
       className="relative rounded-full w-52 h-52 bg-gray-200 border-2 border-white shadow-2xl overflow-visible"
     >
       {
@@ -65,10 +66,10 @@ function ImageUpload({
       <CldUploadWidget
         uploadPreset={"ecomimg493dk"}
         onSuccess={handleUpload}
-        onClose={() => {
-          // Restore the pointer events (adjust as needed)
-          document.body.style.pointerEvents = "none";
-        }}
+        // onClose={() => {
+        //   // Restore the pointer events (adjust as needed)
+        //   document.body.style.pointerEvents = "none";
+        // }}
       >
         {({ open }) => {
           const onClick = () => {

@@ -1,13 +1,19 @@
 "use client";
 
 // React, Next.js
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState
+} from "react";
 
 // User model
 import { IUser } from "@/models/User";
 
 interface ModalProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export type ModalData = {
@@ -16,31 +22,28 @@ export type ModalData = {
 type ModalContextType = {
   data: ModalData;
   isOpen: boolean;
-  setOpen: (modal: React.ReactNode, fetchData?: () => Promise<any>) => void;
+  setOpen: (modal: ReactNode, fetchData?: () => Promise<any>) => void;
   setClose: () => void;
 };
 
 export const ModalContext = createContext<ModalContextType>({
   data: {},
   isOpen: false,
-  setOpen: (modal: React.ReactNode, fetchData?: () => Promise<any>) => {},
+  setOpen: (modal: ReactNode, fetchData?: () => Promise<any>) => {},
   setClose: () => {}
 });
 
-const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
+function ModalProvider({ children }: ModalProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState<ModalData>({});
-  const [showingModal, setShowingModal] = useState<React.ReactNode>(null);
+  const [showingModal, setShowingModal] = useState<ReactNode>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const setOpen = async (
-    modal: React.ReactNode,
-    fetchData?: () => Promise<any>
-  ) => {
+  const setOpen = async (modal: ReactNode, fetchData?: () => Promise<any>) => {
     if (modal) {
       if (fetchData) {
         setData({ ...data, ...(await fetchData()) });
@@ -63,7 +66,7 @@ const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
       {showingModal}
     </ModalContext.Provider>
   );
-};
+}
 
 export const useModal = () => {
   const context = useContext(ModalContext);

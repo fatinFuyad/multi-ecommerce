@@ -1,10 +1,10 @@
 import { dbConnect } from "@/lib/dbConnect";
 import Category, { CategoryData, ICategory } from "@/models/Category";
 import { currentUser } from "@clerk/nextjs/server";
-import { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 
 export interface ReqCategory extends ICategory {
-  _id?: ObjectId;
+  _id?: mongoose.Types.ObjectId;
 }
 
 export async function restrictToAdmin() {

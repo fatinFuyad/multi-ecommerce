@@ -11,11 +11,12 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import { ReactNode } from "react";
 
 type Props = {
   heading?: string;
   subheading?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   defaultOpen?: boolean;
 };
 

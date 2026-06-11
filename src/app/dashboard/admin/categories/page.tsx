@@ -8,38 +8,24 @@ export default async function AdminCategoriesPage() {
   const categories = await getAllCategories();
 
   // Checking if no categories are found
-  if (!categories) return <h2>No categories found</h2>;
+  // if (!categories.length) return <h2>No categories found</h2>;
 
   return (
     <DataTable
-      data={categories}
-      columns={columns}
-      filterValue="name"
-      searchPlaceholder="Search category name..."
-      modalChildren={
-        // need not to pass data prop when create a category
-        <CategoryDetails />
-      }
       actionButtonText={
         <>
           <Plus size={15} />
           Create category
         </>
       }
+      data={categories}
+      columns={columns}
+      filterValue="name"
+      searchPlaceholder="Search category name..."
+      modalChildren={
+        <CategoryDetails /> // need not to pass data prop when create a category
+      }
+      newTabLink="/dashboard/admin/categories/new"
     />
   );
 }
-// return (
-//   <div>
-//     <ul>
-//       {categories.map((category: CategoryData) => {
-//         return (
-//           <li key={category._id.toString()}>
-//             <p>{category.name}</p>
-//             <p>{category.url}</p>
-//           </li>
-//         );
-//       })}
-//     </ul>
-//   </div>
-// );

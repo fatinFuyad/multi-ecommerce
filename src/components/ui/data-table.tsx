@@ -25,10 +25,11 @@ import {
 } from "@tanstack/react-table";
 
 // Lucide icons
-import { Search } from "lucide-react";
+import { FilePlus2, Search } from "lucide-react";
 
 // Modal provider hook
 import { useModal } from "@/providers/modal-provider";
+import Link from "next/link";
 
 // Props interface for the table component
 interface DataTableProps<TData, TValue> {
@@ -37,6 +38,7 @@ interface DataTableProps<TData, TValue> {
   filterValue: string;
   actionButtonText?: React.ReactNode;
   modalChildren?: React.ReactNode;
+  newTabLink?: string;
   searchPlaceholder: string;
   heading?: string;
   subheading?: string;
@@ -47,8 +49,9 @@ export default function DataTable<TData, TValue>({
   columns,
   data,
   filterValue,
-  modalChildren,
   actionButtonText,
+  modalChildren,
+  newTabLink,
   searchPlaceholder,
   heading,
   subheading,
@@ -82,24 +85,33 @@ export default function DataTable<TData, TValue>({
             className="h-12"
           />
         </div>
-        {modalChildren && (
-          <Button
-            className="flex- gap-2"
-            onClick={() => {
-              if (modalChildren)
-                setOpen(
-                  <CustomModal
-                    heading={heading || ""}
-                    subheading={subheading || ""}
-                  >
-                    {modalChildren}
-                  </CustomModal>
-                );
-            }}
-          >
-            {actionButtonText}
-          </Button>
-        )}
+        <div className="flex gap-4">
+          {modalChildren && (
+            <Button
+              className="flex-1 gap-2"
+              onClick={() => {
+                if (modalChildren)
+                  setOpen(
+                    <CustomModal
+                      heading={heading || ""}
+                      subheading={subheading || ""}
+                    >
+                      {modalChildren}
+                    </CustomModal>
+                  );
+              }}
+            >
+              {actionButtonText}
+            </Button>
+          )}
+          {newTabLink && (
+            <Button variant={"outline"} asChild>
+              <Link href={newTabLink} prefetch={false}>
+                <FilePlus2 className="mr-1" /> <span>Create in new page</span>
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Table */}
