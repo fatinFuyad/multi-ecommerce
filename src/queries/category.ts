@@ -1,7 +1,7 @@
 import axios from "@/lib/axios";
 import { CategoryFormSchema } from "@/lib/schemas";
 import { CategoryData } from "@/models/Category";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 import z from "zod";
 
 // make api requests from the frontend for category operations
@@ -47,7 +47,7 @@ export async function getAllCategories(): Promise<CategoryData[]> {
   }
 }
 
-export async function getCategory(_id: ObjectId) {
+export async function getCategory(_id: mongoose.Types.ObjectId) {
   const response = await axios.get<
     CategoryData,
     { data: { category: CategoryData } }
@@ -55,7 +55,7 @@ export async function getCategory(_id: ObjectId) {
   return response.data.category;
 }
 
-export async function deleteCategory(_id: ObjectId) {
+export async function deleteCategory(_id: mongoose.Types.ObjectId) {
   await axios.delete(`/categories/${_id}`);
   return null;
 }

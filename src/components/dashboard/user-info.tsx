@@ -1,8 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { Button } from "@/components/ui/button";
-import { User } from "@clerk/nextjs/server";
 import { Badge } from "@/components/ui/badge";
+import { User } from "@clerk/nextjs/server";
 
 export default function UserInfo({ user }: { user: User | null }) {
   const role = user?.privateMetadata.role;

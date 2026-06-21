@@ -4,6 +4,7 @@ import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
 
+// ⚠️ FOR LONG TIME NO USAGE FROM NGROK ENDPOINT MIGHT BE DISABLED FROM CLERK
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -68,17 +69,27 @@ export async function POST(req: Request) {
       role: "USER"
     } satisfies IUser;
 
-    await User.create(user);
+    const newUser = await User.create(user);
     // console.log(newUser);
 
-    await clerkClient().users.updateUserMetadata(evt.data.id, {
-      privateMetadata: {
-        role: "USER" // by default after a user is created the role will be USER, and we are setting newly created user's role to USER on the clerk dashboard
+    const clerkUser = await clerkClient().users.updateUserMetadata(
+      evt.data.id,
+      {
+        privateMetadata: {
+          _id: newUser._id, // prevents querying twice for authentication and getting mongodb user
+          role: "USER" // by default after a user is created the role will be USER, and we are setting newly created user's role to USER on the clerk dashboard
+        },
+        publicMetadata: {
+          _id: newUser._id,
+          role: "USER"
+        }
       }
-    });
+    );
+    console.log(clerkUser.privateMetadata);
   }
 
   if (evt.type === "user.updated") {
+    console.log("user role metadata update");
     await User.findOneAndUpdate(
       { clerkId: evt.data.id },
       {

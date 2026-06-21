@@ -10,12 +10,13 @@ export default async function AdminDashboardLayout({
   children
 }: Props): Promise<React.ReactNode> {
   const user = await currentUser();
-  if (!user || user.privateMetadata.role !== "ADMIN") redirect("/");
+  if (!user || user.privateMetadata.role !== "ADMIN")
+    redirect("/error/unauthorized");
 
   return (
     <div className="w-full h-full">
       {/* sidebar on the left */}
-      <Sidebar isAdmin />
+      <Sidebar isAdmin={true} user={user} />
 
       {/* main area with full width */}
       <div className="ml-80">

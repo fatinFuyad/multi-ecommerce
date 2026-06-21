@@ -224,7 +224,13 @@ export default function SubCategoryDetails({
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading
+                  ? "Submitting..."
+                  : data?._id
+                    ? "Save Subcategory"
+                    : "Create Subcategory"}
+              </Button>
             </form>
           </Form>
         </CardContent>

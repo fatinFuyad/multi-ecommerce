@@ -1,11 +1,8 @@
 import { dbConnect } from "@/lib/dbConnect";
 import SubCategory from "@/models/SubCategory";
 import mongoose from "mongoose";
-import {
-  ReqSubCategory,
-  createUpdateSubCategory,
-  restrictToAdmin
-} from "../route";
+import { ReqSubCategory, createUpdateSubCategory } from "../route";
+import { restrictToAdmin } from "../../categories/route";
 
 interface RouteParams {
   params: {

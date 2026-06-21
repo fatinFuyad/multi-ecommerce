@@ -180,7 +180,13 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading
+                  ? "Submitting..."
+                  : data?._id
+                    ? "Save Category"
+                    : "Create Category"}
+              </Button>
             </form>
           </Form>
         </CardContent>

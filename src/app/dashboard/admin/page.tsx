@@ -1,5 +1,3 @@
-import { currentUser } from "@clerk/nextjs/server";
-
 async function AdminDashboardPage() {
   return (
     <div className="grid gap-6 p-8">

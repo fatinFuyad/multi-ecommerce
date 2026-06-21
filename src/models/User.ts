@@ -6,15 +6,27 @@ export interface IUser {
   email: string;
   picture: string;
   role: "ADMIN" | "SELLER" | "USER";
+  stores?: mongoose.Types.ObjectId[];
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export interface UserData extends IUser, Document {}
 
+const userStoreSchema = new mongoose.Schema({
+  stores: {
+    type: mongoose.Types.ObjectId,
+    ref: "Store"
+  }
+});
+
 const userSchema = new mongoose.Schema<UserData>(
   {
-    clerkId: String, // overriding mongoose default ObjectId
+    clerkId: {
+      type: String,
+      required: true,
+      unique: true
+    },
     name: {
       type: String,
       required: [true, "User should provider user's name"]
@@ -29,7 +41,8 @@ const userSchema = new mongoose.Schema<UserData>(
       type: String,
       enum: ["ADMIN", "SELLER", "USER"],
       default: "USER"
-    }
+    },
+    stores: [userStoreSchema]
   },
   {
     timestamps: true

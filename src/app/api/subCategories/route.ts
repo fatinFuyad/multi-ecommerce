@@ -5,23 +5,10 @@ import SubCategory, {
 } from "@/models/SubCategory";
 import { currentUser } from "@clerk/nextjs/server";
 import mongoose from "mongoose";
+import { restrictToAdmin } from "../categories/route";
 
 export interface ReqSubCategory extends ISubCategory {
   _id?: mongoose.Types.ObjectId;
-}
-
-export async function restrictToAdmin() {
-  // Ensure user is authenticated
-  const user = await currentUser();
-
-  console.log(user?.privateMetadata.role + " Action");
-  if (!user) throw new Error("Unauthenticated. Please sign in to continue.");
-
-  // Verify admin permission
-  if (user.privateMetadata.role !== "ADMIN")
-    throw new Error(
-      "Unauthorized Access: Admin Privileges Required for Entry."
-    );
 }
 
 // Function: Creates or updates a subCategory into the database

@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 export {};
 
 // Create a type for the Roles
@@ -12,6 +14,7 @@ declare global {
 
   interface UserPrivateMetadata {
     role: Roles;
+    _id: mongoose.Types.ObjectId;
   }
   interface CustomJwtSessionClaims {
     metadata: {

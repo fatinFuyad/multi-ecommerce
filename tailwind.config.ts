@@ -13,7 +13,10 @@ const config: Config = {
         barlow: "var(--font-barlow)"
       },
       colors: {
-        background: "hsl(var(--background))",
+        background: {
+          default: "hsl(var(--background))",
+          shade: "hsl(var(--shadeSlate))"
+        },
         foreground: "hsl(var(--foreground))",
         card: {
           DEFAULT: "hsl(var(--card))",
@@ -25,7 +28,8 @@ const config: Config = {
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))"
+          foreground: "hsl(var(--primary-foreground))",
+          light: "hsl(var(--primary-light))"
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

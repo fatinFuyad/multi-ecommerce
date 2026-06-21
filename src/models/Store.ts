@@ -1,0 +1,60 @@
+import mongoose, { Document, InferRawDocType } from "mongoose";
+
+type StoreStatus = "PENDING" | "ACTIVE" | "BANNED" | "DISABLED";
+
+export interface IStore {
+  _id?: mongoose.Types.ObjectId;
+  name: string;
+  description: string;
+  email: string;
+  phone: string;
+  url: string;
+  logo: string;
+  cover: string;
+  status: StoreStatus;
+  averageRating: number;
+  featured: boolean;
+  returnPolicy?: string;
+  defaultShippingService?: string;
+  defaultDeliveryFees?: number;
+  defaultDeliveryTimeMin?: number;
+  defaultDeliveryTimeMax?: number;
+  user: mongoose.Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+const storeSchemaDefinition = {
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phone: { type: String, required: true },
+  url: { type: String, required: true, unique: true },
+  logo: { type: String, required: true },
+  cover: { type: String, required: true },
+  status: {
+    type: String,
+    enum: ["ACTIVE", "BANNED", "PENDING", "DISABLED"] satisfies StoreStatus[],
+    required: true
+  },
+  averageRating: { type: Number, required: true, default: 0 },
+  featured: { type: Boolean, required: true },
+  returnPolicy: String,
+  defaultShippingService: String,
+  defaultDeliveryFees: Number,
+  defaultDeliveryTimeMin: Number,
+  defaultDeliveryTimeMax: Number,
+  user: { type: mongoose.Types.ObjectId, ref: "User", required: true }
+} as const;
+
+export interface StoreData extends Document, Omit<IStore, "_id"> {}
+export type StoreType = InferRawDocType<typeof storeSchemaDefinition>;
+
+const storeSchema = new mongoose.Schema<StoreType>(storeSchemaDefinition, {
+  timestamps: true
+});
+
+const Store =
+  mongoose.models.Store<StoreData> || mongoose.model("Store", storeSchema);
+
+export default Store;

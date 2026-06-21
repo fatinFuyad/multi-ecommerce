@@ -6,8 +6,11 @@ const protectedRoutes = createRouteMatcher([
   "/dashboard(.*)",
   "/checkout",
   "/profile",
-  "/profile/(.*)"
+  "/profile/(.*)",
+  "/payments"
 ]);
+
+// Task: for better user management, caching and retreiving maybe utilizable
 export default clerkMiddleware(async (auth, req) => {
   if (protectedRoutes(req)) {
     await auth().protect();

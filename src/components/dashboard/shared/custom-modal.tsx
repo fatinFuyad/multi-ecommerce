@@ -23,7 +23,7 @@ type Props = {
 const CustomModal = ({ children, defaultOpen, subheading, heading }: Props) => {
   const { isOpen, setClose } = useModal();
   return (
-    <Dialog open={isOpen || defaultOpen} onOpenChange={setClose}>
+    <Dialog modal open={isOpen || defaultOpen} onOpenChange={setClose}>
       <DialogContent className="overflow-y-scroll md:max-h-[600px] md:h-fit h-screen bg-card">
         <DialogHeader className="pt-8 text-left">
           {heading ? (
