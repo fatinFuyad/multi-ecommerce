@@ -1,25 +1,9 @@
 import { dbConnect } from "@/lib/dbConnect";
+import { CategoryFormSchemaType } from "@/lib/schemas";
+import { ApiResponse } from "@/lib/types";
 import Category, { CategoryData, ICategory } from "@/models/Category";
-import { currentUser } from "@clerk/nextjs/server";
 import mongoose from "mongoose";
-
-export interface ReqCategory extends ICategory {
-  _id?: mongoose.Types.ObjectId;
-}
-
-export async function restrictToAdmin() {
-  // Ensure user is authenticated
-  const user = await currentUser();
-
-  console.log(user?.privateMetadata.role + " Action");
-  if (!user) throw new Error("Unauthenticated. Please sign in to continue.");
-
-  // Verify admin permission
-  if (user.privateMetadata.role !== "ADMIN")
-    throw new Error(
-      "Unauthorized Access: Admin Privileges Required for Entry."
-    );
-}
+import { restrictTo } from "../apiUtils";
 
 // Function: Creates or updates a category into the database
 // Permission Level: Admin only
@@ -28,7 +12,7 @@ export async function restrictToAdmin() {
 // Returns: Updated or newly created category details.
 
 export async function createUpdateCategory(
-  category: ReqCategory
+  category: CategoryFormSchemaType & { _id?: mongoose.Types.ObjectId }
 ): Promise<CategoryData | null> {
   if (!category) throw new Error("Category data can't be empty");
   const isUpdateSession = Boolean(category._id);
@@ -59,14 +43,18 @@ export async function createUpdateCategory(
   }
 
   if (isUpdateSession) {
-    const updatedCategory = await Category.findByIdAndUpdate<CategoryData>(
-      category._id,
-      category,
-      { new: true }
-    );
+    const updatedCategory: CategoryData | null =
+      await Category.findByIdAndUpdate(
+        category._id,
+        { ...category, image: category.image[0].url } satisfies ICategory,
+        { new: true }
+      );
     return updatedCategory;
   } else {
-    const newCategory = await Category.create<CategoryData>(category);
+    const newCategory: CategoryData = await Category.create({
+      ...category,
+      image: category.image[0].url
+    } satisfies ICategory);
     return newCategory;
   }
 }
@@ -75,10 +63,10 @@ export async function createUpdateCategory(
 export async function POST(req: Request) {
   try {
     // Verify admin permission
-    // await restrictToAdmin();
+    await restrictTo("ADMIN");
 
     await dbConnect();
-    const category: ICategory = await req.json();
+    const category: CategoryFormSchemaType = await req.json();
     const newCategory = await createUpdateCategory(category);
     return Response.json({ category: newCategory }, { status: 201 });
   } catch (error: any) {
@@ -102,14 +90,26 @@ export async function GET() {
   try {
     await dbConnect();
     const categories = await Category.find().sort({ updatedAt: -1 });
-    return Response.json({ categories, success: true }, { status: 200 });
+    return Response.json(
+      {
+        categories,
+        success: true,
+        message: "Get all categories successfull",
+        status: 200
+      } satisfies ApiResponse<{
+        categories: CategoryData[];
+      }>,
+      { status: 200 }
+    );
   } catch (error: any) {
     console.log(error.message);
     return Response.json(
       {
+        categories: [],
         success: false,
-        message: error.message
-      },
+        message: error.message,
+        status: 500
+      } satisfies ApiResponse<{ categories: [] }>,
       { status: 500 }
     );
   }

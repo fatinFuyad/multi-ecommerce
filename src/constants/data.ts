@@ -22,7 +22,7 @@ export const adminDashboardSidebarOptions: DashboardSidebarMenuInterface[] = [
     link: "/dashboard/admin/categories"
   },
   {
-    label: "Sub-Categories",
+    label: "Subcategories",
     icon: "categories",
     link: "/dashboard/admin/subCategories"
   },

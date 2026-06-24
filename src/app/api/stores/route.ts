@@ -1,8 +1,7 @@
-import { dbConnect } from "@/lib/dbConnect";
-import { StoreFormSchema } from "@/lib/schemas";
+import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
 import Store, { IStore, StoreData } from "@/models/Store";
-import z from "zod";
+import User from "@/models/User";
 import { restrictTo } from "../apiUtils";
 
 // Function: Upserts store details into the database, ensuring uniqueness of name,url, email, and phone number.
@@ -15,8 +14,7 @@ export async function POST(req: Request) {
   try {
     const seller = await restrictTo("SELLER");
 
-    const store: z.infer<typeof StoreFormSchema> & { user: string } =
-      await req.json();
+    const store: StoreFormSchemaType = await req.json();
 
     // Seller can use same email or phone number for other stores as well
     const existingStore = await Store.findOne({
@@ -46,49 +44,28 @@ export async function POST(req: Request) {
       // featured:false, // should admin make store featured ?
     } satisfies IStore;
     console.log(storeData);
-    const newStore = await Store.create(storeData);
+    const newStore: StoreData = await Store.create(storeData);
 
+    // After creating store update seller data;
+    await User.findByIdAndUpdate(seller._id, {
+      $push: { stores: newStore._id }
+    });
     return Response.json(
       {
-        data: newStore,
+        store: newStore,
         success: true,
         status: 201
-      } satisfies ApiResponse<StoreData | null>,
+      } satisfies ApiResponse<{ store: StoreData }>,
       { status: 201 }
     );
   } catch (error: any) {
     return Response.json(
       {
-        data: null,
+        store: null,
         success: false,
         status: 500,
         message: error.message || "An error occured while creating the store"
-      } satisfies ApiResponse<null>,
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET() {
-  try {
-    await dbConnect();
-    const stores = await Store.find();
-    return Response.json(
-      {
-        data: stores,
-        success: true,
-        status: 200
-      } satisfies ApiResponse<StoreData[]>,
-      { status: 200 }
-    );
-  } catch (error: any) {
-    return Response.json(
-      {
-        data: [],
-        success: false,
-        status: 500,
-        message: error.message || "An error occured while getting the store"
-      } satisfies ApiResponse<[]>,
+      } satisfies ApiResponse<{ store: null }>,
       { status: 500 }
     );
   }

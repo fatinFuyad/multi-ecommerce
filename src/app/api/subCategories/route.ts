@@ -1,15 +1,10 @@
 import { dbConnect } from "@/lib/dbConnect";
-import SubCategory, {
-  ISubCategory,
-  SubCategoryData
-} from "@/models/SubCategory";
-import { currentUser } from "@clerk/nextjs/server";
+import { SubCategoryFormSchemaType } from "@/lib/schemas";
+import { ApiResponse, SubCategoryWithCateogry } from "@/lib/types";
+import { ICategory } from "@/models/Category";
+import SubCategory, { SubCategoryData } from "@/models/SubCategory";
 import mongoose from "mongoose";
-import { restrictToAdmin } from "../categories/route";
-
-export interface ReqSubCategory extends ISubCategory {
-  _id?: mongoose.Types.ObjectId;
-}
+import { restrictTo } from "../apiUtils";
 
 // Function: Creates or updates a subCategory into the database
 // Permission Level: Admin only
@@ -18,7 +13,7 @@ export interface ReqSubCategory extends ISubCategory {
 // Returns: Updated or newly created subCategory details.
 
 export async function createUpdateSubCategory(
-  subCategory: ReqSubCategory
+  subCategory: SubCategoryFormSchemaType & { _id?: mongoose.Types.ObjectId }
 ): Promise<SubCategoryData | null> {
   if (!subCategory) throw new Error("SubCategory data can't be empty");
   const isUpdateSession = Boolean(subCategory._id);
@@ -51,11 +46,17 @@ export async function createUpdateSubCategory(
   if (isUpdateSession) {
     subCategoryData = await SubCategory.findByIdAndUpdate<SubCategoryData>(
       subCategory._id,
-      subCategory,
+      {
+        ...subCategory,
+        image: subCategory.image.at(0)?.url as string
+      } satisfies ICategory,
       { new: true }
     );
   } else {
-    subCategoryData = await SubCategory.create<SubCategoryData>(subCategory);
+    subCategoryData = await SubCategory.create<SubCategoryData>({
+      ...subCategory,
+      image: subCategory.image.at(0)?.url as string
+    } satisfies ICategory);
   }
   return subCategoryData;
 }
@@ -64,10 +65,10 @@ export async function createUpdateSubCategory(
 export async function POST(req: Request) {
   try {
     // Verify admin permission
-    await restrictToAdmin();
+    await restrictTo("ADMIN");
 
     await dbConnect();
-    const subCategory: ISubCategory = await req.json();
+    const subCategory: SubCategoryFormSchemaType = await req.json();
     const newSubCategory = await createUpdateSubCategory(subCategory);
     return Response.json(
       { subCategory: newSubCategory, success: true },
@@ -89,24 +90,37 @@ export async function POST(req: Request) {
 // Function: Retrieves all subCategories from the database.
 // Permission Level: Public
 // Returns: Array of subCategories sorted by updatedAt date in descending order.
-export async function GET() {
+export async function GET(req: Request) {
   try {
     await dbConnect();
-    const subCategories = await SubCategory.find()
-      .sort({ updatedAt: -1 })
-      .populate({
+
+    const query = SubCategory.find().sort({ updatedAt: -1 });
+
+    // from the client a custom header is sent to modify the query for population
+    if (req.headers.get("populate") === "category") {
+      query.populate({
         path: "category"
         // select: "name url"
       });
+    }
+
+    const subCategories = await query;
 
     // console.log("subCategories route");
-    return Response.json({ subCategories, success: true }, { status: 200 });
+    return Response.json(
+      { subCategories, success: true, status: 200 } satisfies ApiResponse<{
+        subCategories: (SubCategoryData | SubCategoryWithCateogry)[];
+      }>,
+      { status: 200 }
+    );
   } catch (error: any) {
     return Response.json(
       {
+        subCategories: [],
         success: false,
-        message: error.message
-      },
+        message: error.message,
+        status: 500
+      } satisfies ApiResponse<{ subCategories: [] }>,
       { status: 500 }
     );
   }

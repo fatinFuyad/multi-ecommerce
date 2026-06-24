@@ -1,7 +1,9 @@
 import { dbConnect } from "@/lib/dbConnect";
 import Category from "@/models/Category";
 import mongoose from "mongoose";
-import { ReqCategory, createUpdateCategory } from "../route";
+import { restrictTo } from "../../apiUtils";
+import { createUpdateCategory } from "../route";
+import { CategoryFormSchemaType } from "@/lib/schemas";
 
 interface RouteParams {
   params: {
@@ -15,7 +17,6 @@ interface RouteParams {
 //   - categoryId: The ID of the category to be retrieved.
 // Returns: Details of the requested category.
 export async function GET(req: Request, { params }: RouteParams) {
-  console.log(params.categoryId);
   try {
     const category = await Category.findById(params.categoryId);
     return Response.json({ category, success: true }, { status: 200 });
@@ -31,12 +32,15 @@ export async function GET(req: Request, { params }: RouteParams) {
 export async function PATCH(req: Request, { params }: RouteParams) {
   try {
     // Verify admin permission
-    // await restrictToAdmin();
+    await restrictTo("ADMIN");
 
     await dbConnect();
-    const category: ReqCategory = await req.json();
-    category._id = params.categoryId;
-    const updatedCategory = await createUpdateCategory(category);
+    const category: CategoryFormSchemaType = await req.json();
+
+    const updatedCategory = await createUpdateCategory({
+      ...category,
+      _id: params.categoryId
+    });
 
     return Response.json(updatedCategory, { status: 200 });
   } catch (error: any) {
@@ -61,7 +65,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
     // Verify admin permission
-    // await restrictToAdmin();
+    await restrictTo("ADMIN");
 
     await dbConnect();
     await Category.findByIdAndDelete(params.categoryId);

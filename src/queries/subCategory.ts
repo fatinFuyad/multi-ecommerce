@@ -1,56 +1,28 @@
 import axios from "@/lib/axios";
-import { SubCategoryFormSchema } from "@/lib/schemas";
-import { SubCategoryDataType } from "@/lib/types";
-import { ISubCategory, SubCategoryData } from "@/models/SubCategory";
+import { ApiResponse } from "@/lib/types";
+import { SubCategoryData } from "@/models/SubCategory";
 import mongoose from "mongoose";
-import z from "zod";
 
-// make api requests from the frontend for SubCategory operations
-export async function createSubCategory(
-  values: z.infer<typeof SubCategoryFormSchema>
-): Promise<SubCategoryData> {
-  const typesId = new mongoose.Types.ObjectId(values.category);
-  console.log({
-    typesId,
-    typeTypesId: typeof typesId
-  });
-  const response = await axios.post<SubCategoryData, any>("/subCategories", {
-    // id: data?._id ? data._id : undefined,
-    name: values.name,
-    image: values.image[0].url,
-    url: values.url,
-    featured: values.featured,
-    category: values.category
-  });
-
-  return response.data.subCategory;
-}
-
-export async function updateSubCategory(
-  _id: mongoose.Types.ObjectId,
-  values: z.infer<typeof SubCategoryFormSchema>
-): Promise<SubCategoryData> {
-  const response = await axios.patch<SubCategoryData, any, ISubCategory>(
-    `/subCategories/${_id}`,
-    {
-      name: values.name,
-      image: values.image[0].url,
-      url: values.url,
-      featured: values.featured,
-      category: new mongoose.Types.ObjectId(values.category)
-    }
-  );
-
-  return response.data.subCategory;
-}
-
-export async function getAllSubCategories(): Promise<SubCategoryDataType[]> {
-  console.log("getAllSubCategories");
+export async function getAllSubCategories<DataType>(option?: {
+  populate: "category";
+}): Promise<DataType[]> {
   try {
-    const response = await axios.get<
-      SubCategoryDataType,
-      { data: { subCategories: SubCategoryDataType[] } }
-    >("/subCategories");
+    let response;
+
+    // if the option has populate then we add a custom property and based on that the api will return the populated or unpopulated data
+    if (option?.populate) {
+      response = await axios.get<ApiResponse<{ subCategories: DataType[] }>>(
+        "/subCategories",
+        {
+          headers: { Populate: "category" }
+        }
+      );
+    } else {
+      response =
+        await axios.get<ApiResponse<{ subCategories: DataType[] }>>(
+          "/subCategories"
+        );
+    }
 
     return response.data.subCategories;
   } catch (error) {

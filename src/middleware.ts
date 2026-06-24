@@ -1,27 +1,36 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
 
-// '/route(.*)' means this route and all subsequent routes
-// '/route/(.*) means after the subsequent routes
-const protectedRoutes = createRouteMatcher([
-  "/dashboard(.*)",
-  "/checkout",
-  "/profile",
-  "/profile/(.*)",
-  "/payments"
-]);
+// TODO: Check it later
+export { default } from "next-auth/middleware";
 
-// Task: for better user management, caching and retreiving maybe utilizable
-export default clerkMiddleware(async (auth, req) => {
-  if (protectedRoutes(req)) {
-    await auth().protect();
+export async function middleware(request: NextRequest) {
+  // verify authentication base on tokens with getToken()
+  const token = await getToken({ req: request }); // returns token: null; when user is not signed up or doesn't exist on database but trying to sign in
+  const url = request.nextUrl;
+  // const cookieUser = request.cookies.get("jwt")?.value;
+  // const session = await getServerSession;
+  // console.log(session, "middleware");
+
+  // console.log({ token });
+  // Redirect to dashboard if the user is already authenticated
+  // and trying to access sign-in, sign-up, or home page
+  if (
+    token &&
+    (url.pathname.startsWith("/signin") || url.pathname.startsWith("/signup"))
+    // url.pathname.startsWith("/verify"))
+    //  ||url.pathname === "/"
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-});
+
+  if (!token && url.pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/signin", request.url)); // default:/api/auth/signin
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)"
-  ]
+  matcher: ["/dashboard/:path*", "/signin", "/signup"]
 };

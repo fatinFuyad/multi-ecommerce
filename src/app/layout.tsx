@@ -1,10 +1,10 @@
-import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/toaster";
+import AuthProvider from "@/providers/AuthProvider";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Barlow, Inter } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
 import ModalProvider from "../providers/modal-provider";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MultiEcom",
@@ -35,7 +35,7 @@ export default function RootLayout({
       <body
         className={`${interFont.className} ${barlowFont.variable} antialiased`}
       >
-        <ClerkProvider>
+        <AuthProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -45,7 +45,7 @@ export default function RootLayout({
             <ModalProvider>{children}</ModalProvider>
             <Toaster />
           </ThemeProvider>
-        </ClerkProvider>
+        </AuthProvider>
       </body>
     </html>
   );

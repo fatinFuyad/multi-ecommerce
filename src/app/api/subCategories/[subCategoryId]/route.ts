@@ -1,8 +1,9 @@
 import { dbConnect } from "@/lib/dbConnect";
 import SubCategory from "@/models/SubCategory";
 import mongoose from "mongoose";
-import { ReqSubCategory, createUpdateSubCategory } from "../route";
-import { restrictToAdmin } from "../../categories/route";
+import { createUpdateSubCategory } from "../route";
+import { restrictTo } from "../../apiUtils";
+import { SubCategoryFormSchemaType } from "@/lib/schemas";
 
 interface RouteParams {
   params: {
@@ -31,12 +32,15 @@ export async function GET(req: Request, { params }: RouteParams) {
 export async function PATCH(req: Request, { params }: RouteParams) {
   try {
     // Verify admin permission
-    await restrictToAdmin();
+    await restrictTo("ADMIN");
 
     await dbConnect();
-    const subCategory: ReqSubCategory = await req.json();
-    subCategory._id = params.subCategoryId;
-    const updatedSubCategory = await createUpdateSubCategory(subCategory);
+    const subCategory: SubCategoryFormSchemaType = await req.json();
+
+    const updatedSubCategory = await createUpdateSubCategory({
+      ...subCategory,
+      _id: params.subCategoryId
+    });
 
     return Response.json(
       { subCategory: updatedSubCategory, success: true },
@@ -63,7 +67,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
     // Verify admin permission
-    await restrictToAdmin();
+    await restrictTo("ADMIN");
 
     await dbConnect();
     await SubCategory.findByIdAndDelete(params.subCategoryId);

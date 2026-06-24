@@ -9,22 +9,26 @@ export interface DashboardSidebarMenuInterface {
   link: string;
 }
 
-// Axios response from the backend api route
-
-export interface ApiResponse<T> {
-  data: T;
+//  response from the backend api route
+type BaseResponse = {
   success: boolean;
   status: number;
   message?: string;
-}
+  error?: string;
+};
+
+// dynamic property type // interfaced can't be dynamic mapped type
+export type ApiResponse<T = { data: null }> = {
+  [k in keyof T]: T[k];
+} & BaseResponse;
 
 // Merging the type of SubCategoryData with CategoryData for category field
 // this is essential for defining the popolated data type
-export type SubCategoryDataType = SubCategoryData & {
+export type SubCategoryWithCateogry = Omit<SubCategoryData, "category"> & {
   category: CategoryData;
 };
 
-export type UserWithStoreType = UserData & {
+export type UserWithStore = Omit<UserData, "stores"> & {
   stores: StoreData[];
 };
 

@@ -47,15 +47,15 @@ import { ColumnDef } from "@tanstack/react-table";
 
 // models
 import SubCategoryDetails from "@/components/dashboard/forms/subCategory-details";
-import { SubCategoryDataType } from "@/lib/types";
+import { SubCategoryWithCateogry } from "@/lib/types";
 import { CategoryData } from "@/models/Category";
-import { getAllCategories } from "@/queries/category";
-import { deleteSubCategory, getSubCategory } from "@/queries/subCategory";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getAllCategories } from "@/queries/category";
+import { deleteSubCategory, getSubCategory } from "@/queries/subCategory";
 
-export const columns: ColumnDef<SubCategoryDataType>[] = [
+export const columns: ColumnDef<SubCategoryWithCateogry>[] = [
   {
     accessorKey: "image",
     header: "Subcategory Image",
@@ -125,7 +125,7 @@ export const columns: ColumnDef<SubCategoryDataType>[] = [
 
 // Define props interface for CellActions component
 interface CellActionsProps {
-  rowData: SubCategoryDataType;
+  rowData: SubCategoryWithCateogry;
 }
 
 // CellActions component definition

@@ -3,7 +3,6 @@
 // Form handling utilities
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod";
 
 // UI Components
 import { AlertDialog } from "@/components/ui/alert-dialog";
@@ -28,14 +27,15 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { CategoryFormSchema } from "@/lib/schemas";
+import axios from "@/lib/axios";
+import { CategoryFormSchema, CategoryFormSchemaType } from "@/lib/schemas";
+import { ApiResponse } from "@/lib/types";
 import { CategoryData } from "@/models/Category";
-import { createCategory, updateCategory } from "@/queries/category";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
 interface CategoryDetailsProps {
-  //   data?: z.infer<typeof CategoryFormSchema>;
+  //   data?: CategoryFormSchemaType;
   data?: CategoryData;
 }
 
@@ -44,7 +44,7 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
   const router = useRouter(); // Hook for routing
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof CategoryFormSchema>>({
+  const form = useForm<CategoryFormSchemaType>({
     resolver: zodResolver(CategoryFormSchema),
     defaultValues: {
       name: data?.name || "",
@@ -57,15 +57,21 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
   const isLoading = form.formState.isSubmitting;
   // 2. Define a submit handler.
   // ⚠️ Client side can't access backend models
-  async function onSubmit(values: z.infer<typeof CategoryFormSchema>) {
+  async function onSubmit(values: CategoryFormSchemaType) {
     try {
       // we can create a new route for updating categories. then we don't need to pass id
-      let result;
       const isUpdateSession = Boolean(data?._id);
+      let response;
       if (isUpdateSession && data?._id) {
-        result = await updateCategory(data._id, values);
+        response = await axios.patch<ApiResponse<{ category: CategoryData }>>(
+          `/categories/${data._id}`,
+          values
+        );
       } else {
-        result = await createCategory(values);
+        response = await axios.post<ApiResponse<{ category: CategoryData }>>(
+          `/categories`,
+          values
+        );
       }
 
       // Upserting category data // ⚠️ handle backend separetely
@@ -75,7 +81,7 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
       toast({
         title: isUpdateSession
           ? "Category has been updated."
-          : `Congratulations! ${result?.name} has now been created.`
+          : `Congratulations! ${response.data?.category.name} has now been created.`
       });
 
       // Redirect or Refresh data
@@ -154,7 +160,7 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
                   <FormItem>
                     <FormLabel>Category URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter you url" {...field} />
+                      <Input placeholder="unique-category-url" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

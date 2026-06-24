@@ -1,9 +1,9 @@
 import SubCategoryDetails from "@/components/dashboard/forms/subCategory-details";
-import { getAllCategories } from "@/queries/category";
+import axios from "@/lib/axios";
 
 async function AdminNewSubCategory() {
-  const categories = await getAllCategories();
-  return <SubCategoryDetails categories={categories} />;
+  const response = await axios.get("/categories");
+  return <SubCategoryDetails categories={response.data.categories} />;
 }
 
 export default AdminNewSubCategory;

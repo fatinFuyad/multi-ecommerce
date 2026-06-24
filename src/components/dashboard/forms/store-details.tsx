@@ -29,12 +29,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { StoreFormSchema } from "@/lib/schemas";
+import axios from "@/lib/axios";
+import { StoreFormSchema, StoreFormSchemaType } from "@/lib/schemas";
+import { ApiResponse } from "@/lib/types";
 import { StoreData } from "@/models/Store";
-import { createStore, updateStore } from "@/queries/store";
-import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
-import { useUser } from "@clerk/nextjs";
 
 interface StoreDetailsProps {
   data?: StoreData;
@@ -42,11 +41,10 @@ interface StoreDetailsProps {
 
 export default function StoreDetails({ data }: StoreDetailsProps) {
   const { toast } = useToast(); // Hook for displaying toast messages
-  const router = useRouter(); // Hook for routing
-  const { isLoaded, isSignedIn, user } = useUser();
+  // const router = useRouter(); // Hook for routing
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof StoreFormSchema>>({
+  const form = useForm<StoreFormSchemaType>({
     resolver: zodResolver(StoreFormSchema),
     defaultValues: {
       // Setting default form values from data (if available)
@@ -54,16 +52,8 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
       description: data?.description || "",
       email: data?.email || "",
       phone: data?.phone || "",
-      logo: [
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1781154663/nt0zey3yqzg2eddwige4.jpg"
-        }
-      ],
-      cover: [
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1781154663/nt0zey3yqzg2eddwige4.jpg"
-        }
-      ],
+      logo: data?.logo ? [{ url: data.logo }] : [],
+      cover: data?.cover ? [{ url: data.cover }] : [],
       featured: data?.featured || false,
       url: data?.url || ""
     }
@@ -72,31 +62,29 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
   // const isLoading = form.formState.isSubmitting;
   // 2. Define a submit handler.
   // ⚠️ Client side can't access backend models
-  async function onSubmit(values: z.infer<typeof StoreFormSchema>) {
-    console.log({ user });
-    if (isLoaded && !isSignedIn) {
-      return toast({
-        title: "Unauthenticated",
-        description: "Session is null",
-        variant: "destructive"
-      });
-    }
+  async function onSubmit(values: StoreFormSchemaType) {
     try {
       console.log(values);
       const isUpdateSession = !!data?._id;
       let response;
       // values.user = seller.user.id as;
       if (isUpdateSession) {
-        response = await updateStore(data._id, values);
+        response = await axios.patch<ApiResponse<{ store: StoreData }>>(
+          `/stores/${data._id}`,
+          values
+        );
       } else {
-        response = await createStore(values);
+        response = await axios.post<ApiResponse<{ store: StoreData }>>(
+          `/stores`,
+          values
+        );
       }
 
       toast({
         title: "Congratulations!",
         description: isUpdateSession
-          ? `Your store ${response?.data.name} has been updated successfully`
-          : `Your store ${response?.data.name} has been created successfully`
+          ? `Your store ${response.data.store.name} has been updated successfully`
+          : `Your store ${response.data.store.name} has been created successfully`
       });
     } catch (error: any) {
       toast({
@@ -246,7 +234,7 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
                   <FormItem>
                     <FormLabel>Store url</FormLabel>
                     <FormControl>
-                      <Input placeholder="/store-url" {...field} />
+                      <Input placeholder="unique-store-url" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

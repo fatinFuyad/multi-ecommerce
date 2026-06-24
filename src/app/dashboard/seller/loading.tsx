@@ -1,5 +1,5 @@
 import FullPageLoader from "@/components/shared/fullpage-loader";
 
 export default function Loading() {
-  return <FullPageLoader loadingText="Please wait, Admin" />;
+  return <FullPageLoader loadingText="Seller Dashboard..." />;
 }

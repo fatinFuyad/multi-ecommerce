@@ -6,7 +6,7 @@ function layout({ children }: { children: ReactNode }) {
   return (
     <main className="grid gap-10 py-10 px-16 place-content-center">
       <div className="col-span-4 mt-10">
-        <Button asChild variant={"outline"}>
+        <Button asChild variant={"outline"} className="mr-6">
           <Link href={"/"}>Homepage</Link>
         </Button>
         <Button asChild variant={"outline"}>

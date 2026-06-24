@@ -1,9 +1,8 @@
 import { dbConnect } from "@/lib/dbConnect";
-import { StoreFormSchema } from "@/lib/schemas";
+import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
 import Store, { IStore, StoreData } from "@/models/Store";
 import mongoose from "mongoose";
-import z from "zod";
 
 export async function PATCH(
   req: Request,
@@ -13,7 +12,7 @@ export async function PATCH(
     // await restrictToSeller();
     await dbConnect();
 
-    const store: z.infer<typeof StoreFormSchema> = await req.json();
+    const store: StoreFormSchemaType = await req.json();
 
     // Seller can use same email or phone number for other stores as well
     const existingStore = await Store.findOne({
@@ -43,20 +42,21 @@ export async function PATCH(
 
     return Response.json(
       {
-        data: newStore,
+        store: newStore,
         success: true,
-        status: 201
-      } satisfies ApiResponse<StoreData | null>,
+        status: 201,
+        message: "Store updated successfully"
+      } satisfies ApiResponse<{ store: StoreData }>,
       { status: 201 }
     );
   } catch (error: any) {
     return Response.json(
       {
-        data: null,
+        store: null,
         success: false,
         status: 500,
         message: error.message || "An error occured while updating the store"
-      } satisfies ApiResponse<null>,
+      } satisfies ApiResponse<{ store: null }>,
       { status: 500 }
     );
   }

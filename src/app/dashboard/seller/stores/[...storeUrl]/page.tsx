@@ -1,6 +1,5 @@
-// { storeUrl: [ 'easy-sports', 'products' ] }
+// params: { storeUrl: [ 'easy-sports', 'products' ] }
 function page({ params }: { params: { storeUrl: string[] } }) {
-  console.log(params);
   const route = params.storeUrl;
   return (
     <div className="grid gap-6 p-8">

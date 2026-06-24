@@ -1,30 +1,26 @@
 import SubCategoryDetails from "@/components/dashboard/forms/subCategory-details";
 import DataTable from "@/components/ui/data-table";
+import { SubCategoryWithCateogry } from "@/lib/types";
 import { getAllCategories } from "@/queries/category";
 import { getAllSubCategories } from "@/queries/subCategory";
 import { Plus } from "lucide-react";
 import { columns } from "./columns";
 
 async function AdminSubCategoriesPage() {
-  const subCategories = await getAllSubCategories();
   const categories = await getAllCategories();
-
-  // if (!subCategories.length)
-  //   return (
-  //     <div>
-  //       <h2>No Subcategories found!</h2>
-  //     </div>
-  //   );
+  const subCategories = await getAllSubCategories<SubCategoryWithCateogry>({
+    populate: "category"
+  });
 
   return (
-    <div>
-      <h1>SubCategory page</h1>
-      <p>Create subCategories for your products mangements</p>
+    <section className="grid gap-4">
+      <h1 className="text-3xl text-primary">Subcategory page</h1>
+      <h3>Create subcategories for your products mangements</h3>
       <DataTable
         actionButtonText={
           <>
             <Plus size={15} />
-            Create SubCategory
+            Create Subcategory
           </>
         }
         data={subCategories}
@@ -34,7 +30,7 @@ async function AdminSubCategoriesPage() {
         filterValue="name"
         searchPlaceholder="Filter subcategories by name"
       />
-    </div>
+    </section>
   );
 }
 

@@ -1,9 +1,9 @@
 import mongoose, { Document } from "mongoose";
 
 export interface ICategory {
+  _id?: mongoose.Types.ObjectId;
   name: string;
   image: string;
-  // image: { url: string }[];
   url: string;
   featured?: boolean;
   subCategories?: mongoose.Types.ObjectId[];
@@ -12,15 +12,15 @@ export interface ICategory {
 }
 
 export interface CategoryData
-  extends Document<mongoose.Types.ObjectId>, ICategory {}
+  extends Document<mongoose.Types.ObjectId>, Omit<ICategory, "_id"> {}
 const categorySchema = new mongoose.Schema<CategoryData>(
   {
     name: {
       type: String,
       minLength: [2, "Category name should be at least 2 characters"],
       maxLength: [50, "Category name should not exceed 50 characters"],
-      // required: [true, "Category name is required"]
-      required: true
+      required: [true, "Category name is required"],
+      unique: true
     },
     image: {
       type: String,
@@ -31,13 +31,19 @@ const categorySchema = new mongoose.Schema<CategoryData>(
     // image: [{ url: String, required: [true, "Image is required"] }],
     url: {
       type: String,
-      required: true
+      required: true,
+      unique: true
     },
     featured: {
       type: Boolean,
       default: false
     },
-    subCategories: [mongoose.Types.ObjectId]
+    subCategories: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "SubCategory"
+      }
+    ]
   },
   { timestamps: true }
 );

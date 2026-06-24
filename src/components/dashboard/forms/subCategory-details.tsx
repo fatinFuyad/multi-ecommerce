@@ -3,7 +3,6 @@
 // Form handling utilities
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod";
 
 // UI Components
 import { AlertDialog } from "@/components/ui/alert-dialog";
@@ -28,7 +27,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { SubCategoryFormSchema } from "@/lib/schemas";
+import {
+  SubCategoryFormSchema,
+  SubCategoryFormSchemaType
+} from "@/lib/schemas";
 
 import {
   Select,
@@ -37,15 +39,15 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { SubCategoryDataType } from "@/lib/types";
+import axios from "@/lib/axios";
+import { ApiResponse } from "@/lib/types";
 import { CategoryData } from "@/models/Category";
-import { createSubCategory, updateSubCategory } from "@/queries/subCategory";
+import { SubCategoryData } from "@/models/SubCategory";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
 interface SubCategoryDetailsProps {
-  // data?: SubCategoryDataType;
-  data?: SubCategoryDataType;
+  data?: Omit<SubCategoryData, "category"> & { category: CategoryData };
   categories: CategoryData[];
 }
 
@@ -57,7 +59,7 @@ export default function SubCategoryDetails({
   const router = useRouter(); // Hook for routing
 
   // ...// 1. Define your form.
-  const form = useForm<z.infer<typeof SubCategoryFormSchema>>({
+  const form = useForm<SubCategoryFormSchemaType>({
     resolver: zodResolver(SubCategoryFormSchema),
     defaultValues: {
       name: data?.name || "",
@@ -71,15 +73,19 @@ export default function SubCategoryDetails({
   const isLoading = form.formState.isSubmitting;
   // 2. Define a submit handler.
   // ⚠️ Client side can't access backend models
-  async function onSubmit(values: z.infer<typeof SubCategoryFormSchema>) {
+  async function onSubmit(values: SubCategoryFormSchemaType) {
     try {
       // we can create a new route for updating categories. then we don't need to pass id
-      let result;
       const isUpdateSession = Boolean(data?._id);
+      let response;
       if (isUpdateSession && data?._id) {
-        result = await updateSubCategory(data._id, values);
+        response = await axios.patch<
+          ApiResponse<{ subCategory: SubCategoryData }>
+        >(`/subCategories/${data._id}`, values);
       } else {
-        result = await createSubCategory(values);
+        response = await axios.post<
+          ApiResponse<{ subCategory: SubCategoryData }>
+        >("/subCategories", values);
       }
 
       // Upserting subCategory data // ⚠️ handle backend separetely
@@ -88,8 +94,8 @@ export default function SubCategoryDetails({
       // Displaying success message
       toast({
         title: isUpdateSession
-          ? "Sub-category has been updated."
-          : `Congratulations! ${result?.name} has now been created.`
+          ? `Subcategory ${response.data.subCategory.name} has been updated.`
+          : `Congratulations! ${response.data.subCategory.name} has now been created.`
       });
 
       // Redirect or Refresh data
@@ -154,7 +160,7 @@ export default function SubCategoryDetails({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sub-category</FormLabel>
+                    <FormLabel>Subcategory</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter subCategory name" {...field} />
                     </FormControl>
@@ -167,9 +173,9 @@ export default function SubCategoryDetails({
                 name="url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sub-category URL</FormLabel>
+                    <FormLabel>Subcategory URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter you url" {...field} />
+                      <Input placeholder="unique-subcategory-url" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -216,9 +222,9 @@ export default function SubCategoryDetails({
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Feature Sub-category</FormLabel>
+                      <FormLabel>Feature Subcategory</FormLabel>
                       <FormDescription>
-                        This Sub-category will appear on the home page
+                        This Subcategory will appear on the home page
                       </FormDescription>
                     </div>
                   </FormItem>

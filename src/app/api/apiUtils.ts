@@ -1,31 +1,18 @@
-import { auth } from "@clerk/nextjs/server";
-import User from "@/models/User";
-import { Roles } from "@/types/global";
-import { dbConnect } from "@/lib/dbConnect";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./auth/[...nextauth]/options";
+import { Roles } from "@/models/User";
+import { SessionUser } from "@/types/next-auth";
 
-export async function restrictTo(role: Roles, fields: string = "role") {
-  const authobj = await auth();
-  console.log({ authobj });
+export async function restrictTo(role: Roles): Promise<SessionUser> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user)
+    throw new Error("Unauthenticated. Please sign in to continue.");
 
-  if (!authobj?.userId) {
-    throw new Error("Unauthenticated! Please sign in to continue");
-  }
-
-  //  db connect
-  await dbConnect();
-  const query = User.findOne({
-    clerkId: authobj.userId
-  });
-  if (fields) {
-    query.select(fields);
-  }
-  const user = await query;
-
-  if (user?.role !== role) {
+  if (session.user.role !== role) {
     throw new Error(
-      `Unauthorized Access! ${role} Privileges Required for Entry.`
+      `Unauthorized Access! Your Account Requires ${role} Privileges to Perform this Action.`
     );
   }
 
-  return user;
+  return session.user;
 }

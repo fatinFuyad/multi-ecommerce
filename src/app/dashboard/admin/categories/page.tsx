@@ -7,25 +7,24 @@ import { columns } from "./columns";
 export default async function AdminCategoriesPage() {
   const categories = await getAllCategories();
 
-  // Checking if no categories are found
-  // if (!categories.length) return <h2>No categories found</h2>;
-
   return (
-    <DataTable
-      actionButtonText={
-        <>
-          <Plus size={15} />
-          Create category
-        </>
-      }
-      data={categories}
-      columns={columns}
-      filterValue="name"
-      searchPlaceholder="Search category name..."
-      modalChildren={
-        <CategoryDetails /> // need not to pass data prop when create a category
-      }
-      newTabLink="/dashboard/admin/categories/new"
-    />
+    <section className="grid gap-4">
+      <h1 className="text-3xl text-primary">Category page</h1>{" "}
+      <h3>Create categories for your products mangements</h3>
+      <DataTable
+        actionButtonText={
+          <>
+            <Plus size={15} />
+            Create category
+          </>
+        }
+        data={categories}
+        columns={columns}
+        filterValue="name"
+        searchPlaceholder="Search category name..."
+        modalChildren={<CategoryDetails />}
+        newTabLink="/dashboard/admin/categories/new"
+      />
+    </section>
   );
 }
