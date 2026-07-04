@@ -37,11 +37,11 @@ export async function POST(request: Request) {
       provider: "credentials",
       signinMethod: "credentials",
       lastSignedin: new Date(),
+      role: "USER",
       isVerified: true, // making all users to be verfied without verify code ⚠️⚠️
       verificationCode: undefined,
       verificationCodeExpiredAt: undefined
     } satisfies IUser);
-    console.log(newUser);
 
     newUser.password = undefined;
 

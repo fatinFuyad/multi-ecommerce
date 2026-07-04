@@ -134,6 +134,7 @@ export const authOptions = {
           provider: account?.provider as string,
           signinMethod: account?.type as string,
           lastSignedin: new Date(),
+          role: "USER",
           isPasswordEnabled: false,
           isVerified: true,
           verificationCode: undefined,
@@ -155,12 +156,7 @@ export const authOptions = {
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       await dbConnect();
-      const user = await User.findOne<
-        Promise<Pick<
-          UserData,
-          "username" | "email" | "image" | "name" | "role"
-        > | null>
-      >({
+      const user = await User.findOne<Promise<UserData | null>>({
         email: token.email
       });
       // .select("username email image name role");
@@ -169,7 +165,7 @@ export const authOptions = {
         // no user means user is deleted from db
         session.user = null;
       } else {
-        session.user = user;
+        session.user = user; // as SessionUser;
       }
       // console.log("callback session ==>", { user, token });
       return session;

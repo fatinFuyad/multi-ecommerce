@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { storeId: mongoose.Types.ObjectId } }
+  { params }: { params: { query: mongoose.Types.ObjectId } }
 ) {
   try {
     // await restrictToSeller();
@@ -17,7 +17,7 @@ export async function PATCH(
     // Seller can use same email or phone number for other stores as well
     const existingStore = await Store.findOne({
       $or: [{ name: store.name }, { url: store.url }],
-      $nor: [{ _id: params.storeId }]
+      $nor: [{ _id: params.query }]
     });
 
     // Throw error if store with same name or URL already exists
@@ -33,7 +33,7 @@ export async function PATCH(
 
     if (typeof store !== "object" || Object.keys(store).length === 0)
       throw new Error("Store data should not be empty");
-    const newStore = await Store.findByIdAndUpdate(params.storeId, {
+    const newStore = await Store.findByIdAndUpdate(params.query, {
       ...store,
       logo: store.logo[0].url,
       cover: store.logo[0].url
@@ -57,6 +57,40 @@ export async function PATCH(
         status: 500,
         message: error.message || "An error occured while updating the store"
       } satisfies ApiResponse<{ store: null }>,
+      { status: 500 }
+    );
+  }
+}
+
+// the dynamic param query is url but it might receive other query params to find store
+export async function GET(
+  req: Request,
+  { params }: { params: { query: string } }
+) {
+  try {
+    // console.log("query file====>", new URL(req.url));
+    // from the client a custom header query is sent to find store
+
+    const findBy: string = req.headers.get("query") || "_id";
+    const store = await Store.findOne({ [findBy]: params.query });
+
+    return Response.json(
+      {
+        store: store,
+        success: true,
+        status: 201,
+        message: "Get store was successful"
+      } satisfies ApiResponse<{ store: StoreData }>,
+      { status: 201 }
+    );
+  } catch (error: any) {
+    return Response.json(
+      {
+        stores: null,
+        success: false,
+        status: 500,
+        message: error.message || "An error occured while querying the store"
+      } satisfies ApiResponse<{ stores: null }>,
       { status: 500 }
     );
   }

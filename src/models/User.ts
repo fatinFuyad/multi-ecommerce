@@ -11,7 +11,7 @@ export interface IUser {
   verificationCode?: string;
   verificationCodeExpiredAt?: Date;
   image?: string;
-  role?: Roles;
+  role: Roles;
   password?: string;
   isPasswordEnabled: boolean;
   provider: string;
@@ -85,6 +85,16 @@ const User =
   mongoose.models.User<UserData> || mongoose.model("User", userSchema);
 
 export default User;
+
+//
+// Warning: Only plain objects can be passed to Client Components from Server Components. Objects with toJSON methods are not supported. Convert it manually to a simple value before passing it to props.
+//
+// export function serialize<T>(data: T): T {
+// 1. const data = JSON.parse(JSON.stringify(data));
+// 2. const data = data.toObject();
+// 3. const data = data.map((items)=> items.toObject()); // if data is an arr of docs
+//   return data
+// }
 
 //////////
 // populate works with specifying path only if the path includes an array of objectId like: [ "ObjectId(393ad)" ] or just field: ObjectId(49bc4)

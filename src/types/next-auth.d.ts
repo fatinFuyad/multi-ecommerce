@@ -4,14 +4,15 @@ import { Roles } from "@/models/User";
 
 declare module "next-auth" {
   interface Session {
-    user?: {
+    user: {
       _id: Types.ObjectId;
       name: string;
       username: string;
       email: string;
-      image: string;
+      image?: string; // image might not exists while credentials signup
       role: Roles;
-    } & DefaultSession["user"];
+    } | null;
+    // & DefaultSession["user"]; // we modified the defualt next-auth user
   }
 }
 
@@ -20,7 +21,7 @@ export type SessionUser = {
   name: string;
   username: string;
   email: string;
-  image: string;
+  image?: string;
   role: Roles;
 };
 //   interface User {

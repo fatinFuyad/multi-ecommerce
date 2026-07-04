@@ -70,3 +70,34 @@ export async function POST(req: Request) {
     );
   }
 }
+
+// even though the the dynamic param is storeId but it might receive other query params to find store
+export async function GET(req: Request) {
+  try {
+    console.log("Route===>", new URL(req.url).search);
+    const { searchParams } = new URL(req.url);
+    const queryObj = Object.fromEntries(searchParams.entries());
+    console.log(queryObj);
+    const store = await Store.findOne(queryObj);
+
+    return Response.json(
+      {
+        store: store,
+        success: true,
+        status: 201,
+        message: "Get store was successful"
+      } satisfies ApiResponse<{ store: StoreData }>,
+      { status: 201 }
+    );
+  } catch (error: any) {
+    return Response.json(
+      {
+        stores: null,
+        success: false,
+        status: 500,
+        message: error.message || "An error occured while querying the store"
+      } satisfies ApiResponse<{ stores: null }>,
+      { status: 500 }
+    );
+  }
+}

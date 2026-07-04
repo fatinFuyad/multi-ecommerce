@@ -1,11 +1,8 @@
 // params: { storeUrl: [ 'easy-sports', 'products' ] }
-function page({ params }: { params: { storeUrl: string[] } }) {
-  const route = params.storeUrl;
+function SellerStorePage() {
   return (
     <div className="grid gap-6 p-8">
-      <h1 className="text-4xl text-cyan-400">
-        Seller Page, {route.join("/").toUpperCase()}
-      </h1>
+      <h1 className="text-4xl text-cyan-400">Seller store page,</h1>
       <h3>Welcome Seller, start managing</h3>
       <p>
         This is the protected SELLER dashboard restricted to users with the
@@ -15,4 +12,4 @@ function page({ params }: { params: { storeUrl: string[] } }) {
   );
 }
 
-export default page;
+export default SellerStorePage;

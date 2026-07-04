@@ -77,7 +77,7 @@ function ImageUpload({
               alt="profile image"
               width={300}
               height={300}
-              className="size-52 rounded-full absolute inset-0"
+              className="size-52 rounded-full absolute inset-0 object-cover bg-center"
             />
           ) // better resolution to increase width & height and reduce from css
         }
@@ -109,7 +109,7 @@ function ImageUpload({
             alt=""
             width={1200}
             height={1200}
-            className="w-full h-full rounded-lg object-cover"
+            className="w-full h-full rounded-lg object-cover bg-center"
           />
         )}
         <CloudWidget onChange={onChange} disabled={disabled} />

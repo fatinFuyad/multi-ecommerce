@@ -14,15 +14,15 @@ export default function Home() {
     <div className="grid gap-8 p-6">
       <header className="flex justify-end items-center p-4 gap-4 h-16">
         <ThemeToggle />
-        {(session.status === "loading" ||
-          session.status === "unauthenticated") && (
-          <>
-            <Button onClick={() => signIn()}>Sign in</Button>
-            <Button asChild>
-              <Link href={"/signup"}>Sign up</Link>
-            </Button>
-          </>
-        )}
+        {session.status !== "loading" &&
+          session.status === "unauthenticated" && (
+            <>
+              <Button onClick={() => signIn()}>Sign in</Button>
+              <Button asChild>
+                <Link href={"/signup"}>Sign up</Link>
+              </Button>
+            </>
+          )}
 
         {session.status === "authenticated" && (
           <>

@@ -1,7 +1,6 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import DashboardHeader from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
-import { getServerSession, Session } from "next-auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 interface Props {
@@ -10,9 +9,8 @@ interface Props {
 export default async function AdminDashboardLayout({
   children
 }: Props): Promise<React.ReactNode> {
-  const session: Session | null = await getServerSession(authOptions);
-  const user = session?.user;
-  if (user?.role !== "ADMIN") return redirect("/error/unauthorized");
+  const { user } = await auth();
+  if (user.role !== "ADMIN") return redirect("/error/unauthorized");
 
   return (
     <div className="w-full h-full">
