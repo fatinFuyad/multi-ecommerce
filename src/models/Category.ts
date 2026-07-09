@@ -11,9 +11,9 @@ export interface ICategory {
   updatedAt?: Date;
 }
 
-export interface CategoryData
+export interface CategoryDoc
   extends Document<mongoose.Types.ObjectId>, Omit<ICategory, "_id"> {}
-const categorySchema = new mongoose.Schema<CategoryData>(
+const categorySchema = new mongoose.Schema<CategoryDoc>(
   {
     name: {
       type: String,
@@ -53,7 +53,7 @@ const categorySchema = new mongoose.Schema<CategoryData>(
 // on inital time the models will be and empty {}; and so reading any property will be undefined
 
 const Category =
-  mongoose.models.Category<CategoryData> ||
+  mongoose.models.Category<CategoryDoc> ||
   mongoose.model("Category", categorySchema);
 
 export default Category;

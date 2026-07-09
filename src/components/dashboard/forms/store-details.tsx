@@ -32,11 +32,11 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "@/lib/axios";
 import { StoreFormSchema, StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import { StoreData } from "@/models/Store";
+import { StoreDoc } from "@/models/Store";
 import ImageUpload from "../shared/image-upload";
 
 interface StoreDetailsProps {
-  data?: StoreData;
+  data?: StoreDoc;
 }
 
 export default function StoreDetails({ data }: StoreDetailsProps) {
@@ -69,12 +69,12 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
       let response;
       // values.user = seller.user.id as;
       if (isUpdateSession) {
-        response = await axios.patch<ApiResponse<{ store: StoreData }>>(
+        response = await axios.patch<ApiResponse<{ store: StoreDoc }>>(
           `/stores/${data._id}`,
           values
         );
       } else {
-        response = await axios.post<ApiResponse<{ store: StoreData }>>(
+        response = await axios.post<ApiResponse<{ store: StoreDoc }>>(
           `/stores`,
           values
         );

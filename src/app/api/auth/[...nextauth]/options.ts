@@ -1,5 +1,5 @@
 import { dbConnect } from "@/lib/dbConnect";
-import User, { IUser, UserData } from "@/models/User";
+import User, { IUser, UserDoc } from "@/models/User";
 import bcrypt from "bcryptjs";
 import NextAuth, {
   Account,
@@ -53,7 +53,7 @@ export const authOptions = {
           // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
           // You can also use the `req` object to obtain additional parameters
           // (i.e., the request IP address)
-          const existingUser: UserData = await User.findOne({
+          const existingUser: UserDoc = await User.findOne({
             $or: [
               { username: credentials.identifier },
               { email: credentials.identifier }
@@ -114,7 +114,7 @@ export const authOptions = {
         // setup db connection
         await dbConnect();
 
-        const existingUser: UserData | null = await User.findOne({
+        const existingUser: UserDoc | null = await User.findOne({
           email: user.email
         });
 
@@ -156,7 +156,7 @@ export const authOptions = {
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       await dbConnect();
-      const user = await User.findOne<Promise<UserData | null>>({
+      const user = await User.findOne<Promise<UserDoc | null>>({
         email: token.email
       });
       // .select("username email image name role");

@@ -24,10 +24,9 @@ export interface IStore {
   updatedAt?: Date;
 }
 
-export interface StoreData extends Document, Omit<IStore, "_id"> {}
-// export type StoreType = InferRawDocType<typeof storeSchemaDefinition>;
+export interface StoreDoc extends Document, Omit<IStore, "_id"> {}
 
-const storeSchema = new mongoose.Schema<StoreData>(
+const storeSchema = new mongoose.Schema<StoreDoc>(
   {
     name: { type: String, required: true, unique: true },
     description: { type: String, required: true },
@@ -56,6 +55,6 @@ const storeSchema = new mongoose.Schema<StoreData>(
 );
 
 const Store =
-  mongoose.models.Store<StoreData> || mongoose.model("Store", storeSchema);
+  mongoose.models.Store<StoreDoc> || mongoose.model("Store", storeSchema);
 
 export default Store;

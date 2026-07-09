@@ -10,10 +10,10 @@ export interface ISubCategory {
   updatedAt?: Date;
 }
 
-export interface SubCategoryData
+export interface SubCategoryDoc
   extends Document<mongoose.Types.ObjectId>, ISubCategory {}
 
-const subCategorySchema = new mongoose.Schema<SubCategoryData>(
+const subCategorySchema = new mongoose.Schema<SubCategoryDoc>(
   {
     name: {
       type: String,
@@ -45,7 +45,7 @@ const subCategorySchema = new mongoose.Schema<SubCategoryData>(
 );
 
 const SubCategory =
-  mongoose.models.SubCategory<SubCategoryData> ||
+  mongoose.models.SubCategory<SubCategoryDoc> ||
   mongoose.model("SubCategory", subCategorySchema);
 
 export default SubCategory;

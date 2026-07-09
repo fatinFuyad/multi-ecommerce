@@ -41,14 +41,14 @@ import {
 } from "@/components/ui/select";
 import axios from "@/lib/axios";
 import { ApiResponse } from "@/lib/types";
-import { CategoryData } from "@/models/Category";
-import { SubCategoryData } from "@/models/SubCategory";
+import { CategoryDoc } from "@/models/Category";
+import { SubCategoryDoc } from "@/models/SubCategory";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
 interface SubCategoryDetailsProps {
-  data?: Omit<SubCategoryData, "category"> & { category: CategoryData };
-  categories: CategoryData[];
+  data?: Omit<SubCategoryDoc, "category"> & { category: CategoryDoc };
+  categories: CategoryDoc[];
 }
 
 export default function SubCategoryDetails({
@@ -80,11 +80,11 @@ export default function SubCategoryDetails({
       let response;
       if (isUpdateSession && data?._id) {
         response = await axios.patch<
-          ApiResponse<{ subCategory: SubCategoryData }>
+          ApiResponse<{ subCategory: SubCategoryDoc }>
         >(`/subCategories/${data._id}`, values);
       } else {
         response = await axios.post<
-          ApiResponse<{ subCategory: SubCategoryData }>
+          ApiResponse<{ subCategory: SubCategoryDoc }>
         >("/subCategories", values);
       }
 

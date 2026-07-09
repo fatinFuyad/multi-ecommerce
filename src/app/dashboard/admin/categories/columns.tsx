@@ -47,13 +47,13 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 
 // models
-import { CategoryData } from "@/models/Category";
+import { CategoryDoc } from "@/models/Category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteCategory, getCategory } from "@/queries/category";
 
-export const columns: ColumnDef<CategoryData>[] = [
+export const columns: ColumnDef<CategoryDoc>[] = [
   {
     accessorKey: "image",
     header: "Category Image",
@@ -117,7 +117,7 @@ export const columns: ColumnDef<CategoryData>[] = [
 
 // Define props interface for CellActions component
 interface CellActionsProps {
-  rowData: CategoryData;
+  rowData: CategoryDoc;
 }
 
 // CellActions component definition

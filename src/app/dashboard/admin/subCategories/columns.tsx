@@ -48,7 +48,7 @@ import { ColumnDef } from "@tanstack/react-table";
 // models
 import SubCategoryDetails from "@/components/dashboard/forms/subCategory-details";
 import { SubCategoryWithCateogry } from "@/lib/types";
-import { CategoryData } from "@/models/Category";
+import { CategoryDoc } from "@/models/Category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -137,7 +137,7 @@ export function CellActions({ rowData }: CellActionsProps) {
   const router = useRouter();
 
   // Get categories
-  const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [categories, setCategories] = useState<CategoryDoc[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {

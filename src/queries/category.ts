@@ -1,14 +1,14 @@
 import axios from "@/lib/axios";
 import { ApiResponse } from "@/lib/types";
-import { CategoryData } from "@/models/Category";
+import { CategoryDoc } from "@/models/Category";
 import mongoose from "mongoose";
 
 // make api requests from the frontend for category operations
 
-export async function getAllCategories(): Promise<CategoryData[]> {
+export async function getAllCategories(): Promise<CategoryDoc[]> {
   try {
     const response =
-      await axios.get<ApiResponse<{ categories: CategoryData[] }>>(
+      await axios.get<ApiResponse<{ categories: CategoryDoc[] }>>(
         "/categories"
       );
 
@@ -19,7 +19,7 @@ export async function getAllCategories(): Promise<CategoryData[]> {
 }
 
 export async function getCategory(_id: mongoose.Types.ObjectId) {
-  const response = await axios.get<ApiResponse<{ category: CategoryData }>>(
+  const response = await axios.get<ApiResponse<{ category: CategoryDoc }>>(
     `/categories/${_id}`
   );
   return response.data.category;

@@ -1,6 +1,6 @@
 import { dbConnect } from "@/lib/dbConnect";
 import { ApiResponse } from "@/lib/types";
-import UserModel, { IUser, UserData } from "@/models/User";
+import UserModel, { IUser, UserDoc } from "@/models/User";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10); // hash salt is 10
 
-    const newUser: UserData = await UserModel.create({
+    const newUser: UserDoc = await UserModel.create({
       name,
       username,
       email,
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         status: 201,
         success: true,
         message: "You have successfully signed up"
-      } satisfies ApiResponse<{ user: UserData }>,
+      } satisfies ApiResponse<{ user: UserDoc }>,
       { status: 201 }
     );
   } catch (error) {

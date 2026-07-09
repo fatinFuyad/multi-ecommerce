@@ -25,9 +25,9 @@ export interface IUser {
   updatedAt?: Date;
 }
 
-export interface UserData extends Omit<IUser, "_id">, Document {}
+export interface UserDoc extends Omit<IUser, "_id">, Document {}
 
-const userSchema = new mongoose.Schema<UserData>(
+const userSchema = new mongoose.Schema<UserDoc>(
   {
     name: {
       type: String,
@@ -82,7 +82,7 @@ const userSchema = new mongoose.Schema<UserData>(
 );
 
 const User =
-  mongoose.models.User<UserData> || mongoose.model("User", userSchema);
+  mongoose.models.User<UserDoc> || mongoose.model("User", userSchema);
 
 export default User;
 

@@ -1,6 +1,6 @@
 import axios from "@/lib/axios";
 import { ApiResponse } from "@/lib/types";
-import { SubCategoryData } from "@/models/SubCategory";
+import { SubCategoryDoc } from "@/models/SubCategory";
 import mongoose from "mongoose";
 
 export async function getAllSubCategories<DataType>(option?: {
@@ -33,8 +33,8 @@ export async function getAllSubCategories<DataType>(option?: {
 
 export async function getSubCategory(_id: mongoose.Types.ObjectId) {
   const response = await axios.get<
-    SubCategoryData,
-    { data: { subCategory: SubCategoryData } }
+    SubCategoryDoc,
+    { data: { subCategory: SubCategoryDoc } }
   >(`/subCategories/${_id}`);
   return response.data.subCategory;
 }

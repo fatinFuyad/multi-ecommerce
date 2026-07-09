@@ -1,7 +1,7 @@
 import { dbConnect } from "@/lib/dbConnect";
 import { CategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import Category, { CategoryData, ICategory } from "@/models/Category";
+import Category, { CategoryDoc, ICategory } from "@/models/Category";
 import mongoose from "mongoose";
 import { restrictTo } from "../apiUtils";
 
@@ -13,12 +13,12 @@ import { restrictTo } from "../apiUtils";
 
 export async function createUpdateCategory(
   category: CategoryFormSchemaType & { _id?: mongoose.Types.ObjectId }
-): Promise<CategoryData | null> {
+): Promise<CategoryDoc | null> {
   if (!category) throw new Error("Category data can't be empty");
   const isUpdateSession = Boolean(category._id);
 
   // check whether category with same name or URL already exists
-  let existingCategory: CategoryData | null;
+  let existingCategory: CategoryDoc | null;
   if (isUpdateSession) {
     existingCategory = await Category.findOne({
       $or: [{ name: category.name }, { url: category.url }],
@@ -43,7 +43,7 @@ export async function createUpdateCategory(
   }
 
   if (isUpdateSession) {
-    const updatedCategory: CategoryData | null =
+    const updatedCategory: CategoryDoc | null =
       await Category.findByIdAndUpdate(
         category._id,
         { ...category, image: category.image[0].url } satisfies ICategory,
@@ -51,7 +51,7 @@ export async function createUpdateCategory(
       );
     return updatedCategory;
   } else {
-    const newCategory: CategoryData = await Category.create({
+    const newCategory: CategoryDoc = await Category.create({
       ...category,
       image: category.image[0].url
     } satisfies ICategory);
@@ -97,7 +97,7 @@ export async function GET() {
         message: "Get all categories successfull",
         status: 200
       } satisfies ApiResponse<{
-        categories: CategoryData[];
+        categories: CategoryDoc[];
       }>,
       { status: 200 }
     );

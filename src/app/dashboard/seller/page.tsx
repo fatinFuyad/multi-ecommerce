@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { dbConnect } from "@/lib/dbConnect";
 import Store, { IStore } from "@/models/Store";
-import User, { UserData } from "@/models/User";
+import User, { UserDoc } from "@/models/User";
 import { PopulateOptions } from "mongoose";
 import { redirect } from "next/navigation";
 // import { TableStores } from "./table";
@@ -17,7 +17,7 @@ async function SellerDashboardPage() {
   if (!Store.modelName) return <h1>Store model was&appos;nt registered</h1>;
 
   const seller:
-    | (Omit<UserData, "stores"> & { stores: Pick<IStore, "_id" | "url">[] })
+    | (Omit<UserDoc, "stores"> & { stores: Pick<IStore, "_id" | "url">[] })
     | null = await User.findOne({ _id: user._id })
     .sort({ createdAt: "asc" })
     .populate({

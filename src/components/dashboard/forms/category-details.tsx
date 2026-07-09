@@ -30,13 +30,13 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "@/lib/axios";
 import { CategoryFormSchema, CategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import { CategoryData } from "@/models/Category";
+import { CategoryDoc } from "@/models/Category";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
 interface CategoryDetailsProps {
   //   data?: CategoryFormSchemaType;
-  data?: CategoryData;
+  data?: CategoryDoc;
 }
 
 export default function CategoryDetails({ data }: CategoryDetailsProps) {
@@ -63,12 +63,12 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
       const isUpdateSession = Boolean(data?._id);
       let response;
       if (isUpdateSession && data?._id) {
-        response = await axios.patch<ApiResponse<{ category: CategoryData }>>(
+        response = await axios.patch<ApiResponse<{ category: CategoryDoc }>>(
           `/categories/${data._id}`,
           values
         );
       } else {
-        response = await axios.post<ApiResponse<{ category: CategoryData }>>(
+        response = await axios.post<ApiResponse<{ category: CategoryDoc }>>(
           `/categories`,
           values
         );

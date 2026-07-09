@@ -28,11 +28,11 @@ export default function Home() {
           <>
             <Avatar className="size-8">
               <AvatarImage
-                src={session.data?.user?.image}
-                alt={session.data?.user?.name}
+                src={session.data.user?.image}
+                alt={session.data.user?.name}
               />
               <AvatarFallback className="bg-primary text-white">
-                {session.data?.user?.name}
+                {session.data.user?.name}
               </AvatarFallback>
             </Avatar>
             <Button onClick={() => signOut()}>Sign out</Button>

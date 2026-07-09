@@ -2,7 +2,7 @@ import { dbConnect } from "@/lib/dbConnect";
 import { SubCategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse, SubCategoryWithCateogry } from "@/lib/types";
 import { ICategory } from "@/models/Category";
-import SubCategory, { SubCategoryData } from "@/models/SubCategory";
+import SubCategory, { SubCategoryDoc } from "@/models/SubCategory";
 import mongoose from "mongoose";
 import { restrictTo } from "../apiUtils";
 
@@ -14,12 +14,12 @@ import { restrictTo } from "../apiUtils";
 
 export async function createUpdateSubCategory(
   subCategory: SubCategoryFormSchemaType & { _id?: mongoose.Types.ObjectId }
-): Promise<SubCategoryData | null> {
+): Promise<SubCategoryDoc | null> {
   if (!subCategory) throw new Error("SubCategory data can't be empty");
   const isUpdateSession = Boolean(subCategory._id);
 
   // check whether subCategory with same name or URL already exists
-  let existingSubCategory: SubCategoryData | null;
+  let existingSubCategory: SubCategoryDoc | null;
   if (isUpdateSession) {
     existingSubCategory = await SubCategory.findOne({
       $or: [{ name: subCategory.name }, { url: subCategory.url }],
@@ -44,7 +44,7 @@ export async function createUpdateSubCategory(
 
   let subCategoryData;
   if (isUpdateSession) {
-    subCategoryData = await SubCategory.findByIdAndUpdate<SubCategoryData>(
+    subCategoryData = await SubCategory.findByIdAndUpdate<SubCategoryDoc>(
       subCategory._id,
       {
         ...subCategory,
@@ -53,7 +53,7 @@ export async function createUpdateSubCategory(
       { new: true }
     );
   } else {
-    subCategoryData = await SubCategory.create<SubCategoryData>({
+    subCategoryData = await SubCategory.create<SubCategoryDoc>({
       ...subCategory,
       image: subCategory.image.at(0)?.url as string
     } satisfies ICategory);
@@ -109,7 +109,7 @@ export async function GET(req: Request) {
     // console.log("subCategories route");
     return Response.json(
       { subCategories, success: true, status: 200 } satisfies ApiResponse<{
-        subCategories: (SubCategoryData | SubCategoryWithCateogry)[];
+        subCategories: (SubCategoryDoc | SubCategoryWithCateogry)[];
       }>,
       { status: 200 }
     );

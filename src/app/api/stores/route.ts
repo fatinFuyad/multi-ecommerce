@@ -1,6 +1,6 @@
 import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import Store, { IStore, StoreData } from "@/models/Store";
+import Store, { IStore, StoreDoc } from "@/models/Store";
 import User from "@/models/User";
 import { restrictTo } from "../apiUtils";
 
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       // featured:false, // should admin make store featured ?
     } satisfies IStore;
     console.log(storeData);
-    const newStore: StoreData = await Store.create(storeData);
+    const newStore: StoreDoc = await Store.create(storeData);
 
     // After creating store update seller data;
     await User.findByIdAndUpdate(seller._id, {
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         store: newStore,
         success: true,
         status: 201
-      } satisfies ApiResponse<{ store: StoreData }>,
+      } satisfies ApiResponse<{ store: StoreDoc }>,
       { status: 201 }
     );
   } catch (error: any) {
@@ -86,7 +86,7 @@ export async function GET(req: Request) {
         success: true,
         status: 201,
         message: "Get store was successful"
-      } satisfies ApiResponse<{ store: StoreData }>,
+      } satisfies ApiResponse<{ store: StoreDoc }>,
       { status: 201 }
     );
   } catch (error: any) {

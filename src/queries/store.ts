@@ -1,6 +1,6 @@
 import axios from "@/lib/axios";
 import { ApiResponse } from "@/lib/types";
-import { StoreData } from "@/models/Store";
+import { StoreDoc } from "@/models/Store";
 
 export async function getStore({
   findBy,
@@ -9,7 +9,7 @@ export async function getStore({
   findBy: "_id" | "name" | "email" | "url";
   value: string;
 }) {
-  const response = await axios.get<ApiResponse<{ store: StoreData }>>(
+  const response = await axios.get<ApiResponse<{ store: StoreDoc }>>(
     `/stores?${findBy}=${value}`,
     {
       headers: { query: findBy }
@@ -20,6 +20,6 @@ export async function getStore({
 
 export async function getStores() {
   const response =
-    await axios.get<ApiResponse<{ stores: StoreData[] }>>("/stores");
+    await axios.get<ApiResponse<{ stores: StoreDoc[] }>>("/stores");
   return response.data.stores;
 }

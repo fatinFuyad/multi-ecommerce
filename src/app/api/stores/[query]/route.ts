@@ -1,7 +1,7 @@
 import { dbConnect } from "@/lib/dbConnect";
 import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import Store, { IStore, StoreData } from "@/models/Store";
+import Store, { IStore, StoreDoc } from "@/models/Store";
 import mongoose from "mongoose";
 
 export async function PATCH(
@@ -46,7 +46,7 @@ export async function PATCH(
         success: true,
         status: 201,
         message: "Store updated successfully"
-      } satisfies ApiResponse<{ store: StoreData }>,
+      } satisfies ApiResponse<{ store: StoreDoc }>,
       { status: 201 }
     );
   } catch (error: any) {
@@ -80,7 +80,7 @@ export async function GET(
         success: true,
         status: 201,
         message: "Get store was successful"
-      } satisfies ApiResponse<{ store: StoreData }>,
+      } satisfies ApiResponse<{ store: StoreDoc }>,
       { status: 201 }
     );
   } catch (error: any) {
