@@ -1,14 +1,14 @@
-import SubCategoryDetails from "@/components/dashboard/forms/subCategory-details";
+import SubcategoryDetails from "@/components/dashboard/forms/subcategory-details";
 import DataTable from "@/components/ui/data-table";
-import { SubCategoryWithCateogry } from "@/lib/types";
+import { SubcategoryWithCateogry } from "@/lib/types";
 import { getAllCategories } from "@/queries/category";
-import { getAllSubCategories } from "@/queries/subCategory";
+import { getAllSubcategories } from "@/queries/subcategory";
 import { Plus } from "lucide-react";
 import { columns } from "./columns";
 
-async function AdminSubCategoriesPage() {
+async function AdminSubcategoriesPage() {
   const categories = await getAllCategories();
-  const subCategories = await getAllSubCategories<SubCategoryWithCateogry>({
+  const subCategories = await getAllSubcategories<SubcategoryWithCateogry>({
     populate: "category"
   });
 
@@ -25,7 +25,7 @@ async function AdminSubCategoriesPage() {
         }
         data={subCategories}
         columns={columns}
-        modalChildren={<SubCategoryDetails categories={categories} />}
+        modalChildren={<SubcategoryDetails categories={categories} />}
         newTabLink="/dashboard/admin/subCategories/new"
         filterValue="name"
         searchPlaceholder="Filter subcategories by name"
@@ -34,4 +34,4 @@ async function AdminSubCategoriesPage() {
   );
 }
 
-export default AdminSubCategoriesPage;
+export default AdminSubcategoriesPage;

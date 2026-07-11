@@ -1,42 +1,42 @@
 import { dbConnect } from "@/lib/dbConnect";
-import { SubCategoryFormSchemaType } from "@/lib/schemas";
-import { ApiResponse, SubCategoryWithCateogry } from "@/lib/types";
+import { SubcategoryFormSchemaType } from "@/lib/schemas";
+import { ApiResponse, SubcategoryWithCateogry } from "@/lib/types";
 import { ICategory } from "@/models/Category";
-import SubCategory, { SubCategoryDoc } from "@/models/SubCategory";
+import Subcategory, { SubcategoryDoc } from "@/models/Subcategory";
 import mongoose from "mongoose";
 import { restrictTo } from "../apiUtils";
 
 // Function: Creates or updates a subCategory into the database
 // Permission Level: Admin only
 // Parameters:
-//   - subCategory: SubCategory object containing details of the subCategory to be upserted.
+//   - subCategory: Subcategory object containing details of the subCategory to be upserted.
 // Returns: Updated or newly created subCategory details.
 
-export async function createUpdateSubCategory(
-  subCategory: SubCategoryFormSchemaType & { _id?: mongoose.Types.ObjectId }
-): Promise<SubCategoryDoc | null> {
-  if (!subCategory) throw new Error("SubCategory data can't be empty");
+export async function createUpdateSubcategory(
+  subCategory: SubcategoryFormSchemaType & { _id?: mongoose.Types.ObjectId }
+): Promise<SubcategoryDoc | null> {
+  if (!subCategory) throw new Error("Subcategory data can't be empty");
   const isUpdateSession = Boolean(subCategory._id);
 
   // check whether subCategory with same name or URL already exists
-  let existingSubCategory: SubCategoryDoc | null;
+  let existingSubcategory: SubcategoryDoc | null;
   if (isUpdateSession) {
-    existingSubCategory = await SubCategory.findOne({
+    existingSubcategory = await Subcategory.findOne({
       $or: [{ name: subCategory.name }, { url: subCategory.url }],
       $nor: [{ _id: subCategory._id }]
     });
   } else {
-    existingSubCategory = await SubCategory.findOne({
+    existingSubcategory = await Subcategory.findOne({
       $or: [{ name: subCategory.name }, { url: subCategory.url }]
     });
   }
 
   // Throw error if subCategory with same name or URL already exists
-  if (existingSubCategory) {
+  if (existingSubcategory) {
     let errorMessage = "";
-    if (existingSubCategory.name === subCategory.name) {
+    if (existingSubcategory.name === subCategory.name) {
       errorMessage = "A subCategory with the same name already exists";
-    } else if (existingSubCategory.url === subCategory.url) {
+    } else if (existingSubcategory.url === subCategory.url) {
       errorMessage = "A subCategory with the same URL already exists";
     }
     throw new Error(errorMessage);
@@ -44,7 +44,7 @@ export async function createUpdateSubCategory(
 
   let subCategoryData;
   if (isUpdateSession) {
-    subCategoryData = await SubCategory.findByIdAndUpdate<SubCategoryDoc>(
+    subCategoryData = await Subcategory.findByIdAndUpdate<SubcategoryDoc>(
       subCategory._id,
       {
         ...subCategory,
@@ -53,7 +53,7 @@ export async function createUpdateSubCategory(
       { new: true }
     );
   } else {
-    subCategoryData = await SubCategory.create<SubCategoryDoc>({
+    subCategoryData = await Subcategory.create<SubcategoryDoc>({
       ...subCategory,
       image: subCategory.image.at(0)?.url as string
     } satisfies ICategory);
@@ -68,10 +68,10 @@ export async function POST(req: Request) {
     await restrictTo("ADMIN");
 
     await dbConnect();
-    const subCategory: SubCategoryFormSchemaType = await req.json();
-    const newSubCategory = await createUpdateSubCategory(subCategory);
+    const subCategory: SubcategoryFormSchemaType = await req.json();
+    const newSubcategory = await createUpdateSubcategory(subCategory);
     return Response.json(
-      { subCategory: newSubCategory, success: true },
+      { subCategory: newSubcategory, success: true },
       { status: 201 }
     );
   } catch (error: any) {
@@ -94,7 +94,7 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
 
-    const query = SubCategory.find().sort({ updatedAt: -1 });
+    const query = Subcategory.find().sort({ updatedAt: -1 });
 
     // from the client a custom header is sent to modify the query for population
     if (req.headers.get("populate") === "category") {
@@ -109,7 +109,7 @@ export async function GET(req: Request) {
     // console.log("subCategories route");
     return Response.json(
       { subCategories, success: true, status: 200 } satisfies ApiResponse<{
-        subCategories: (SubCategoryDoc | SubCategoryWithCateogry)[];
+        subCategories: (SubcategoryDoc | SubcategoryWithCateogry)[];
       }>,
       { status: 200 }
     );

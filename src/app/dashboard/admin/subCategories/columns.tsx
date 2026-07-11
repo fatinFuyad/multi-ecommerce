@@ -46,16 +46,16 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 
 // models
-import SubCategoryDetails from "@/components/dashboard/forms/subCategory-details";
-import { SubCategoryWithCateogry } from "@/lib/types";
+import SubcategoryDetails from "@/components/dashboard/forms/subcategory-details";
+import { SubcategoryWithCateogry } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getAllCategories } from "@/queries/category";
-import { deleteSubCategory, getSubCategory } from "@/queries/subCategory";
+import { deleteSubcategory, getSubcategory } from "@/queries/subcategory";
 
-export const columns: ColumnDef<SubCategoryWithCateogry>[] = [
+export const columns: ColumnDef<SubcategoryWithCateogry>[] = [
   {
     accessorKey: "image",
     header: "Subcategory Image",
@@ -125,7 +125,7 @@ export const columns: ColumnDef<SubCategoryWithCateogry>[] = [
 
 // Define props interface for CellActions component
 interface CellActionsProps {
-  rowData: SubCategoryWithCateogry;
+  rowData: SubcategoryWithCateogry;
 }
 
 // CellActions component definition
@@ -166,11 +166,11 @@ export function CellActions({ rowData }: CellActionsProps) {
                 // Custom modal component
                 <CustomModal>
                   {/* Store details component */}
-                  <SubCategoryDetails data={rowData} categories={categories} />
+                  <SubcategoryDetails data={rowData} categories={categories} />
                 </CustomModal>,
                 async () => {
                   return {
-                    rowData: await getSubCategory(rowData._id)
+                    rowData: await getSubcategory(rowData._id)
                   };
                 }
               );
@@ -205,7 +205,7 @@ export function CellActions({ rowData }: CellActionsProps) {
             onClick={async () => {
               setLoading(true);
               try {
-                await deleteSubCategory(rowData._id);
+                await deleteSubcategory(rowData._id);
                 toast({
                   title: "Deleted subcategory",
                   description: "The subcategory has been deleted."

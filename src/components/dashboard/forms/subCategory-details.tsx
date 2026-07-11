@@ -28,8 +28,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import {
-  SubCategoryFormSchema,
-  SubCategoryFormSchemaType
+  SubcategoryFormSchema,
+  SubcategoryFormSchemaType
 } from "@/lib/schemas";
 
 import {
@@ -42,25 +42,25 @@ import {
 import axios from "@/lib/axios";
 import { ApiResponse } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
-import { SubCategoryDoc } from "@/models/SubCategory";
+import { SubcategoryDoc } from "@/models/Subcategory";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
-interface SubCategoryDetailsProps {
-  data?: Omit<SubCategoryDoc, "category"> & { category: CategoryDoc };
+interface SubcategoryDetailsProps {
+  data?: Omit<SubcategoryDoc, "category"> & { category: CategoryDoc };
   categories: CategoryDoc[];
 }
 
-export default function SubCategoryDetails({
+export default function SubcategoryDetails({
   data,
   categories
-}: SubCategoryDetailsProps) {
+}: SubcategoryDetailsProps) {
   const { toast } = useToast(); // Hook for displaying toast messages
   const router = useRouter(); // Hook for routing
 
   // ...// 1. Define your form.
-  const form = useForm<SubCategoryFormSchemaType>({
-    resolver: zodResolver(SubCategoryFormSchema),
+  const form = useForm<SubcategoryFormSchemaType>({
+    resolver: zodResolver(SubcategoryFormSchema),
     defaultValues: {
       name: data?.name || "",
       image: data?.image ? [{ url: data.image }] : [],
@@ -73,23 +73,23 @@ export default function SubCategoryDetails({
   const isLoading = form.formState.isSubmitting;
   // 2. Define a submit handler.
   // ⚠️ Client side can't access backend models
-  async function onSubmit(values: SubCategoryFormSchemaType) {
+  async function onSubmit(values: SubcategoryFormSchemaType) {
     try {
       // we can create a new route for updating categories. then we don't need to pass id
       const isUpdateSession = Boolean(data?._id);
       let response;
       if (isUpdateSession && data?._id) {
         response = await axios.patch<
-          ApiResponse<{ subCategory: SubCategoryDoc }>
+          ApiResponse<{ subCategory: SubcategoryDoc }>
         >(`/subCategories/${data._id}`, values);
       } else {
         response = await axios.post<
-          ApiResponse<{ subCategory: SubCategoryDoc }>
+          ApiResponse<{ subCategory: SubcategoryDoc }>
         >("/subCategories", values);
       }
 
       // Upserting subCategory data // ⚠️ handle backend separetely
-      // const response = await SubCategory.create({ data});
+      // const response = await Subcategory.create({ data});
 
       // Displaying success message
       toast({
@@ -120,7 +120,7 @@ export default function SubCategoryDetails({
     <AlertDialog>
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>SubCategory Information</CardTitle>
+          <CardTitle>Subcategory Information</CardTitle>
           <CardDescription>
             {data?._id
               ? `Update ${data?.name} subCategory information.`

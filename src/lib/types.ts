@@ -1,6 +1,6 @@
 import { CategoryDoc } from "@/models/Category";
 import { StoreDoc } from "@/models/Store";
-import { SubCategoryDoc } from "@/models/SubCategory";
+import { SubcategoryDoc } from "@/models/Subcategory";
 import { UserDoc } from "@/models/User";
 
 export interface DashboardSidebarMenuInterface {
@@ -22,9 +22,9 @@ export type ApiResponse<T = { data: null }> = {
   [k in keyof T]: T[k];
 } & BaseResponse;
 
-// Merging the type of SubCategoryDoc with CategoryDoc for category field
+// Merging the type of SubcategoryDoc with CategoryDoc for category field
 // this is essential for defining the popolated data type
-export type SubCategoryWithCateogry = Omit<SubCategoryDoc, "category"> & {
+export type SubcategoryWithCateogry = Omit<SubcategoryDoc, "category"> & {
   category: CategoryDoc;
 };
 

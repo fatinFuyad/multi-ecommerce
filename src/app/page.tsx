@@ -59,7 +59,7 @@ export default function Home() {
           <Link href={"/dashboard/admin/categories/new"}>Categoy</Link>
         </Button>
         <Button variant={"outline"} asChild>
-          <Link href={"/dashboard/admin/subCategories/new"}>Sub-category</Link>
+          <Link href={"/dashboard/admin/subCategories/new"}>Subcategory</Link>
         </Button>
       </main>
     </div>

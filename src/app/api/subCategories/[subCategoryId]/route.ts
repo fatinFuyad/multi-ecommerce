@@ -1,9 +1,9 @@
 import { dbConnect } from "@/lib/dbConnect";
-import SubCategory from "@/models/SubCategory";
+import Subcategory from "@/models/Subcategory";
 import mongoose from "mongoose";
-import { createUpdateSubCategory } from "../route";
 import { restrictTo } from "../../apiUtils";
-import { SubCategoryFormSchemaType } from "@/lib/schemas";
+import { SubcategoryFormSchemaType } from "@/lib/schemas";
+import { createUpdateSubcategory } from "../route";
 
 interface RouteParams {
   params: {
@@ -18,7 +18,7 @@ interface RouteParams {
 // Returns: Details of the requested subCategory.
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    const subCategory = await SubCategory.findById(params.subCategoryId);
+    const subCategory = await Subcategory.findById(params.subCategoryId);
     return Response.json({ subCategory, success: true }, { status: 200 });
   } catch (error: any) {
     return Response.json(
@@ -35,15 +35,15 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     await restrictTo("ADMIN");
 
     await dbConnect();
-    const subCategory: SubCategoryFormSchemaType = await req.json();
+    const subCategory: SubcategoryFormSchemaType = await req.json();
 
-    const updatedSubCategory = await createUpdateSubCategory({
+    const updatedSubcategory = await createUpdateSubcategory({
       ...subCategory,
       _id: params.subCategoryId
     });
 
     return Response.json(
-      { subCategory: updatedSubCategory, success: true },
+      { subCategory: updatedSubcategory, success: true },
       { status: 200 }
     );
   } catch (error: any) {
@@ -70,9 +70,9 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     await restrictTo("ADMIN");
 
     await dbConnect();
-    await SubCategory.findByIdAndDelete(params.subCategoryId);
+    await Subcategory.findByIdAndDelete(params.subCategoryId);
     return Response.json(
-      { success: true, message: "SubCategory has been successfully deleted." }
+      { success: true, message: "Subcategory has been successfully deleted." }
       // { status: 204 }
     );
   } catch (error: any) {

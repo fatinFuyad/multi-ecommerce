@@ -1,6 +1,6 @@
 import mongoose, { Document } from "mongoose";
 
-export interface ISubCategory {
+export interface ISubcategory {
   name: string;
   image: string;
   url: string;
@@ -10,16 +10,16 @@ export interface ISubCategory {
   updatedAt?: Date;
 }
 
-export interface SubCategoryDoc
-  extends Document<mongoose.Types.ObjectId>, ISubCategory {}
+export interface SubcategoryDoc
+  extends Document<mongoose.Types.ObjectId>, ISubcategory {}
 
-const subCategorySchema = new mongoose.Schema<SubCategoryDoc>(
+const subCategorySchema = new mongoose.Schema<SubcategoryDoc>(
   {
     name: {
       type: String,
-      minLength: [2, "SubCategory name should be at least 2 characters"],
-      maxLength: [50, "SubCategory name should not exceed 50 characters"],
-      required: [true, "SubCategory name is required"],
+      minLength: [2, "Subcategory name should be at least 2 characters"],
+      maxLength: [50, "Subcategory name should not exceed 50 characters"],
+      required: [true, "Subcategory name is required"],
       unique: true
     },
     image: {
@@ -44,8 +44,8 @@ const subCategorySchema = new mongoose.Schema<SubCategoryDoc>(
   { timestamps: true }
 );
 
-const SubCategory =
-  mongoose.models.SubCategory<SubCategoryDoc> ||
-  mongoose.model("SubCategory", subCategorySchema);
+const Subcategory =
+  mongoose.models.Subcategory<SubcategoryDoc> ||
+  mongoose.model("Subcategory", subCategorySchema);
 
-export default SubCategory;
+export default Subcategory;

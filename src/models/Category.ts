@@ -41,7 +41,7 @@ const categorySchema = new mongoose.Schema<CategoryDoc>(
     subCategories: [
       {
         type: mongoose.Types.ObjectId,
-        ref: "SubCategory"
+        ref: "Subcategory"
       }
     ]
   },

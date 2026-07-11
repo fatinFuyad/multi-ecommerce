@@ -1,9 +1,9 @@
 import axios from "@/lib/axios";
 import { ApiResponse } from "@/lib/types";
-import { SubCategoryDoc } from "@/models/SubCategory";
+import { SubcategoryDoc } from "@/models/Subcategory";
 import mongoose from "mongoose";
 
-export async function getAllSubCategories<DataType>(option?: {
+export async function getAllSubcategories<DataType>(option?: {
   populate: "category";
 }): Promise<DataType[]> {
   try {
@@ -31,15 +31,15 @@ export async function getAllSubCategories<DataType>(option?: {
   }
 }
 
-export async function getSubCategory(_id: mongoose.Types.ObjectId) {
+export async function getSubcategory(_id: mongoose.Types.ObjectId) {
   const response = await axios.get<
-    SubCategoryDoc,
-    { data: { subCategory: SubCategoryDoc } }
+    SubcategoryDoc,
+    { data: { subCategory: SubcategoryDoc } }
   >(`/subCategories/${_id}`);
   return response.data.subCategory;
 }
 
-export async function deleteSubCategory(_id: mongoose.Types.ObjectId) {
+export async function deleteSubcategory(_id: mongoose.Types.ObjectId) {
   await axios.delete(`/subCategories/${_id}`);
   return null;
 }

@@ -38,7 +38,7 @@ export const CategoryFormSchema = z.object({
 
 // type CategoryForm = z.infer<typeof CategoryFormSchema>;
 
-export const SubCategoryFormSchema = z.object({
+export const SubcategoryFormSchema = z.object({
   name: z
     .string({
       error: "Subcategory name is required."
@@ -115,5 +115,5 @@ export const StoreFormSchema = z.object({
 });
 
 export type CategoryFormSchemaType = z.infer<typeof CategoryFormSchema>;
-export type SubCategoryFormSchemaType = z.infer<typeof SubCategoryFormSchema>;
+export type SubcategoryFormSchemaType = z.infer<typeof SubcategoryFormSchema>;
 export type StoreFormSchemaType = z.infer<typeof StoreFormSchema>;
