@@ -3,6 +3,7 @@ import { ApiResponse } from "@/lib/types";
 import Store, { IStore, StoreDoc } from "@/models/Store";
 import User from "@/models/User";
 import { restrictTo } from "../apiUtils";
+import { Types } from "mongoose";
 
 // Function: Upserts store details into the database, ensuring uniqueness of name,url, email, and phone number.
 // Access Level: Seller Only
@@ -40,10 +41,18 @@ export async function POST(req: Request) {
       cover: store.logo[0].url,
       user: seller._id,
       averageRating: 0,
-      status: "PENDING"
-      // featured:false, // should admin make store featured ?
+      status: "PENDING",
+      featured: false, // should admin make stores featured??
+      returnPolicy: "No Return Policy",
+      defaultShippingService: "No Default Service",
+      defaultDeliveryFees: null,
+      defaultDeliveryTimeMin: null,
+      defaultDeliveryTimeMax: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      _id: new Types.ObjectId()
     } satisfies IStore;
-    console.log(storeData);
+
     const newStore: StoreDoc = await Store.create(storeData);
 
     // After creating store update seller data;

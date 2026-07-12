@@ -2,6 +2,7 @@ import { dbConnect } from "@/lib/dbConnect";
 import { ApiResponse } from "@/lib/types";
 import UserModel, { IUser, UserDoc } from "@/models/User";
 import bcrypt from "bcryptjs";
+import { Types } from "mongoose";
 
 export async function POST(request: Request) {
   try {
@@ -29,18 +30,20 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10); // hash salt is 10
 
     const newUser: UserDoc = await UserModel.create({
-      name,
-      username,
-      email,
+      name: name,
+      email: email,
+      username: username,
       password: hashedPassword,
       isPasswordEnabled: true,
-      provider: "credentials",
-      signinMethod: "credentials",
-      lastSignedin: new Date(),
-      role: "USER",
       isVerified: true, // making all users to be verfied without verify code ⚠️⚠️
-      verificationCode: undefined,
-      verificationCodeExpiredAt: undefined
+      signinMethod: "credentials",
+      role: "USER",
+      stores: [],
+      gender: "UNKOWN",
+      lastSignin: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      _id: new Types.ObjectId()
     } satisfies IUser);
 
     newUser.password = undefined;

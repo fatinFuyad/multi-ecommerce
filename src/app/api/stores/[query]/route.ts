@@ -2,11 +2,11 @@ import { dbConnect } from "@/lib/dbConnect";
 import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
 import Store, { IStore, StoreDoc } from "@/models/Store";
-import mongoose from "mongoose";
+import { Types } from "mongoose";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { query: mongoose.Types.ObjectId } }
+  { params }: { params: { query: Types.ObjectId } }
 ) {
   try {
     // await restrictToSeller();
@@ -38,7 +38,7 @@ export async function PATCH(
       logo: store.logo[0].url,
       cover: store.logo[0].url
       // featured:false, // should admin make store featured ?
-    } satisfies Partial<Omit<IStore, "averageRating" | "status">>);
+    } satisfies Pick<IStore, keyof StoreFormSchemaType>);
 
     return Response.json(
       {

@@ -9,7 +9,7 @@ declare module "next-auth" {
       name: string;
       username: string;
       email: string;
-      image?: string; // image might not exists while credentials signup
+      image?: string | null; // image might not exists while credentials signup
       role: Roles;
     } | null;
     // & DefaultSession["user"]; // we modified the defualt next-auth user
@@ -21,7 +21,7 @@ export type SessionUser = {
   name: string;
   username: string;
   email: string;
-  image?: string;
+  image?: string | null;
   role: Roles;
 };
 //   interface User {

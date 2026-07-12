@@ -8,7 +8,7 @@ import { columns } from "./columns";
 
 async function AdminSubcategoriesPage() {
   const categories = await getAllCategories();
-  const subCategories = await getAllSubcategories<SubcategoryWithCateogry>({
+  const subcategories = await getAllSubcategories<SubcategoryWithCateogry>({
     populate: "category"
   });
 
@@ -23,10 +23,10 @@ async function AdminSubcategoriesPage() {
             Create Subcategory
           </>
         }
-        data={subCategories}
+        data={subcategories}
         columns={columns}
         modalChildren={<SubcategoryDetails categories={categories} />}
-        newTabLink="/dashboard/admin/subCategories/new"
+        newTabLink="/dashboard/admin/subcategories/new"
         filterValue="name"
         searchPlaceholder="Filter subcategories by name"
       />

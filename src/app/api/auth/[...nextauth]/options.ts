@@ -1,6 +1,7 @@
 import { dbConnect } from "@/lib/dbConnect";
 import User, { IUser, UserDoc } from "@/models/User";
 import bcrypt from "bcryptjs";
+import { Types } from "mongoose";
 import NextAuth, {
   Account,
   User as AuthUser,
@@ -53,7 +54,7 @@ export const authOptions = {
           // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
           // You can also use the `req` object to obtain additional parameters
           // (i.e., the request IP address)
-          const existingUser: UserDoc = await User.findOne({
+          const existingUser = await User.findOne<Promise<UserDoc | null>>({
             $or: [
               { username: credentials.identifier },
               { email: credentials.identifier }
@@ -67,7 +68,7 @@ export const authOptions = {
           // console.log("authorize-->", { user });
           if (!existingUser.isPasswordEnabled) {
             throw new Error(
-              `You previously signed in with ${existingUser.provider}. You didn't setup password for credentials sign in`
+              `You previously signed in with ${existingUser.signinMethod}. You didn't setup password for credentials sign in`
             );
           }
           const isCorrectPassword = await bcrypt.compare(
@@ -78,9 +79,8 @@ export const authOptions = {
             throw new Error("Incorrect password. Please try again later.");
           }
 
-          existingUser.provider = "credentials";
           existingUser.signinMethod = "credentials";
-          existingUser.lastSignedin = new Date();
+          existingUser.lastSignin = new Date();
 
           await existingUser.save();
           // If credentials is correct and no error and we need to return the existingUser
@@ -114,14 +114,14 @@ export const authOptions = {
         // setup db connection
         await dbConnect();
 
-        const existingUser: UserDoc | null = await User.findOne({
+        const existingUser = await User.findOne<Promise<UserDoc | null>>({
           email: user.email
         });
 
         if (existingUser) {
-          existingUser.provider = account?.provider as string;
-          existingUser.signinMethod = account?.type as string;
-          existingUser.lastSignedin = new Date();
+          existingUser.signinMethod =
+            account?.provider as IUser["signinMethod"];
+          existingUser.lastSignin = new Date();
           await existingUser.save();
           return true;
         }
@@ -131,14 +131,16 @@ export const authOptions = {
           username: user.email.split("@")[0],
           email: user.email,
           image: user.image as string,
-          provider: account?.provider as string,
-          signinMethod: account?.type as string,
-          lastSignedin: new Date(),
+          signinMethod: account?.provider as IUser["signinMethod"],
+          lastSignin: new Date(),
           role: "USER",
           isPasswordEnabled: false,
           isVerified: true,
-          verificationCode: undefined,
-          verificationCodeExpiredAt: undefined
+          stores: [] as Types.ObjectId[],
+          gender: "UNKOWN",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          _id: new Types.ObjectId()
         } satisfies IUser);
 
         return true;

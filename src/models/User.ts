@@ -1,33 +1,15 @@
-import mongoose, { Document } from "mongoose";
+import {
+  Types,
+  Schema,
+  models,
+  model,
+  HydratedDocument,
+  InferSchemaType
+} from "mongoose";
 
 export type Roles = "ADMIN" | "SELLER" | "USER"; // "admin" | "moderator";
 
-export interface IUser {
-  _id?: mongoose.Types.ObjectId;
-  name: string;
-  username: string;
-  email: string;
-  isVerified: boolean;
-  verificationCode?: string;
-  verificationCodeExpiredAt?: Date;
-  image?: string;
-  role: Roles;
-  password?: string;
-  isPasswordEnabled: boolean;
-  provider: string;
-  signinMethod: string;
-  lastSignedin: Date;
-  stores?: mongoose.Types.ObjectId[];
-  address?: string;
-  phone?: string;
-  gender?: "MALE" | "FEMALE" | "OTHER" | "UNKOWN";
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface UserDoc extends Omit<IUser, "_id">, Document {}
-
-const userSchema = new mongoose.Schema<UserDoc>(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -48,13 +30,16 @@ const userSchema = new mongoose.Schema<UserDoc>(
       select: false
       // required: [true, "Password is required"], // next-auth encourages passwordless
     },
-    isPasswordEnabled: { type: Boolean, required: true, default: false },
-    isVerified: { type: Boolean, required: true, default: false },
+    isPasswordEnabled: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: false },
     verificationCode: { type: String },
     verificationCodeExpiredAt: { type: Date },
-    provider: { type: String, required: true },
-    signinMethod: { type: String, required: true },
-    lastSignedin: { type: Date },
+    signinMethod: {
+      type: String,
+      required: true,
+      enum: ["google", "github", "credentials"]
+    },
+    lastSignin: { type: Date, default: Date.now },
     image: String,
     role: {
       type: String,
@@ -64,7 +49,7 @@ const userSchema = new mongoose.Schema<UserDoc>(
 
     stores: [
       {
-        type: mongoose.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Store"
       }
     ],
@@ -81,8 +66,12 @@ const userSchema = new mongoose.Schema<UserDoc>(
   }
 );
 
-const User =
-  mongoose.models.User<UserDoc> || mongoose.model("User", userSchema);
+export type IUser = InferSchemaType<typeof userSchema> & {
+  _id: Types.ObjectId;
+};
+export type UserDoc = HydratedDocument<IUser>;
+
+const User = models.User<IUser> || model<IUser>("User", userSchema);
 
 export default User;
 
@@ -119,7 +108,7 @@ example:
 * for arrays
  example:
   field: [{type:String, required:true}] --> field: [ 'string value', ... ]
-  field: [{type:mongoose.Types.ObjectId, ref:"Model"}] --> field: [ "ObjectId(a49d)", ... ]
-  field: [{product:{_id:mongoose.Types.ObjecId }, quantity: Number }]
+  field: [{type:Types.ObjectId, ref:"Model"}] --> field: [ "ObjectId(a49d)", ... ]
+  field: [{product:{_id:Types.ObjecId }, quantity: Number }]
   ---> field: [ { product: { ...productdata}, quantity: 102 }, ... ]
 */

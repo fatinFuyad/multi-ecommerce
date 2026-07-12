@@ -3,36 +3,39 @@
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { User } from "lucide-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import Link from "next/link";
 
 export default function Home() {
-  const session = useSession();
+  const { status, data } = useSession();
 
   return (
     <div className="grid gap-8 p-6">
       <header className="flex justify-end items-center p-4 gap-4 h-16">
         <ThemeToggle />
-        {session.status !== "loading" &&
-          session.status === "unauthenticated" && (
+        {status === "loading" ||
+          (status === "unauthenticated" && (
             <>
               <Button onClick={() => signIn()}>Sign in</Button>
               <Button asChild>
                 <Link href={"/signup"}>Sign up</Link>
               </Button>
             </>
-          )}
+          ))}
 
-        {session.status === "authenticated" && (
+        {status === "authenticated" && (
           <>
+            if(sess)
             <Avatar className="size-8">
-              <AvatarImage
-                src={session.data.user?.image}
-                alt={session.data.user?.name}
-              />
+              {data.user?.image ? (
+                <AvatarImage src={data.user.image} alt={data.user.name} />
+              ) : (
+                <User className="size-8" />
+              )}
               <AvatarFallback className="bg-primary text-white">
-                {session.data.user?.name}
+                {data.user?.name}
               </AvatarFallback>
             </Avatar>
             <Button onClick={() => signOut()}>Sign out</Button>
@@ -59,7 +62,7 @@ export default function Home() {
           <Link href={"/dashboard/admin/categories/new"}>Categoy</Link>
         </Button>
         <Button variant={"outline"} asChild>
-          <Link href={"/dashboard/admin/subCategories/new"}>Subcategory</Link>
+          <Link href={"/dashboard/admin/subcategories/new"}>Subcategory</Link>
         </Button>
       </main>
     </div>

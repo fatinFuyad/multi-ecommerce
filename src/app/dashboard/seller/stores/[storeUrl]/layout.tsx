@@ -1,12 +1,12 @@
 import DashboardHeader from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { auth } from "@/lib/auth";
-import Store from "@/models/Store";
+import Store, { StoreDoc } from "@/models/Store";
 
 async function SellerStoreLayout({ children }: { children: React.ReactNode }) {
   const { user } = await auth();
-  console.log(user);
-  const stores = await Store.find({
+
+  const stores = await Store.find<StoreDoc>({
     user: user._id
   })
     .select("name email phone url featured")
@@ -19,7 +19,7 @@ async function SellerStoreLayout({ children }: { children: React.ReactNode }) {
   //   _id: (store._id as object).toString()
   // }));
 
-  console.log("Store layout ---> ", stores);
+  console.log("StoreUrl layout ---> ", stores);
   return (
     <div className="w-full h-full">
       {/* sidebar on the left */}

@@ -2,7 +2,7 @@ import { dbConnect } from "@/lib/dbConnect";
 import { CategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
 import Category, { CategoryDoc, ICategory } from "@/models/Category";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { restrictTo } from "../apiUtils";
 
 // Function: Creates or updates a category into the database
@@ -46,14 +46,21 @@ export async function createUpdateCategory(
     const updatedCategory: CategoryDoc | null =
       await Category.findByIdAndUpdate(
         category._id,
-        { ...category, image: category.image[0].url } satisfies ICategory,
+        {
+          ...category,
+          image: category.image[0].url
+        } satisfies Partial<ICategory>, // updates do not require all schema fields
         { new: true }
       );
     return updatedCategory;
   } else {
     const newCategory: CategoryDoc = await Category.create({
       ...category,
-      image: category.image[0].url
+      image: category.image[0].url,
+      subcategories: [] as Types.ObjectId[],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      _id: new Types.ObjectId()
     } satisfies ICategory);
     return newCategory;
   }

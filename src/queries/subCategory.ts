@@ -11,20 +11,20 @@ export async function getAllSubcategories<DataType>(option?: {
 
     // if the option has populate then we add a custom property and based on that the api will return the populated or unpopulated data
     if (option?.populate) {
-      response = await axios.get<ApiResponse<{ subCategories: DataType[] }>>(
-        "/subCategories",
+      response = await axios.get<ApiResponse<{ subcategories: DataType[] }>>(
+        "/subcategories",
         {
           headers: { Populate: "category" }
         }
       );
     } else {
       response =
-        await axios.get<ApiResponse<{ subCategories: DataType[] }>>(
-          "/subCategories"
+        await axios.get<ApiResponse<{ subcategories: DataType[] }>>(
+          "/subcategories"
         );
     }
 
-    return response.data.subCategories;
+    return response.data.subcategories;
   } catch (error) {
     console.log(error);
     return []; // return empty arra to prevent erroy on subCatories page
@@ -34,12 +34,12 @@ export async function getAllSubcategories<DataType>(option?: {
 export async function getSubcategory(_id: mongoose.Types.ObjectId) {
   const response = await axios.get<
     SubcategoryDoc,
-    { data: { subCategory: SubcategoryDoc } }
-  >(`/subCategories/${_id}`);
-  return response.data.subCategory;
+    { data: { subcategory: SubcategoryDoc } }
+  >(`/subcategories/${_id}`);
+  return response.data.subcategory;
 }
 
 export async function deleteSubcategory(_id: mongoose.Types.ObjectId) {
-  await axios.delete(`/subCategories/${_id}`);
+  await axios.delete(`/subcategories/${_id}`);
   return null;
 }

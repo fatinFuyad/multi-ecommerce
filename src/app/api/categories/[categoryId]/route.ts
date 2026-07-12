@@ -1,13 +1,13 @@
 import { dbConnect } from "@/lib/dbConnect";
+import { CategoryFormSchemaType } from "@/lib/schemas";
 import Category from "@/models/Category";
-import mongoose from "mongoose";
+import { Types } from "mongoose";
 import { restrictTo } from "../../apiUtils";
 import { createUpdateCategory } from "../route";
-import { CategoryFormSchemaType } from "@/lib/schemas";
 
 interface RouteParams {
   params: {
-    categoryId: mongoose.Types.ObjectId;
+    categoryId: Types.ObjectId;
   };
 }
 

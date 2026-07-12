@@ -1,19 +1,13 @@
-import mongoose, { Document } from "mongoose";
+import {
+  Types,
+  Schema,
+  models,
+  model,
+  HydratedDocument,
+  InferSchemaType
+} from "mongoose";
 
-export interface ISubcategory {
-  name: string;
-  image: string;
-  url: string;
-  featured?: boolean;
-  category: mongoose.Types.ObjectId;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface SubcategoryDoc
-  extends Document<mongoose.Types.ObjectId>, ISubcategory {}
-
-const subCategorySchema = new mongoose.Schema<SubcategoryDoc>(
+const subcategorySchema = new Schema(
   {
     name: {
       type: String,
@@ -36,16 +30,20 @@ const subCategorySchema = new mongoose.Schema<SubcategoryDoc>(
       default: false
     },
     category: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Category", // ref helps to populate look at to determine the foreign collection it should query
-      requred: true
+      required: true
     }
   },
   { timestamps: true }
 );
 
+export type ISubcategory = InferSchemaType<typeof subcategorySchema> & {
+  _id: Types.ObjectId;
+};
+export type SubcategoryDoc = HydratedDocument<ISubcategory>;
+
 const Subcategory =
-  mongoose.models.Subcategory<SubcategoryDoc> ||
-  mongoose.model("Subcategory", subCategorySchema);
+  models.Subcategory || model<ISubcategory>("Subcategory", subcategorySchema);
 
 export default Subcategory;

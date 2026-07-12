@@ -1,77 +1,84 @@
 import { dbConnect } from "@/lib/dbConnect";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse, SubcategoryWithCateogry } from "@/lib/types";
-import { ICategory } from "@/models/Category";
-import Subcategory, { SubcategoryDoc } from "@/models/Subcategory";
-import mongoose from "mongoose";
+import Subcategory, {
+  ISubcategory,
+  SubcategoryDoc
+} from "@/models/Subcategory";
+import { Types } from "mongoose";
 import { restrictTo } from "../apiUtils";
 
-// Function: Creates or updates a subCategory into the database
+// Function: Creates or updates a subcategory into the database
 // Permission Level: Admin only
 // Parameters:
-//   - subCategory: Subcategory object containing details of the subCategory to be upserted.
-// Returns: Updated or newly created subCategory details.
+//   - subcategory: Subcategory object containing details of the subcategory to be upserted.
+// Returns: Updated or newly created subcategory details.
 
 export async function createUpdateSubcategory(
-  subCategory: SubcategoryFormSchemaType & { _id?: mongoose.Types.ObjectId }
+  subcategory: SubcategoryFormSchemaType & { _id?: Types.ObjectId }
 ): Promise<SubcategoryDoc | null> {
-  if (!subCategory) throw new Error("Subcategory data can't be empty");
-  const isUpdateSession = Boolean(subCategory._id);
+  if (!subcategory) throw new Error("Subcategory data can't be empty");
+  const isUpdateSession = Boolean(subcategory._id);
 
-  // check whether subCategory with same name or URL already exists
+  // check whether subcategory with same name or URL already exists
   let existingSubcategory: SubcategoryDoc | null;
   if (isUpdateSession) {
     existingSubcategory = await Subcategory.findOne({
-      $or: [{ name: subCategory.name }, { url: subCategory.url }],
-      $nor: [{ _id: subCategory._id }]
+      $or: [{ name: subcategory.name }, { url: subcategory.url }],
+      $nor: [{ _id: subcategory._id }]
     });
   } else {
     existingSubcategory = await Subcategory.findOne({
-      $or: [{ name: subCategory.name }, { url: subCategory.url }]
+      $or: [{ name: subcategory.name }, { url: subcategory.url }]
     });
   }
 
-  // Throw error if subCategory with same name or URL already exists
+  // Throw error if subcategory with same name or URL already exists
   if (existingSubcategory) {
     let errorMessage = "";
-    if (existingSubcategory.name === subCategory.name) {
-      errorMessage = "A subCategory with the same name already exists";
-    } else if (existingSubcategory.url === subCategory.url) {
-      errorMessage = "A subCategory with the same URL already exists";
+    if (existingSubcategory.name === subcategory.name) {
+      errorMessage = "A subcategory with the same name already exists";
+    } else if (existingSubcategory.url === subcategory.url) {
+      errorMessage = "A subcategory with the same URL already exists";
     }
     throw new Error(errorMessage);
   }
 
-  let subCategoryData;
+  let subcategoryData;
   if (isUpdateSession) {
-    subCategoryData = await Subcategory.findByIdAndUpdate<SubcategoryDoc>(
-      subCategory._id,
+    subcategoryData = await Subcategory.findByIdAndUpdate<SubcategoryDoc>(
+      subcategory._id,
       {
-        ...subCategory,
-        image: subCategory.image.at(0)?.url as string
-      } satisfies ICategory,
+        ...subcategory,
+        image: subcategory.image[0].url,
+        category: new Types.ObjectId(subcategory.category)
+      } satisfies Partial<ISubcategory>, // updates do not require all schema fields
       { new: true }
     );
   } else {
-    subCategoryData = await Subcategory.create<SubcategoryDoc>({
-      ...subCategory,
-      image: subCategory.image.at(0)?.url as string
-    } satisfies ICategory);
+    subcategoryData = await Subcategory.create<SubcategoryDoc>({
+      ...subcategory,
+      image: subcategory.image[0].url,
+      category: new Types.ObjectId(subcategory.category),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      _id: new Types.ObjectId()
+    } satisfies ISubcategory);
   }
-  return subCategoryData;
+  return subcategoryData;
 }
 
-// Create subCategory route handler
+// Create subcategory route handler
 export async function POST(req: Request) {
   try {
     // Verify admin permission
     await restrictTo("ADMIN");
 
     await dbConnect();
-    const subCategory: SubcategoryFormSchemaType = await req.json();
-    const newSubcategory = await createUpdateSubcategory(subCategory);
+    const subcategory: SubcategoryFormSchemaType = await req.json();
+    const newSubcategory = await createUpdateSubcategory(subcategory);
     return Response.json(
-      { subCategory: newSubcategory, success: true },
+      { subcategory: newSubcategory, success: true },
       { status: 201 }
     );
   } catch (error: any) {
@@ -80,16 +87,16 @@ export async function POST(req: Request) {
         success: false,
         message:
           error.message ||
-          "An internal error occured while creating new subCategory."
+          "An internal error occured while creating new subcategory."
       },
       { status: 500 }
     );
   }
 }
 
-// Function: Retrieves all subCategories from the database.
+// Function: Retrieves all subcategories from the database.
 // Permission Level: Public
-// Returns: Array of subCategories sorted by updatedAt date in descending order.
+// Returns: Array of subcategories sorted by updatedAt date in descending order.
 export async function GET(req: Request) {
   try {
     await dbConnect();
@@ -104,23 +111,23 @@ export async function GET(req: Request) {
       });
     }
 
-    const subCategories = await query;
+    const subcategories = await query;
 
-    // console.log("subCategories route");
+    // console.log("subcategories route");
     return Response.json(
-      { subCategories, success: true, status: 200 } satisfies ApiResponse<{
-        subCategories: (SubcategoryDoc | SubcategoryWithCateogry)[];
+      { subcategories, success: true, status: 200 } satisfies ApiResponse<{
+        subcategories: (SubcategoryDoc | SubcategoryWithCateogry)[];
       }>,
       { status: 200 }
     );
   } catch (error: any) {
     return Response.json(
       {
-        subCategories: [],
+        subcategories: [],
         success: false,
         message: error.message,
         status: 500
-      } satisfies ApiResponse<{ subCategories: [] }>,
+      } satisfies ApiResponse<{ subcategories: [] }>,
       { status: 500 }
     );
   }

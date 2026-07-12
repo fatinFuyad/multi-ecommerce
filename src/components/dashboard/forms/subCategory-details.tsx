@@ -80,29 +80,29 @@ export default function SubcategoryDetails({
       let response;
       if (isUpdateSession && data?._id) {
         response = await axios.patch<
-          ApiResponse<{ subCategory: SubcategoryDoc }>
-        >(`/subCategories/${data._id}`, values);
+          ApiResponse<{ subcategory: SubcategoryDoc }>
+        >(`/subcategories/${data._id}`, values);
       } else {
         response = await axios.post<
-          ApiResponse<{ subCategory: SubcategoryDoc }>
-        >("/subCategories", values);
+          ApiResponse<{ subcategory: SubcategoryDoc }>
+        >("/subcategories", values);
       }
 
-      // Upserting subCategory data // ⚠️ handle backend separetely
+      // Upserting subcategory data // ⚠️ handle backend separetely
       // const response = await Subcategory.create({ data});
 
       // Displaying success message
       toast({
         title: isUpdateSession
-          ? `Subcategory ${response.data.subCategory.name} has been updated.`
-          : `Congratulations! ${response.data.subCategory.name} has now been created.`
+          ? `Subcategory ${response.data.subcategory.name} has been updated.`
+          : `Congratulations! ${response.data.subcategory.name} has now been created.`
       });
 
       // Redirect or Refresh data
       if (isUpdateSession) {
         router.refresh();
       } else {
-        router.push("/dashboard/admin/subCategories");
+        router.push("/dashboard/admin/subcategories");
       }
     } catch (error: any) {
       console.log(error);
@@ -111,7 +111,7 @@ export default function SubcategoryDetails({
         title: "Oops!",
         description:
           error.response?.data.message ||
-          "An Error occured while createing or updating subCategory"
+          "An Error occured while createing or updating subcategory"
       });
     }
   }
@@ -123,8 +123,8 @@ export default function SubcategoryDetails({
           <CardTitle>Subcategory Information</CardTitle>
           <CardDescription>
             {data?._id
-              ? `Update ${data?.name} subCategory information.`
-              : "Let's create a sub-category. You can edit sub-category later from the sub-categories table or the sub-category page."}
+              ? `Update ${data?.name} subcategory information.`
+              : "Let's create a subcategory. You can edit subcategory later from the subcategories table or the subcategory page."}
           </CardDescription>
         </CardHeader>
 
@@ -162,7 +162,7 @@ export default function SubcategoryDetails({
                   <FormItem>
                     <FormLabel>Subcategory</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter subCategory name" {...field} />
+                      <Input placeholder="Enter subcategory name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

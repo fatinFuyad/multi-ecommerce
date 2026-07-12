@@ -1,19 +1,13 @@
-import mongoose, { Document } from "mongoose";
+import {
+  HydratedDocument,
+  InferSchemaType,
+  Schema,
+  Types,
+  model,
+  models
+} from "mongoose";
 
-export interface ICategory {
-  _id?: mongoose.Types.ObjectId;
-  name: string;
-  image: string;
-  url: string;
-  featured?: boolean;
-  subCategories?: mongoose.Types.ObjectId[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface CategoryDoc
-  extends Document<mongoose.Types.ObjectId>, Omit<ICategory, "_id"> {}
-const categorySchema = new mongoose.Schema<CategoryDoc>(
+const categorySchema = new Schema(
   {
     name: {
       type: String,
@@ -38,9 +32,9 @@ const categorySchema = new mongoose.Schema<CategoryDoc>(
       type: Boolean,
       default: false
     },
-    subCategories: [
+    subcategories: [
       {
-        type: mongoose.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Subcategory"
       }
     ]
@@ -48,12 +42,14 @@ const categorySchema = new mongoose.Schema<CategoryDoc>(
   { timestamps: true }
 );
 
-// console.log(mongoose.models);
+export type ICategory = InferSchemaType<typeof categorySchema> & {
+  _id: Types.ObjectId;
+};
+export type CategoryDoc = HydratedDocument<ICategory>;
 
 // on inital time the models will be and empty {}; and so reading any property will be undefined
 
 const Category =
-  mongoose.models.Category<CategoryDoc> ||
-  mongoose.model("Category", categorySchema);
+  models.Category || model<ICategory>("Category", categorySchema);
 
 export default Category;
