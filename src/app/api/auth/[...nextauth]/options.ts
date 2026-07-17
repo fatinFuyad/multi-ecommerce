@@ -137,11 +137,8 @@ export const authOptions = {
           isPasswordEnabled: false,
           isVerified: true,
           stores: [] as Types.ObjectId[],
-          gender: "UNKOWN",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          _id: new Types.ObjectId()
-        } satisfies IUser);
+          gender: "UNKOWN"
+        } satisfies Omit<IUser, "_id" | "createdAt" | "updatedAt">);
 
         return true;
       } catch (error) {

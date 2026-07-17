@@ -37,6 +37,8 @@ const storeSchema = new Schema(
   }
 );
 
+storeSchema.index({ user: "asc" });
+
 export type IStore = InferSchemaType<typeof storeSchema> & {
   _id: Types.ObjectId;
 };

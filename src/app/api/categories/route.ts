@@ -49,7 +49,7 @@ export async function createUpdateCategory(
         {
           ...category,
           image: category.image[0].url
-        } satisfies Partial<ICategory>, // updates do not require all schema fields
+        } satisfies Partial<Omit<ICategory, "_id" | "createdAt">>, // updates do not require all schema fields
         { new: true }
       );
     return updatedCategory;
@@ -57,11 +57,9 @@ export async function createUpdateCategory(
     const newCategory: CategoryDoc = await Category.create({
       ...category,
       image: category.image[0].url,
-      subcategories: [] as Types.ObjectId[],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      _id: new Types.ObjectId()
-    } satisfies ICategory);
+      subcategories: [] as Types.ObjectId[]
+    } satisfies Omit<ICategory, "_id" | "createdAt" | "updatedAt">);
+
     return newCategory;
   }
 }

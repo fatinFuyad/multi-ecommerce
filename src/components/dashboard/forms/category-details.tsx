@@ -33,6 +33,7 @@ import { ApiResponse } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
+import { useEffect } from "react";
 
 interface CategoryDetailsProps {
   //   data?: CategoryFormSchemaType;
@@ -55,6 +56,18 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
   });
 
   const isLoading = form.formState.isSubmitting;
+  // Reset form values when data changes
+  // useEffect(() => {
+  //   if (data) {
+  //     form.reset({
+  //       name: data.name,
+  //       image: [{ url: data.image }],
+  //       url: data.url,
+  //       featured: data.featured,
+  //     });
+  //   }
+  // }, [data, form]);
+
   // 2. Define a submit handler.
   // ⚠️ Client side can't access backend models
   async function onSubmit(values: CategoryFormSchemaType) {

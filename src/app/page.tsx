@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function Home() {
   const { status, data } = useSession();
-
+  console.log(data);
   return (
     <div className="grid gap-8 p-6">
       <header className="flex justify-end items-center p-4 gap-4 h-16">
@@ -27,18 +27,21 @@ export default function Home() {
 
         {status === "authenticated" && (
           <>
-            if(sess)
-            <Avatar className="size-8">
-              {data.user?.image ? (
+            {data.user?.image ? (
+              <Avatar className="size-8">
                 <AvatarImage src={data.user.image} alt={data.user.name} />
-              ) : (
-                <User className="size-8" />
-              )}
-              <AvatarFallback className="bg-primary text-white">
-                {data.user?.name}
-              </AvatarFallback>
-            </Avatar>
-            <Button onClick={() => signOut()}>Sign out</Button>
+                <AvatarFallback className="bg-primary text-white">
+                  {data.user.name}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
+              <div className="flex items-center justify-center size-8 rounded-full bg-primary p-1">
+                <User />
+              </div>
+            )}
+            <Button variant={"outline"} onClick={() => signOut()}>
+              Sign out
+            </Button>
           </>
         )}
       </header>

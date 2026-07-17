@@ -59,11 +59,8 @@ export async function createUpdateSubcategory(
     subcategoryData = await Subcategory.create<SubcategoryDoc>({
       ...subcategory,
       image: subcategory.image[0].url,
-      category: new Types.ObjectId(subcategory.category),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      _id: new Types.ObjectId()
-    } satisfies ISubcategory);
+      category: new Types.ObjectId(subcategory.category)
+    } satisfies Omit<ISubcategory, "_id" | "createdAt" | "updatedAt">);
   }
   return subcategoryData;
 }

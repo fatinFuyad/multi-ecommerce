@@ -43,7 +43,7 @@ const categorySchema = new Schema(
 );
 
 export type ICategory = InferSchemaType<typeof categorySchema> & {
-  _id: Types.ObjectId;
+  readonly _id: Types.ObjectId;
 };
 export type CategoryDoc = HydratedDocument<ICategory>;
 

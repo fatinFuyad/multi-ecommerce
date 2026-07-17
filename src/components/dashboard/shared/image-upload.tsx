@@ -1,4 +1,5 @@
-import { CloudUpload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CloudUpload, Trash } from "lucide-react";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -9,7 +10,7 @@ interface ImageUploadProps {
   onRemove: (value: string) => void;
   value: string[];
   type: "standard" | "profile" | "cover";
-  dontShowPreview?: boolean;
+  showPreview?: boolean;
   // cloudinaryKey: string;
 }
 
@@ -34,7 +35,7 @@ function CloudWidget({
         return (
           <button
             type="button"
-            className="z-20 absolute right-0 bottom-6 flex items-center font-medium text-[17px] h-14 w-14 justify-center text-white bg-gradient-to-t from-primary to-blue-300 border-none shadow-lg rounded-full hover:shadow-md active:shadow-sm"
+            className="size-12 flex justify-center items-center font-medium text-xl text-white bg-gradient-to-t from-primary to-blue-300 border-none shadow-lg rounded-full hover:shadow-md active:shadow-sm"
             disabled={disabled}
             onClick={() => {
               document.body.style.pointerEvents = "auto";
@@ -55,7 +56,7 @@ function ImageUpload({
   onRemove,
   value,
   type,
-  dontShowPreview
+  showPreview = true
 }: ImageUploadProps) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -93,7 +94,9 @@ function ImageUpload({
         </Button> */}
 
         {/* process is unavailable on the client, so we can pass it from a server component or create a function executes on the server and get the preset */}
-        <CloudWidget onChange={onChange} disabled={disabled} />
+        <div className="z-20 absolute right-0 bottom-6">
+          <CloudWidget onChange={onChange} disabled={disabled} />
+        </div>
       </div>
     );
 
@@ -112,7 +115,49 @@ function ImageUpload({
             className="w-full h-full rounded-lg object-cover bg-center"
           />
         )}
-        <CloudWidget onChange={onChange} disabled={disabled} />
+        <div className="z-20 absolute right-0 bottom-6">
+          <CloudWidget onChange={onChange} disabled={disabled} />
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "standard") {
+    return (
+      <div>
+        <div className="mb-4 flex items-center gap-4">
+          {value.length > 0 &&
+            showPreview &&
+            value.map((imgUrl, i) => {
+              return (
+                <div key={i} className="relative w-52 min-h-24 max-h-52">
+                  {/* Delete image button */}
+                  <div className="z-10 absolute top-2 right-2">
+                    <Button
+                      type="button"
+                      variant={"destructive"}
+                      size="icon"
+                      className="rounded-full"
+                      onClick={() => onRemove(imgUrl)}
+                    >
+                      <Trash className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {/* Image */}
+                  <Image
+                    fill
+                    className="object-cover object-center rounded-md"
+                    alt=""
+                    src={imgUrl}
+                  />
+                </div>
+              );
+            })}
+        </div>
+        <div className="flex justify-start items-center gap-2">
+          <CloudWidget onChange={onChange} disabled={disabled} />
+          <span>Upload Images</span>
+        </div>
       </div>
     );
   }

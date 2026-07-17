@@ -39,12 +39,8 @@ export async function POST(request: Request) {
       signinMethod: "credentials",
       role: "USER",
       stores: [],
-      gender: "UNKOWN",
-      lastSignin: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      _id: new Types.ObjectId()
-    } satisfies IUser);
+      gender: "UNKOWN"
+    } satisfies Omit<IUser, "_id" | "createdAt" | "updatedAt" | "lastSignin">);
 
     newUser.password = undefined;
 

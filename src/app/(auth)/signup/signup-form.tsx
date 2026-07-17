@@ -12,37 +12,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { UserFormSchema, UserFormSchemaType } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters."
-  }),
-  email: z.email("Email is required"),
-  password: z
-    .string()
-    .min(8, "Passoword should be at least 8 characters long")
-    .max(24, "Password should not exceed 24 characters"),
-  name: z
-    .string()
-    .max(50, "Name is too long")
-    .regex(/^[\s\w]+$/, "Name should not contain any special characters")
-    .trim()
-});
 
 export default function SignupForm() {
   const { toast } = useToast();
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof UserFormSchema>>({
+    resolver: zodResolver(UserFormSchema),
     defaultValues: {
       name: "",
       username: "",
@@ -52,7 +35,7 @@ export default function SignupForm() {
   });
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: UserFormSchemaType) {
     console.log(values);
     try {
       await axios.post("/api/signup", values);

@@ -8,9 +8,8 @@ async function SellerStoreLayout({ children }: { children: React.ReactNode }) {
 
   const stores = await Store.find<StoreDoc>({
     user: user._id
-  })
-    .select("name email phone url featured")
-    .lean();
+  }).lean();
+  // .select("name email phone url featured")
 
   const storeItems = JSON.parse(JSON.stringify(stores));
   // lean makes the doc to plain object but the _id is still needs to string
@@ -19,7 +18,7 @@ async function SellerStoreLayout({ children }: { children: React.ReactNode }) {
   //   _id: (store._id as object).toString()
   // }));
 
-  console.log("StoreUrl layout ---> ", stores);
+  // console.log("StoreUrl layout ---> ", stores);
   return (
     <div className="w-full h-full">
       {/* sidebar on the left */}

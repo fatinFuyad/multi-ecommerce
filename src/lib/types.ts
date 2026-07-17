@@ -1,4 +1,5 @@
 import { CategoryDoc } from "@/models/Category";
+import { ProductDoc, ProductVariantDoc } from "@/models/Product";
 import { StoreDoc } from "@/models/Store";
 import { SubcategoryDoc } from "@/models/Subcategory";
 import { UserDoc } from "@/models/User";
@@ -32,6 +33,12 @@ export type UserWithStore = Omit<UserDoc, "stores"> & {
   stores: StoreDoc[];
 };
 
+export type ProductWithVariant = Omit<ProductDoc, "variants"> & {
+  variants: ProductVariantDoc[];
+};
+
+//
+//
 export type MergeType<T, U> = Omit<T, keyof U> & U;
 
 export type PrettifyType<T> = {

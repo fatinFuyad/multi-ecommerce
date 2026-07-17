@@ -14,6 +14,7 @@ async function SellerDashboardPage() {
   // Alert: mongodb should be connected before querying
   await dbConnect();
 
+  // prevents MissingSchemaError: Schema hasn't been registered for model "Store"
   if (!Store.modelName) return <h1>Store model was&appos;nt registered</h1>;
 
   const seller:
@@ -30,7 +31,7 @@ async function SellerDashboardPage() {
     .exec();
 
   if (!seller) return null;
-
+  console.log(seller);
   // if user has no stores & redirect to create new store page
   if (!seller.stores.length) {
     return redirect("/dashboard/seller/stores/new");
