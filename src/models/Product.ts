@@ -1,10 +1,4 @@
-import {
-  HydratedDocument,
-  InferSchemaType,
-  model,
-  Schema,
-  Types
-} from "mongoose";
+import { HydratedDocument, InferSchemaType, model, Schema, Types } from "mongoose";
 
 const productSchema = new Schema(
   {
@@ -18,9 +12,7 @@ const productSchema = new Schema(
       ref: "Store",
       required: true
     },
-    variants: [
-      { type: Schema.Types.ObjectId, ref: "ProductVariant", required: true }
-    ],
+    variants: [{ type: Schema.Types.ObjectId, ref: "ProductVariant", required: true }],
 
     category: {
       type: Schema.Types.ObjectId,
