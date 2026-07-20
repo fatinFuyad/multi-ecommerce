@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
-import { MinusCircle, PlusCircle } from "lucide-react";
-import { ChangeEvent, Dispatch, SetStateAction } from "react";
+import { MinusCircle, PaintBucket, PlusCircle } from "lucide-react";
+import { Dispatch, SetStateAction, useState } from "react";
+import { SketchPicker } from "react-color";
 
 // type InputDetail = Record<string, string | number>;
 
@@ -24,6 +25,7 @@ type PropsType<T extends InputDetail> = {
   setInputDetails: Dispatch<SetStateAction<T[]>>; // any is placed as ts warns for setter function is having a property that is missing in InputDetail
   header: string; // as label for input,
   initialInputDetail?: T;
+  colorPicker?: boolean; // is color picker needed
 };
 
 // T extending InputDetail to resolve constraint of PropsType param T and making sure T will extend InputDetail from where concrete data will be passed
@@ -31,12 +33,19 @@ export default function AddInput<T extends InputDetail>({
   inputDetails,
   initialInputDetail = {} as T,
   setInputDetails,
-  header
+  header,
+  colorPicker
 }: PropsType<T>) {
-  function handleChangeInputDetail(index: number, key: keyof T, inputValue: T[keyof T]) {
+  // State to toggle displaying color picker based on index. if null hide picker
+  const [colorPickerIndex, setColorPickerIndex] = useState<number | null>(null);
+
+  function handleChangeInputDetail(
+    index: number,
+    key: string,
+    inputValue: string | number
+  ) {
     // Update the inputDetails array with the new property value
     const updatedInputDetails = inputDetails.map((detail, i) => {
-      // const value = typeof inputValue === "number" ? parseFloat(inputValue) : inputValue;
       return i === index ? { ...detail, [key]: inputValue } : detail;
     });
     setInputDetails(updatedInputDetails); // Update the state with the modified details  }
@@ -57,7 +66,7 @@ export default function AddInput<T extends InputDetail>({
 
   return (
     <div className="flex flex-col gap-y-4">
-      {/* Header */}
+      {/* HEADER */}
       {header && <h4>{header}</h4>}
       {/* Display PlusButton if no details exist */}
       {inputDetails.length === 0 && <PlusButton onClick={handleAddInput} />}
@@ -68,6 +77,33 @@ export default function AddInput<T extends InputDetail>({
             {Object.entries(detail).map(([key, value], entryIndex) => {
               return (
                 <div key={entryIndex} className="flex items-center gap-x-4">
+                  {/*COLOR-PICKER TOGGLE*/}
+                  {key === "color" && colorPicker && (
+                    <div className="flex gap-x-4">
+                      <button
+                        type="button"
+                        className="cursor-pointer"
+                        onClick={() =>
+                          setColorPickerIndex(colorPickerIndex === index ? null : index)
+                        }
+                      >
+                        <PaintBucket />
+                      </button>
+                      <span
+                        className="w-8 h-8 rounded-full"
+                        style={{ backgroundColor: detail[key] as string }}
+                      />
+                    </div>
+                  )}
+
+                  {/* COLOR PICKER */}
+                  {colorPickerIndex === index && key === "color" && (
+                    <SketchPicker
+                      color={detail[key] as string}
+                      onChange={(e) => handleChangeInputDetail(index, key, e.hex)}
+                    />
+                  )}
+
                   <Input
                     className="w-28"
                     type={typeof value === "number" ? "number" : "text"}
@@ -81,8 +117,8 @@ export default function AddInput<T extends InputDetail>({
                         index,
                         key,
                         e.target.type === "number"
-                          ? (parseFloat(e.target.value) as T[keyof T])
-                          : (e.target.value as T[keyof T])
+                          ? parseFloat(e.target.value)
+                          : e.target.value
                       )
                     }
                   />

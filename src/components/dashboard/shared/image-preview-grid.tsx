@@ -42,7 +42,7 @@ function ImagePreviewGrid({ images, colors, setColors, onRemove }: PropsType) {
     if (imgLength > 0) fetchColors();
   }, [images, imgLength]);
 
-  console.log(colorPalettes);
+  // console.log(colorPalettes);
 
   // If there are no images, display a placeholder image
   if (imgLength === 0) {
@@ -58,10 +58,7 @@ function ImagePreviewGrid({ images, colors, setColors, onRemove }: PropsType) {
     <div className="grid grid-cols-3 w-full auto-rows-[280px] overflow-hidden bg-muted rounded-md gap-x-2 gap-y-2">
       {images.map((img, i) => {
         return (
-          <div
-            key={i}
-            className={cn("relative w-full group border border-gray-300")}
-          >
+          <div key={i} className={cn("relative w-full group border border-gray-300")}>
             <Image
               src={img.url}
               alt="product_image"

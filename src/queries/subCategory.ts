@@ -3,27 +3,25 @@ import { ApiResponse } from "@/lib/types";
 import { SubcategoryDoc } from "@/models/Subcategory";
 import mongoose from "mongoose";
 
-export async function getAllSubcategories<DataType>(option?: {
-  populate: "category";
+export async function getAllSubcategories<DataType>(options?: {
+  populate?: "category";
+  query: string; // e.g: "category=id&price[lte]=1000"
+  // query?: Record<string, string | number | string[] | undefined>;
 }): Promise<DataType[]> {
   try {
-    let response;
+    // if the options has populate then we add a custom header and based on that the api will return the populated or unpopulated data
+    const queryUrl = `/subcategories` + (options?.query ? `?${options?.query}` : "");
 
-    // if the option has populate then we add a custom property and based on that the api will return the populated or unpopulated data
-    if (option?.populate) {
-      response = await axios.get<ApiResponse<{ subcategories: DataType[] }>>(
-        "/subcategories",
-        {
-          headers: { Populate: "category" }
+    console.log({ queryUrl });
+    const response = await axios.get<ApiResponse<{ subcategories: DataType[] }>>(
+      // `/subcategories${options?.query ? `?${options.query}` : ""}`,
+      queryUrl,
+      {
+        headers: {
+          populate: options?.populate
         }
-      );
-    } else {
-      response =
-        await axios.get<ApiResponse<{ subcategories: DataType[] }>>(
-          "/subcategories"
-        );
-    }
-
+      }
+    );
     return response.data.subcategories;
   } catch (error) {
     console.log(error);
@@ -32,10 +30,9 @@ export async function getAllSubcategories<DataType>(option?: {
 }
 
 export async function getSubcategory(_id: mongoose.Types.ObjectId) {
-  const response = await axios.get<
-    SubcategoryDoc,
-    { data: { subcategory: SubcategoryDoc } }
-  >(`/subcategories/${_id}`);
+  const response = await axios.get<ApiResponse<{ subcategory: SubcategoryDoc }>>(
+    `/subcategories/${_id}`
+  );
   return response.data.subcategory;
 }
 

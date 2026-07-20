@@ -35,21 +35,30 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+
+import ImagePreviewGrid from "../shared/image-preview-grid";
+import AddInput from "./add-input";
 import axios from "@/lib/axios";
+
+import { useToast } from "@/hooks/use-toast";
 import { ProductFormSchema, ProductFormSchemaType } from "@/lib/schemas";
 import { ApiResponse, ProductWithVariant } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
 import { ProductDoc } from "@/models/Product";
 import { SubcategoryDoc } from "@/models/Subcategory";
-// import { getAllSubcategories, getSubcategoriesForCategory } from "@/queries/subcategory";
 import { useEffect, useState } from "react";
-import ImagePreviewGrid from "../shared/image-preview-grid";
-import AddInput from "./add-input";
+import { getAllSubcategories } from "@/queries/subcategory";
+import { XIcon } from "lucide-react";
+import { WithOutContext as ReactTags } from "react-tag-input";
 
 interface ProductDetailsProps {
   data?: ProductWithVariant;
   categories: CategoryDoc[];
+}
+
+interface Keyword {
+  id: string;
+  text: string;
 }
 
 const defaultImages = [
@@ -84,6 +93,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
   const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>([
     { size: "", quantity: 1, price: 0, discount: 0 }
   ]);
+  const [keywords, setKeywords] = useState<string[]>([]);
   // State for subcategories
   const [subcategories, setSubcategories] = useState<SubcategoryDoc[]>([]);
 
@@ -120,28 +130,39 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
   const errors = form.formState.errors;
 
   // Whenever colors, sizes, keywords changes we update the form values
+  // console.log(form.watch("sizes"));
 
   useEffect(() => {
     form.setValue("colors", colors);
     form.setValue("sizes", sizes);
-  }, [form, colors, sizes]);
-  // console.log(form.watch("sizes"));
+    form.setValue("keywords", keywords);
+  }, [form, colors, sizes, keywords]);
 
   // Get subcategories for particular category
-  // useEffect(() => {
-  //   console.log("Categoryform: ", form.watch().category);
-  //   async function subcategories() {
-  //     const results = await getAllSubcategories<SubcategoryDoc>({
-  //       query: `category=${form.watch().category}`
-  //     });
-  //     setSubcategories(results || []);
-  //   }
-  //   subcategories();
-  // }, [form.watch().category]);
+  const categoryField = form.watch("category");
+  useEffect(() => {
+    async function subcategories() {
+      const results = await getAllSubcategories<SubcategoryDoc>({
+        query: `category=${categoryField}`
+      });
+      setSubcategories(results || []);
+    }
+
+    if (!categoryField) return;
+    subcategories();
+  }, [categoryField]);
+
+  // handlers
+  function handleAddKeyword(keyword: Keyword) {
+    setKeywords((prevState) => [...prevState, keyword.text]);
+  }
+  function handleDeleteKeyword(index: number) {
+    setKeywords((prevState) => prevState.filter((key, i) => i !== index));
+  }
 
   // 2. Define a submit handler.
-  const isLogTemp: boolean = true;
   async function onSubmit(values: ProductFormSchemaType) {
+    const isLogTemp: boolean = true;
     try {
       console.log(errors);
       console.log(values);
@@ -247,6 +268,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                     inputDetails={colors}
                     initialInputDetail={{ color: "" }}
                     setInputDetails={setColors}
+                    colorPicker
                   />
                   {errors.colors && (
                     <span className="text-sm font-medium text-destructive">
@@ -352,7 +374,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                     );
                   }}
                 />
-                {form.watch().category && (
+                {categoryField && (
                   <FormField
                     control={form.control}
                     name="subcategory"
@@ -413,6 +435,44 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   )}
                 />
               </div>
+              {/* KEYWORDS */}
+              <div className="w-full flex-1 space-y-3">
+                <FormField
+                  control={form.control}
+                  name="keywords"
+                  render={() => (
+                    <FormItem className="relative flex-1">
+                      <FormLabel>Product Keywords</FormLabel>
+                      <FormControl>
+                        <ReactTags
+                          handleAddition={handleAddKeyword}
+                          handleDelete={() => {}}
+                          placeholder="Keywords (e.g., winter jacket, warm, stylish)"
+                          classNames={{
+                            tagInputField:
+                              "bg-background border rounded-md p-2 w-full focus:outline-none"
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <div className="flex flex-wrap gap-1">
+                  {keywords.map((k, i) => (
+                    <div
+                      key={i}
+                      className="text-xs inline-flex items-center px-3 py-1 bg-blue-200 text-blue-700 rounded-full gap-x-2"
+                    >
+                      <span>{k}</span>
+                      <XIcon
+                        className="cursor-pointer size-4"
+                        onClick={() => handleDeleteKeyword(i)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* SIZES*/}
               <div className="w-full flex flex-col gap-y-3">
                 <AddInput
@@ -428,7 +488,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                 )}
               </div>
               {/* IS PRODUCT ON SALE */}
-              <div className="flex w-fit border rounded-md">
+              <div className="flex border rounded-md">
                 <FormField
                   control={form.control}
                   name="isSale"

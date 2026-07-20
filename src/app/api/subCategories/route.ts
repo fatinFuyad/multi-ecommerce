@@ -1,9 +1,10 @@
 import { dbConnect } from "@/lib/dbConnect";
+import { QueryBuilder } from "@/lib/query-builder";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory";
 import { Types } from "mongoose";
 import { restrictTo } from "../apiUtils";
-import { QueryBuilder } from "@/lib/query-builder";
+import { ApiResponse, SubcategoryWithCateogry } from "@/lib/types";
 
 /**
  * @description: Creates or updates a subcategory into the database
@@ -89,50 +90,13 @@ export async function POST(req: Request) {
  * @protected Level: Public
  * @returns: Array of subcategories sorted by updatedAt date in descending order.
  */
-// export async function GET(req: Request) {
-//   try {
-//     await dbConnect();
-
-//     const query = Subcategory.find().sort({ updatedAt: -1 });
-
-//     // from the client a custom header is sent to modify the query for population
-//     if (req.headers.get("populate") === "category") {
-//       query.populate({
-//         path: "category"
-//         // select: "name url"
-//       });
-//     }
-
-//     const subcategories = await query;
-
-//     // console.log("subcategories route");
-//     return Response.json(
-//       { subcategories, success: true, status: 200 } satisfies ApiResponse<{
-//         subcategories: (SubcategoryDoc | SubcategoryWithCateogry)[];
-//       }>,
-//       { status: 200 }
-//     );
-//   } catch (error: any) {
-//     return Response.json(
-//       {
-//         subcategories: [],
-//         success: false,
-//         message: error.message,
-//         status: 500
-//       } satisfies ApiResponse<{ subcategories: [] }>,
-//       { status: 500 }
-//     );
-//   }
-// }
-
 export async function GET(req: Request) {
   try {
     await dbConnect();
-
+    console.log("subcategories route --->", req.url);
     const query = new QueryBuilder(Subcategory.find(), req.url);
     const dbQuery = query.filter().limitFields().paginate().build();
 
-    console.log(req.headers.get("populate"));
     if (req.headers.has("populate")) {
       dbQuery.populate(req.headers.get("populate")!);
     }
@@ -144,11 +108,12 @@ export async function GET(req: Request) {
 
     return Response.json({
       status: 200,
-      message: "Api response was successfull",
+      success: true,
+      message: "Get all subcategories with specified query was successful",
       subcategories
-    });
+    } as ApiResponse<{ subcategories: (SubcategoryDoc | SubcategoryWithCateogry)[] }>);
   } catch (error: any) {
     console.log(error.message);
-    return Response.json({ status: 500, message: "Api response Error" });
+    return Response.json({ success: false, status: 500, message: "Api response Error" });
   }
 }
