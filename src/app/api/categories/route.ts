@@ -1,4 +1,4 @@
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/db-connect";
 import { CategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
 import Category, { CategoryDoc, ICategory } from "@/models/Category";
@@ -43,15 +43,14 @@ export async function createUpdateCategory(
   }
 
   if (isUpdateSession) {
-    const updatedCategory: CategoryDoc | null =
-      await Category.findByIdAndUpdate(
-        category._id,
-        {
-          ...category,
-          image: category.image[0].url
-        } satisfies Partial<Omit<ICategory, "_id" | "createdAt">>, // updates do not require all schema fields
-        { new: true }
-      );
+    const updatedCategory: CategoryDoc | null = await Category.findByIdAndUpdate(
+      category._id,
+      {
+        ...category,
+        image: category.image[0].url
+      } satisfies Partial<Omit<ICategory, "_id" | "createdAt">>, // updates do not require all schema fields
+      { new: true }
+    );
     return updatedCategory;
   } else {
     const newCategory: CategoryDoc = await Category.create({
@@ -79,9 +78,7 @@ export async function POST(req: Request) {
     return Response.json(
       {
         success: false,
-        message:
-          error.message ||
-          "An internal error occured while creating new category."
+        message: error.message || "An internal error occured while creating new category."
       },
       { status: 500 }
     );

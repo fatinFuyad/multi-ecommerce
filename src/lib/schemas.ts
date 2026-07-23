@@ -83,18 +83,14 @@ export const SubcategoryFormSchema = z.object({
   //   (val) => typeof val === mongoose.Types.ObjectId.toString(),
   //   { error: "Category ID is required for creating subcategory" }
   // )
-  category: z
-    .string("Category ID is required for creating subcategory")
-    .nonoptional()
+  category: z.string("Category ID is required for creating subcategory").nonoptional()
 });
 
 export const StoreFormSchema = z.object({
   name: z
     .string({
       error: (iss) =>
-        iss.input === undefined
-          ? "Store name is required."
-          : "Invalid store name"
+        iss.input === undefined ? "Store name is required." : "Invalid store name"
     })
     .min(2, { error: "Store name must be at least 2 characters long." })
     .max(50, { error: "Store name cannot exceed 50 characters." })
@@ -120,10 +116,7 @@ export const StoreFormSchema = z.object({
         "Only letters, numbers, hyphen, and underscore are allowed in the store url, and consecutive occurrences of hyphens, underscores, or spaces are not permitted."
     }),
   logo: z.object({ url: z.string() }).array().length(1, "Choose a logo image."),
-  cover: z
-    .object({ url: z.string() })
-    .array()
-    .length(1, "Choose a cover image."),
+  cover: z.object({ url: z.string() }).array().length(1, "Choose a cover image."),
   featured: z.boolean()
   // status: z.string()
 });
@@ -220,9 +213,7 @@ export const ProductFormSchema = z.object({
   sku: z
     .string({
       error: (issue) =>
-        !issue.input
-          ? "Product SKU is mandatory."
-          : "Product SKU must be a valid string."
+        !issue.input ? "Product SKU is mandatory." : "Product SKU must be a valid string."
     })
     .min(6, {
       error: "Product SKU should be at least 6 characters long."
@@ -253,18 +244,19 @@ export const ProductFormSchema = z.object({
     }),
   sizes: z
     .object({
-      size: z.string(),
+      size: z.string({ message: "Must be a text or string" }),
       quantity: z
-        .number()
-        .min(1, { error: "Quantity must be greater than 0." }),
-      price: z.number().min(0.01, { error: "Price must be greater than 0." }),
-      discount: z.number().min(0).default(0).nonoptional()
+        .number({ message: "Must be a number" })
+        .min(1, { message: "Quantity must be greater than 0." }),
+      price: z
+        .number({ message: "Must be a number" })
+        .min(0.01, { message: "Price must be greater than 0." }),
+      discount: z.number({ message: "Must be a number" }).min(0).default(0).nonoptional()
     })
     .array()
     .min(1, "Please provide at least one size.")
     .refine(
-      (sizes) =>
-        sizes.every((s) => s.size.length > 0 && s.price > 0 && s.quantity > 0),
+      (sizes) => sizes.every((s) => s.size.length > 0 && s.price > 0 && s.quantity > 0),
       {
         error: "All size inputs must be filled correctly."
       }

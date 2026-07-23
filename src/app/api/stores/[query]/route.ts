@@ -1,4 +1,4 @@
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/db-connect";
 import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
 import Store, { IStore, StoreDoc } from "@/models/Store";
@@ -63,10 +63,7 @@ export async function PATCH(
 }
 
 // the dynamic param query is url but it might receive other query params to find store
-export async function GET(
-  req: Request,
-  { params }: { params: { query: string } }
-) {
+export async function GET(req: Request, { params }: { params: { query: string } }) {
   try {
     // console.log("query file====>", new URL(req.url));
     // from the client a custom header query is sent to find store

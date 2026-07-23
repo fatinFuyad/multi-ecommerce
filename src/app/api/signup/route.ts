@@ -1,8 +1,7 @@
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/db-connect";
 import { ApiResponse } from "@/lib/types";
 import UserModel, { IUser, UserDoc } from "@/models/User";
 import bcrypt from "bcryptjs";
-import { Types } from "mongoose";
 
 export async function POST(request: Request) {
   try {
@@ -15,15 +14,13 @@ export async function POST(request: Request) {
       username
     });
 
-    if (existingUserByUsername)
-      throw new Error("Sorry, the username is already taken.");
+    if (existingUserByUsername) throw new Error("Sorry, the username is already taken.");
 
     // 2) check if email already exists in db then success: false
     const existingUserByEmail = await UserModel.findOne({ email });
 
     // 3) check if user exists
-    if (existingUserByEmail)
-      throw new Error("An user with this email already exists!");
+    if (existingUserByEmail) throw new Error("An user with this email already exists!");
 
     // 5) check if user is signing up for the first time
 

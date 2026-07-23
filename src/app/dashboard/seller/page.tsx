@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/db-connect";
 import Store, { IStore } from "@/models/Store";
 import User, { UserDoc } from "@/models/User";
 import { PopulateOptions } from "mongoose";

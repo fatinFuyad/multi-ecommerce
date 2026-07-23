@@ -1,4 +1,4 @@
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/db-connect";
 import Subcategory, { SubcategoryDoc } from "@/models/Subcategory";
 import mongoose from "mongoose";
 import { restrictTo } from "../../apiUtils";

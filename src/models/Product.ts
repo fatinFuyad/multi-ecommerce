@@ -1,4 +1,11 @@
-import { HydratedDocument, InferSchemaType, model, Schema, Types } from "mongoose";
+import {
+  HydratedDocument,
+  InferSchemaType,
+  model,
+  models,
+  Schema,
+  Types
+} from "mongoose";
 
 const productSchema = new Schema(
   {
@@ -29,6 +36,8 @@ const productSchema = new Schema(
     timestamps: true
   }
 );
+
+productSchema.index({ slug: "asc" }, { unique: true });
 
 const productVariantSchema = new Schema(
   {
@@ -70,6 +79,8 @@ const productVariantSchema = new Schema(
   { timestamps: true }
 );
 
+productVariantSchema.index({ slug: "asc" }, { unique: true });
+
 export type IProduct = InferSchemaType<typeof productSchema> & {
   _id: Types.ObjectId;
 };
@@ -80,10 +91,9 @@ export type IProductVariant = InferSchemaType<typeof productVariantSchema> & {
 };
 export type ProductVariantDoc = HydratedDocument<IProductVariant>;
 
-export const ProductVariant = model<IProductVariant>(
-  "ProductVariant",
-  productVariantSchema
-);
+export const ProductVariant =
+  models.ProductVariant<IProductVariant> ||
+  model<IProductVariant>("ProductVariant", productVariantSchema);
 
-const Product = model<IProduct>("Product", productSchema);
+const Product = models.Product<IProduct> || model<IProduct>("Product", productSchema);
 export default Product;

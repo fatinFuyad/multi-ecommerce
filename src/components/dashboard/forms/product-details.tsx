@@ -36,24 +36,26 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import ImagePreviewGrid from "../shared/image-preview-grid";
-import AddInput from "./add-input";
-import axios from "@/lib/axios";
-
 import { useToast } from "@/hooks/use-toast";
+import { upsertProduct, upsertProductForm } from "@/lib/product-actions";
 import { ProductFormSchema, ProductFormSchemaType } from "@/lib/schemas";
-import { ApiResponse, ProductWithVariant } from "@/lib/types";
+import { ProductWithVariant } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
-import { ProductDoc } from "@/models/Product";
 import { SubcategoryDoc } from "@/models/Subcategory";
-import { useEffect, useState } from "react";
 import { getAllSubcategories } from "@/queries/subcategory";
 import { XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
+import ImagePreviewGrid from "../shared/image-preview-grid";
+import AddInput from "./add-input";
+import { upsertProductReq } from "@/queries/product";
+import { ProductDoc, ProductVariantDoc } from "@/models/Product";
+import { Types } from "mongoose";
 
 interface ProductDetailsProps {
   data?: ProductWithVariant;
   categories: CategoryDoc[];
+  storeUrl: string;
 }
 
 interface Keyword {
@@ -82,47 +84,141 @@ const defaultImages = [
   }
 ];
 
-export default function ProductDetails({ data, categories }: ProductDetailsProps) {
+const defaultSizes = [
+  {
+    size: "xl",
+    quantity: 5,
+    price: 10,
+    discount: 15
+  },
+  {
+    size: "lg",
+    quantity: 10,
+    price: 8,
+    discount: 10
+  }
+];
+const defaultKeywords = ["Dreamcore", "comfortable", "premium", "cotton", "ultra"];
+const defaultColors = [
+  {
+    color: "#ffffff"
+  },
+  {
+    color: "#C9D5F4"
+  },
+  {
+    color: "#2B467E"
+  }
+];
+
+export default function ProductDetails({
+  data,
+  categories,
+  storeUrl
+}: ProductDetailsProps) {
   const { toast } = useToast();
   const variant = data?.variants[0]; //|| ({} as IProductVariant);
   // Temporary state for preserving previous images
   const [images, setImages] = useState<ProductFormSchemaType["images"]>(defaultImages);
   const [colors, setColors] = useState<{ color: string }[]>(
-    () => variant?.colors || [{ color: "" }]
+    () => variant?.colors || defaultColors || [{ color: "" }]
   );
-  const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>([
-    { size: "", quantity: 1, price: 0, discount: 0 }
-  ]);
-  const [keywords, setKeywords] = useState<string[]>([]);
+  const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>(defaultSizes);
+  const [keywords, setKeywords] = useState<string[]>(defaultKeywords);
   // State for subcategories
   const [subcategories, setSubcategories] = useState<SubcategoryDoc[]>([]);
 
   // 1. Define your form.
   const form = useForm<ProductFormSchemaType>({
     resolver: zodResolver(ProductFormSchema),
+    // defaultValues: {
+    //   name: data?.name || "",
+    //   description: data?.description || "",
+    //   variantName: variant?.variantName || "",
+    //   variantDescription: variant?.variantDescription || "",
+    //   images: variant?.images || images,
+    //   variantImage: [{ url: variant?.variantImage || "" }],
+    //   category: data?.category.toString() || "",
+    //   subcategory: data?.subcategory.toString() || "",
+    //   brand: data?.brand.toString() || "",
+    //   sku: variant?.sku || "",
+    //   keywords: variant?.keywords ? variant.keywords.split(" ") : [],
+    //   colors: variant?.colors || [],
+    //   sizes: variant?.sizes || [
+    //     {
+    //       size: "",
+    //       quantity: 0,
+    //       price: 0,
+    //       discount: 0
+    //     }
+    //   ],
+    //   isSale: variant?.isSale || false,
+    //   saleEndDate: variant?.saleEndDate || ""
+    // }
     defaultValues: {
-      name: data?.name || "",
-      description: data?.description || "",
-      variantName: variant?.variantName || "",
-      variantDescription: variant?.variantDescription || "",
-      images: variant?.images || images,
-      variantImage: [{ url: variant?.variantImage || "" }],
-      category: data?.category.toString() || "",
-      subcategory: data?.subcategory.toString() || "",
-      brand: data?.brand.toString() || "",
-      sku: variant?.sku || "",
-      keywords: variant?.keywords ? variant.keywords.split(" ") : [],
-      colors: variant?.colors || [],
-      sizes: variant?.sizes || [
+      name: "Mens Premium Casual Shirt",
+      description:
+        "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
+      variantName: "Dreamcore",
+      variantDescription:
+        "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
+      images: [
         {
-          size: "",
-          quantity: 0,
-          price: 0,
-          discount: 0
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
         }
       ],
-      isSale: variant?.isSale || false,
-      saleEndDate: variant?.saleEndDate || ""
+      variantImage: [
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+        }
+      ],
+      category: "6a605c3165fc6b0b3f2fdcb7",
+      subcategory: "6a605db565fc6b0b3f2fdce0",
+      brand: "Dreamcore",
+      sku: "dreamcore_1010",
+      keywords: ["Dreamcore", "comfortable", "premium", "cotton", "ultra"],
+      colors: [
+        {
+          color: "#ffffff"
+        },
+        {
+          color: "#C9D5F4"
+        },
+        {
+          color: "#2B467E"
+        }
+      ],
+      sizes: [
+        {
+          size: "xl",
+          quantity: 5,
+          price: 10,
+          discount: 15
+        },
+        {
+          size: "lg",
+          quantity: 10,
+          price: 8,
+          discount: 10
+        }
+      ],
+      isSale: true,
+      saleEndDate: ""
     }
   });
 
@@ -159,40 +255,32 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
   function handleDeleteKeyword(index: number) {
     setKeywords((prevState) => prevState.filter((key, i) => i !== index));
   }
-
+  console.log(errors.sizes);
   // 2. Define a submit handler.
   async function onSubmit(values: ProductFormSchemaType) {
-    const isLogTemp: boolean = true;
     try {
-      console.log(errors);
       console.log(values);
-      if (isLogTemp) return;
       const isUpdateSession = !!data?._id;
-      let response;
-      if (isUpdateSession) {
-        response = await axios.patch<ApiResponse<{ product: ProductDoc }>>(
-          `/products/${data._id}`,
-          values
-        );
-      } else {
-        response = await axios.post<ApiResponse<{ product: ProductDoc }>>(
-          `/products`,
-          values
-        );
-      }
+      // const response = await upsertProduct(values, storeUrl);
+      const response = await upsertProductReq<
+        { product: ProductDoc; productVariant: ProductVariantDoc },
+        ProductFormSchemaType & { productId?: Types.ObjectId; storeUrl: string }
+      >("/products", { ...values, productId: data?._id, storeUrl });
+      console.log(response);
+
       toast({
         title: "Congratulations!",
         description: isUpdateSession
-          ? `Your product ${response.data.product.name} has been updated successfully`
-          : `Your product ${response.data.product.name} has been created successfully`
+          ? `Your product ${response.product.name} and variant ${response.productVariant.variantName} has been updated successfully`
+          : `Your product ${response.product.name} and variant ${response.productVariant.variantName} has been created successfully`
       });
-      form.reset();
+      // form.reset();
     } catch (error: any) {
+      console.log(error);
       toast({
         title: "An Error Occured",
         description:
-          error.response?.data.message ||
-          "Unexpected error while creating/updating the product",
+          error.message || "Unexpected error while creating/updating the product",
         variant: "destructive"
       });
     }
@@ -283,7 +371,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="flex-grow">
+                    <FormItem className="flex-1">
                       <FormLabel>Product Name</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter product name" {...field} />
@@ -296,7 +384,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   control={form.control}
                   name="variantName"
                   render={({ field }) => (
-                    <FormItem className="flex-grow">
+                    <FormItem className="flex-1">
                       <FormLabel>Variant Name</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter variant name" {...field} />
@@ -312,7 +400,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem className="flex-grow">
+                    <FormItem className="flex-1">
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea
@@ -329,7 +417,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   control={form.control}
                   name="variantDescription"
                   render={({ field }) => (
-                    <FormItem className="flex-grow">
+                    <FormItem className="flex-1">
                       <FormLabel>Description for variant</FormLabel>
                       <FormControl>
                         <Textarea
@@ -350,7 +438,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   name="category"
                   render={({ field }) => {
                     return (
-                      <FormItem className="flex-grow justify-self-end">
+                      <FormItem className="flex-1 justify-self-end">
                         <FormLabel>Select Category</FormLabel>
                         <Select
                           disabled={isSubmitting}
@@ -380,7 +468,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                     name="subcategory"
                     render={({ field }) => {
                       return (
-                        <FormItem className="flex-grow">
+                        <FormItem className="flex-1">
                           <FormLabel>Select Subcategory</FormLabel>
                           <Select
                             disabled={isSubmitting}
@@ -412,7 +500,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   control={form.control}
                   name="brand"
                   render={({ field }) => (
-                    <FormItem className="flex-grow">
+                    <FormItem className="flex-1">
                       <FormLabel>Brand</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter brand for product" {...field} />
@@ -425,7 +513,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   control={form.control}
                   name="sku"
                   render={({ field }) => (
-                    <FormItem className="flex-grow">
+                    <FormItem className="flex-1">
                       <FormLabel>SKU</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter product sku" {...field} />
@@ -454,6 +542,7 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                           }}
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -482,9 +571,23 @@ export default function ProductDetails({ data, categories }: ProductDetailsProps
                   header="Size | Quantity | Price | Discount"
                 />
                 {errors.sizes && (
-                  <span className="text-sm font-medium text-destructive">
-                    {errors.sizes.message}
-                  </span>
+                  <>
+                    <span className="text-sm font-medium text-destructive capitalize">
+                      {Array.isArray(errors.sizes) &&
+                        errors.sizes
+                          .map((err) =>
+                            Object.entries(err)
+                              .map(
+                                ([field, value]: any[]) => `${field}: ${value.message}`
+                              )
+                              .join("  ")
+                          )
+                          .join(". ")}
+                    </span>
+                    <span className="text-sm font-medium text-destructive">
+                      {errors.sizes.message}
+                    </span>
+                  </>
                 )}
               </div>
               {/* IS PRODUCT ON SALE */}

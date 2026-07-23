@@ -1,4 +1,4 @@
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/db-connect";
 import { CategoryFormSchemaType } from "@/lib/schemas";
 import Category from "@/models/Category";
 import { Types } from "mongoose";
@@ -21,10 +21,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     const category = await Category.findById(params.categoryId);
     return Response.json({ category, success: true }, { status: 200 });
   } catch (error: any) {
-    return Response.json(
-      { success: false, message: error.message },
-      { status: 404 }
-    );
+    return Response.json({ success: false, message: error.message }, { status: 404 });
   }
 }
 
@@ -48,9 +45,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     return Response.json(
       {
         success: false,
-        message:
-          error.message ||
-          "An internal error occured while updating the category."
+        message: error.message || "An internal error occured while updating the category."
       },
       { status: 500 }
     );
@@ -77,9 +72,7 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     return Response.json(
       {
         success: false,
-        message:
-          error.message ||
-          "An internal error occured while deleting the category."
+        message: error.message || "An internal error occured while deleting the category."
       },
       { status: 500 }
     );

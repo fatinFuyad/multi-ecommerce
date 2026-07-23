@@ -1,4 +1,4 @@
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory";

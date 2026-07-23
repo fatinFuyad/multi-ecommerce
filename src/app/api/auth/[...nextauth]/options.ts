@@ -1,4 +1,4 @@
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/db-connect";
 import User, { IUser, UserDoc } from "@/models/User";
 import bcrypt from "bcryptjs";
 import { Types } from "mongoose";
@@ -55,10 +55,7 @@ export const authOptions = {
           // You can also use the `req` object to obtain additional parameters
           // (i.e., the request IP address)
           const existingUser = await User.findOne<Promise<UserDoc | null>>({
-            $or: [
-              { username: credentials.identifier },
-              { email: credentials.identifier }
-            ]
+            $or: [{ username: credentials.identifier }, { email: credentials.identifier }]
           }).select("+password");
           console.log(existingUser);
           // Return null or throw error if no existingUser is associated with the credentials
@@ -119,8 +116,7 @@ export const authOptions = {
         });
 
         if (existingUser) {
-          existingUser.signinMethod =
-            account?.provider as IUser["signinMethod"];
+          existingUser.signinMethod = account?.provider as IUser["signinMethod"];
           existingUser.lastSignin = new Date();
           await existingUser.save();
           return true;
