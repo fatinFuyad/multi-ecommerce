@@ -28,7 +28,7 @@ const productSchema = new Schema(
     },
     subcategory: {
       type: Schema.Types.ObjectId,
-      ref: "subcategory",
+      ref: "Subcategory",
       required: true
     }
   },
@@ -71,7 +71,7 @@ const productVariantSchema = new Schema(
     images: [
       {
         url: { type: String, required: true },
-        alt: { type: String, default: "ImgOfPrdt" },
+        alt: { type: String, default: "productImage" },
         order: { type: Number }
       }
     ]

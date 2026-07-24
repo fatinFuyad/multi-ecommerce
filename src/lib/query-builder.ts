@@ -17,6 +17,10 @@ type MetaData = PaginationMeta & {
   collectionName: string;
 };
 
+/**
+ * @class QueryBuilder - handles query operation
+ * @method build returns the actual query that should be awaited
+ */
 export class QueryBuilder<T extends Document> {
   public query: QueryWithHelpers<T[], T>;
   public queryParams: QueryParams;
@@ -29,6 +33,12 @@ export class QueryBuilder<T extends Document> {
     limit: 10,
     skip: 0
   };
+
+  /**
+   * @constructor
+   * @param query - is a mongoose query returned from Model.find() call
+   * @param reqUrl - used for filtering, sorting, limiting fields and other stuffs
+   */
   constructor(query: QueryWithHelpers<T[], T>, reqUrl: string) {
     const { searchParams } = new URL(reqUrl);
     // this.model = Model;
@@ -139,9 +149,6 @@ export class QueryBuilder<T extends Document> {
 
   build() {
     return this.query;
-  }
-  populate(field: string) {
-    this.query = this.query.populate({ path: field });
   }
 
   async exec(model: Model<T>) {

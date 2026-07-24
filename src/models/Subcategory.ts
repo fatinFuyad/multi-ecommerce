@@ -44,6 +44,7 @@ export type ISubcategory = InferSchemaType<typeof subcategorySchema> & {
 export type SubcategoryDoc = HydratedDocument<ISubcategory>;
 
 const Subcategory =
-  models.Subcategory || model<ISubcategory>("Subcategory", subcategorySchema);
+  models.Subcategory<ISubcategory> ||
+  model<ISubcategory>("Subcategory", subcategorySchema);
 
 export default Subcategory;

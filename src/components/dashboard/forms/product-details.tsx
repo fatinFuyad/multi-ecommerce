@@ -37,23 +37,20 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { useToast } from "@/hooks/use-toast";
-import { upsertProduct, upsertProductForm } from "@/lib/product-actions";
 import { ProductFormSchema, ProductFormSchemaType } from "@/lib/schemas";
 import { ProductWithVariant } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
 import { SubcategoryDoc } from "@/models/Subcategory";
+import { upsertProduct } from "@/queries/product";
 import { getAllSubcategories } from "@/queries/subcategory";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
 import ImagePreviewGrid from "../shared/image-preview-grid";
 import AddInput from "./add-input";
-import { upsertProductReq } from "@/queries/product";
-import { ProductDoc, ProductVariantDoc } from "@/models/Product";
-import { Types } from "mongoose";
 
 interface ProductDetailsProps {
-  data?: ProductWithVariant;
+  data?: Partial<ProductWithVariant>;
   categories: CategoryDoc[];
   storeUrl: string;
 }
@@ -117,7 +114,7 @@ export default function ProductDetails({
   storeUrl
 }: ProductDetailsProps) {
   const { toast } = useToast();
-  const variant = data?.variants[0]; //|| ({} as IProductVariant);
+  const variant = data?.variants && data.variants[0];
   // Temporary state for preserving previous images
   const [images, setImages] = useState<ProductFormSchemaType["images"]>(defaultImages);
   const [colors, setColors] = useState<{ color: string }[]>(
@@ -261,11 +258,7 @@ export default function ProductDetails({
     try {
       console.log(values);
       const isUpdateSession = !!data?._id;
-      // const response = await upsertProduct(values, storeUrl);
-      const response = await upsertProductReq<
-        { product: ProductDoc; productVariant: ProductVariantDoc },
-        ProductFormSchemaType & { productId?: Types.ObjectId; storeUrl: string }
-      >("/products", { ...values, productId: data?._id, storeUrl });
+      const response = await upsertProduct({ ...values, productId: data?._id, storeUrl });
       console.log(response);
 
       toast({
@@ -274,7 +267,7 @@ export default function ProductDetails({
           ? `Your product ${response.product.name} and variant ${response.productVariant.variantName} has been updated successfully`
           : `Your product ${response.product.name} and variant ${response.productVariant.variantName} has been created successfully`
       });
-      // form.reset();
+      form.reset();
     } catch (error: any) {
       console.log(error);
       toast({

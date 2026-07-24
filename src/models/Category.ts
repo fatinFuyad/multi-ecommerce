@@ -20,9 +20,6 @@ const categorySchema = new Schema(
       type: String,
       required: true
     },
-    // image: [{ url: String }],
-    // TypeError: Invalid schema configuration: Could not determine the embedded type for array `required`
-    // image: [{ url: String, required: [true, "Image is required"] }],
     url: {
       type: String,
       required: true,
@@ -49,7 +46,6 @@ export type CategoryDoc = HydratedDocument<ICategory>;
 
 // on inital time the models will be and empty {}; and so reading any property will be undefined
 
-const Category =
-  models.Category || model<ICategory>("Category", categorySchema);
+const Category = models.Category || model<ICategory>("Category", categorySchema);
 
 export default Category;

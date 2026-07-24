@@ -1,7 +1,7 @@
 import Store from "@/models/Store";
 import Category from "./Category";
 import Product from "./Product";
-import Subcategory from "./Subcategory";
 import User from "./User";
+import Subcategory from "./Subcategory";
 
-export { Store, Category, Product, Subcategory, User };
+export { Store, Category, Subcategory, Product, User };

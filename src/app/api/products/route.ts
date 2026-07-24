@@ -2,9 +2,10 @@
 
 import { restrictTo } from "@/app/api/apiUtils";
 import { dbConnect } from "@/lib/db-connect";
+import { QueryBuilder } from "@/lib/query-builder";
 import { ProductFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import { Store } from "@/models";
+import Store from "@/models/Store";
 import Product, {
   IProduct,
   IProductVariant,
@@ -14,45 +15,47 @@ import Product, {
 } from "@/models/Product";
 import { Types } from "mongoose";
 
-function generateSlug(
+async function generateSlug(
   value: string,
+  Model: any, // mongoose.model Model<T>,
   options?: {
-    lowerCase?: boolean;
+    field?: string;
     upperCase?: boolean;
-    trim?: boolean;
     separator?: string;
+    unique?: boolean;
   }
-): string {
+): Promise<string> {
   const {
-    lowerCase = true,
     upperCase = false,
-    trim = true,
-    separator = "_"
+    separator = "_",
+    field = "slug",
+    unique = false
   } = options || {};
-  let modified = value;
-  if (trim) modified = value.trim();
-  if (lowerCase) modified = value.toLowerCase();
-  if (upperCase) modified = value.toUpperCase();
-  if (separator) modified = value.replaceAll(" ", separator);
 
-  return modified;
+  if (!value) throw new Error("Slugify requires a string value.");
+  let slugStr = value
+    .replace(/[^a-zA-Z0-9]+/g, " ")
+    .trim()
+    .replace(/ /g, separator);
+
+  slugStr = !upperCase ? slugStr.toLowerCase() : slugStr.toUpperCase();
+  if (unique) {
+    // using time
+    // slugStr = slugStr + separator + (Math.trunc(Date.now() / 100) + "").slice(3);
+
+    while (true) {
+      const existingSlug = await Model.findOne({ [field]: slugStr });
+      if (!existingSlug) break;
+      // using 4 digit random value between 1000 to 9999
+      slugStr = slugStr + separator + Math.trunc(Math.random() * 9000 + 1000);
+    }
+  }
+
+  // james_cotton_shirt_2607 <-- random 4-digit
+  // james_cotton_shirt_6a5f46cdd30732e9b1dc3729 <-- _id joined
+
+  return slugStr;
 }
-
-/*
-function slugify(value, options){
-    const {trim = true, lower = true, upper=false , separator ='-' } = options || {};
-    let modified = trim ? value.trim(): value;
-        modified = lower? modified.toLowerCase(): upper? modified.toUpperCase(): modified;
-        modified = modified.replace(/\s+/g, separator);
-        modified = modified.replace(/\W+/g, separator);
-        modified = modified.replace(new RegExp(`\\${separator}{2,}`, 'g', separator)); // /\-{2,}/g
-    return modified;
-};
-'!!!fuyad-gmail-com-max!!!!'.replace(/(^\W+)|(\W+$)/g, '') // ==> 'fuyad-gmail-com-max'
- */
-
-// james_cotton_shirt_260721
-// james_cotton_shirt_6a5f46cdd30732e9b1dc3729
 
 /**
  * @name upsertProduct
@@ -62,7 +65,7 @@ function slugify(value, options){
  * @param storeUrl The `_id` of store to which the product belongs.
  * @returns Newly created or updated product with variant details `populated`
  */
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     await dbConnect();
     await restrictTo("SELLER");
@@ -73,8 +76,12 @@ export async function POST(req: Request, res: Response) {
     } = await req.json();
     const storeUrl: string = productData.storeUrl;
 
-    const productSlug = productData.name.toLowerCase().trim().replaceAll(" ", "_");
-    const variantSlug = productData.variantName.toLowerCase().trim().replaceAll(" ", "_");
+    const productSlug = await generateSlug(productData.name, Product, {
+      unique: true
+    });
+    const variantSlug = await generateSlug(productData.variantName, ProductVariant, {
+      unique: true
+    });
 
     // check if product already exists in database. then create a new variant for that product
     let existingProduct;
@@ -184,5 +191,53 @@ export async function POST(req: Request, res: Response) {
       } satisfies ApiResponse<{ product: null; productVariant: null }>,
       { status: 500 }
     );
+  }
+}
+
+/**
+ * @description Get all products from the database.
+ * @access Level: Public
+ * @returns requested products.
+ */
+export async function GET(req: Request) {
+  try {
+    await dbConnect(); // foremost
+
+    const options = {
+      lean: req.headers.get("lean"),
+      populate: req.headers.get("populate"),
+      limitPopulateDoc: req.headers.get("limitPopulateDoc")
+    };
+
+    const query = new QueryBuilder(Product.find(), req.url)
+      .filter()
+      .sort()
+      .limitFields()
+      .build();
+    if (options.populate?.trim())
+      options.populate
+        .replaceAll(" ", "")
+        .split(",")
+        .forEach((field) =>
+          query.populate({
+            path: field,
+            perDocumentLimit: Number(options.limitPopulateDoc) || 10 // make sure to get 10 docs max for eqch query
+          })
+        );
+    if (options.lean) query.lean();
+
+    const products = await query;
+    return Response.json(
+      {
+        products,
+        total: products.length,
+        success: true,
+        message: "Get all products successfully",
+        status: 200
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return Response.json({ success: false, message: error.message }, { status: 404 });
   }
 }
