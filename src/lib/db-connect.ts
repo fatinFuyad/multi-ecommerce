@@ -7,7 +7,7 @@ export const dbConnect = async () => {
   try {
     if (!process.env.DATABASE_URL) return console.log("Missing MongoDB URL");
     if (!initialized) {
-      await import("@/models/index");
+      await import("@/models/register");
       initialized = true;
       console.log("Models initialized");
     }

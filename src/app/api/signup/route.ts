@@ -1,7 +1,8 @@
-import { dbConnect } from "@/lib/db-connect";
-import { ApiResponse } from "@/lib/types";
 import UserModel, { IUser, UserDoc } from "@/models/User";
 import bcrypt from "bcryptjs";
+
+import { dbConnect } from "@/lib/db-connect";
+import { ApiResponse } from "@/lib/types";
 
 export async function POST(request: Request) {
   try {

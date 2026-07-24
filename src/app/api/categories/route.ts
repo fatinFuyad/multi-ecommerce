@@ -1,8 +1,9 @@
+import Category, { CategoryDoc, ICategory } from "@/models/Category";
+import mongoose, { Types } from "mongoose";
+
 import { dbConnect } from "@/lib/db-connect";
 import { CategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import Category, { CategoryDoc, ICategory } from "@/models/Category";
-import mongoose, { Types } from "mongoose";
 import { restrictTo } from "../apiUtils";
 
 // Function: Creates or updates a category into the database

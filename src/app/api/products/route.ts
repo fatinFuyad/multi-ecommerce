@@ -1,11 +1,10 @@
-"use server";
-
 import { restrictTo } from "@/app/api/apiUtils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { ProductFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import Store from "@/models/Store";
+import { Types } from "mongoose";
+
 import Product, {
   IProduct,
   IProductVariant,
@@ -13,7 +12,7 @@ import Product, {
   ProductVariant,
   ProductVariantDoc
 } from "@/models/Product";
-import { Types } from "mongoose";
+import Store from "@/models/Store";
 
 async function generateSlug(
   value: string,

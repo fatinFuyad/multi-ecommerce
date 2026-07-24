@@ -1,11 +1,12 @@
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
-import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory";
+import { ApiResponse, SubcategoryWithCateogry } from "@/lib/types";
 import { Types } from "mongoose";
 import { restrictTo } from "../apiUtils";
-import { ApiResponse, SubcategoryWithCateogry } from "@/lib/types";
-import { Category } from "@/models";
+
+import Category from "@/models/Category";
+import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory";
 
 /**
  * @description: Creates or updates a subcategory into the database

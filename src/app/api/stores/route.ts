@@ -1,9 +1,10 @@
-import { StoreFormSchemaType } from "@/lib/schemas";
-import { ApiResponse } from "@/lib/types";
 import Store, { IStore, StoreDoc } from "@/models/Store";
 import User from "@/models/User";
-import { restrictTo } from "../apiUtils";
+
+import { StoreFormSchemaType } from "@/lib/schemas";
+import { ApiResponse } from "@/lib/types";
 import { Types } from "mongoose";
+import { restrictTo } from "../apiUtils";
 
 // Function: Upserts store details into the database, ensuring uniqueness of name,url, email, and phone number.
 // Access Level: Seller Only
