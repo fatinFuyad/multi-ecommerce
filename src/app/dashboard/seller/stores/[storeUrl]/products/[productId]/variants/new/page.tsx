@@ -2,12 +2,11 @@ import ProductDetails from "@/components/dashboard/forms/product-details";
 import { IProduct } from "@/models/Product";
 import { getAllCategories } from "@/queries/category";
 import { getProductById } from "@/queries/product";
-import { Types } from "mongoose";
 
 async function NewPrductVariantPage({
   params
 }: {
-  params: { storeUrl: string; productId: Types.ObjectId };
+  params: { storeUrl: string; productId: string };
 }) {
   const categories = await getAllCategories();
   const fields = ["name", "brand", "description", "subcategory", "category"] as const;
@@ -15,6 +14,8 @@ async function NewPrductVariantPage({
     params.productId,
     { lean: true, fields: fields }
   );
+
+  if (!res.product) return <h2>No Product ⚠️</h2>;
   return (
     <ProductDetails
       data={res.product}

@@ -1,9 +1,9 @@
 import Product, { IProduct } from "@/models/Product";
 
+import { handleQueryOptions, restrictTo } from "@/lib/apiUtils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { Types } from "mongoose";
-import { restrictTo } from "../../apiUtils";
 
 interface RouteParams {
   params: {
@@ -19,31 +19,21 @@ interface RouteParams {
  */
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    await dbConnect(); // foremost
-
-    const options = {
-      lean: req.headers.get("lean"),
-      populate: req.headers.get("populate"),
-      limitPopulateDoc: req.headers.get("limitPopulateDoc")
-    };
-    console.log(options, params.productId);
+    await dbConnect();
 
     const query = new QueryBuilder(Product.findOne({ _id: params.productId }), req.url)
       .limitFields()
+      .handleQueryOptions(req.headers)
       .build();
-    if (options.populate?.length)
-      options.populate.split(",").forEach((field) =>
-        query.populate({
-          path: field,
-          perDocumentLimit: Number(options.limitPopulateDoc) || 10 // make sure to get 10 docs max for eqch query
-        })
-      );
-    if (options.lean) query.lean();
 
+    // const product = await handleQueryOptions(req, query);
     const product = await query;
     return Response.json({ product, success: true }, { status: 200 });
   } catch (error: any) {
-    return Response.json({ success: false, message: error.message }, { status: 404 });
+    return Response.json(
+      { success: false, product: null, message: error.message },
+      { status: 404 }
+    );
   }
 }
 

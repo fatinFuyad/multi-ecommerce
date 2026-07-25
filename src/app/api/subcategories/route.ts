@@ -3,7 +3,7 @@ import { QueryBuilder } from "@/lib/query-builder";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse, SubcategoryWithCateogry } from "@/lib/types";
 import { Types } from "mongoose";
-import { restrictTo } from "../apiUtils";
+import { restrictTo } from "@/lib/apiUtils";
 
 import Category from "@/models/Category";
 import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory";

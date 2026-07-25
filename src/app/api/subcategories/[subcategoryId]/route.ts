@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { dbConnect } from "@/lib/db-connect";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import { restrictTo } from "../../apiUtils";
+import { restrictTo } from "../@/lib/apiUtils";
 import { createUpdateSubcategory } from "../route";
 
 interface RouteParams {

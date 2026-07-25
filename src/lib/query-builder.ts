@@ -147,6 +147,32 @@ export class QueryBuilder<T extends Document> {
     return this;
   }
 
+  /**
+   * @description Updates the query by adding populate, lean from the options if presents that are passed from the fronted as axios headers
+   * @param headers - The headers of the Request object
+   * @returns this
+   */
+  handleQueryOptions(headers: Headers) {
+    const options = {
+      lean: headers.get("lean"),
+      populate: headers.get("populate"),
+      limitPopulateDoc: Number(headers.get("limitPopulateDoc")) || undefined
+    };
+
+    if (options.populate)
+      options.populate
+        .replaceAll(" ", "")
+        .split(",")
+        .forEach((field) =>
+          this.query.populate({
+            path: field,
+            perDocumentLimit: options.limitPopulateDoc
+          })
+        );
+    if (options.lean) this.query.lean();
+    return this;
+  }
+
   build() {
     return this.query;
   }

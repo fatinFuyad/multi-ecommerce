@@ -118,113 +118,114 @@ export default function ProductDetails({
   // Temporary state for preserving previous images
   const [images, setImages] = useState<ProductFormSchemaType["images"]>(defaultImages);
   const [colors, setColors] = useState<{ color: string }[]>(
-    () => variant?.colors || defaultColors || [{ color: "" }]
+    () => variant?.colors || [{ color: "" }]
   );
-  const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>(defaultSizes);
-  const [keywords, setKeywords] = useState<string[]>(defaultKeywords);
+  const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>([
+    { size: "", quantity: 0, price: 0, discount: 0 }
+  ]);
+  const [keywords, setKeywords] = useState<string[]>([]);
   // State for subcategories
   const [subcategories, setSubcategories] = useState<SubcategoryDoc[]>([]);
 
   // 1. Define your form.
   const form = useForm<ProductFormSchemaType>({
     resolver: zodResolver(ProductFormSchema),
+    // mode: "onBlur",
+    defaultValues: {
+      name: data?.name || "",
+      description: data?.description || "",
+      variantName: variant?.variantName || "",
+      variantDescription: variant?.variantDescription || "",
+      images: variant?.images || images,
+      variantImage: [{ url: variant?.variantImage || "" }],
+      category: data?.category?.toString() || "",
+      subcategory: data?.subcategory?.toString() || "",
+      brand: data?.brand || "",
+      sku: variant?.sku || "",
+      keywords: variant?.keywords ? variant.keywords.split(" ") : [],
+      colors: variant?.colors || [],
+      sizes: variant?.sizes || [
+        {
+          size: "",
+          quantity: 0,
+          price: 0,
+          discount: 0
+        }
+      ],
+      isSale: variant?.isSale || false,
+      saleEndDate: variant?.saleEndDate || ""
+    }
     // defaultValues: {
-    //   name: data?.name || "",
-    //   description: data?.description || "",
-    //   variantName: variant?.variantName || "",
-    //   variantDescription: variant?.variantDescription || "",
-    //   images: variant?.images || images,
-    //   variantImage: [{ url: variant?.variantImage || "" }],
-    //   category: data?.category.toString() || "",
-    //   subcategory: data?.subcategory.toString() || "",
-    //   brand: data?.brand.toString() || "",
-    //   sku: variant?.sku || "",
-    //   keywords: variant?.keywords ? variant.keywords.split(" ") : [],
-    //   colors: variant?.colors || [],
-    //   sizes: variant?.sizes || [
+    //   name: "Mens Premium Casual Shirt",
+    //   description:
+    //     "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
+    //   variantName: "Dreamcore",
+    //   variantDescription:
+    //     "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
+    //   images: [
     //     {
-    //       size: "",
-    //       quantity: 0,
-    //       price: 0,
-    //       discount: 0
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
     //     }
     //   ],
-    //   isSale: variant?.isSale || false,
-    //   saleEndDate: variant?.saleEndDate || ""
+    //   variantImage: [
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+    //     }
+    //   ],
+    //   category: "6a605c3165fc6b0b3f2fdcb7",
+    //   subcategory: "6a605db565fc6b0b3f2fdce0",
+    //   brand: "Dreamcore",
+    //   sku: "dreamcore_1010",
+    //   keywords: ["Dreamcore", "comfortable", "premium", "cotton", "ultra"],
+    //   colors: [
+    //     {
+    //       color: "#ffffff"
+    //     },
+    //     {
+    //       color: "#C9D5F4"
+    //     },
+    //     {
+    //       color: "#2B467E"
+    //     }
+    //   ],
+    //   sizes: [
+    //     {
+    //       size: "xl",
+    //       quantity: 5,
+    //       price: 10,
+    //       discount: 15
+    //     },
+    //     {
+    //       size: "lg",
+    //       quantity: 10,
+    //       price: 8,
+    //       discount: 10
+    //     }
+    //   ],
+    //   isSale: true,
+    //   saleEndDate: ""
     // }
-    defaultValues: {
-      name: "Mens Premium Casual Shirt",
-      description:
-        "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
-      variantName: "Dreamcore",
-      variantDescription:
-        "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
-      images: [
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
-        }
-      ],
-      variantImage: [
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
-        }
-      ],
-      category: "6a605c3165fc6b0b3f2fdcb7",
-      subcategory: "6a605db565fc6b0b3f2fdce0",
-      brand: "Dreamcore",
-      sku: "dreamcore_1010",
-      keywords: ["Dreamcore", "comfortable", "premium", "cotton", "ultra"],
-      colors: [
-        {
-          color: "#ffffff"
-        },
-        {
-          color: "#C9D5F4"
-        },
-        {
-          color: "#2B467E"
-        }
-      ],
-      sizes: [
-        {
-          size: "xl",
-          quantity: 5,
-          price: 10,
-          discount: 15
-        },
-        {
-          size: "lg",
-          quantity: 10,
-          price: 8,
-          discount: 10
-        }
-      ],
-      isSale: true,
-      saleEndDate: ""
-    }
   });
 
   const isSubmitting = form.formState.isSubmitting;
   const errors = form.formState.errors;
 
   // Whenever colors, sizes, keywords changes we update the form values
-  // console.log(form.watch("sizes"));
-
   useEffect(() => {
     form.setValue("colors", colors);
     form.setValue("sizes", sizes);
@@ -609,7 +610,7 @@ export default function ProductDetails({
                 {form.formState.isSubmitting
                   ? "Submitting..."
                   : data?._id
-                    ? "Save Product Data"
+                    ? "Save Product"
                     : "Create Product"}
               </Button>
             </form>

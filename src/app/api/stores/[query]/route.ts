@@ -1,8 +1,9 @@
+import Store, { IStore, StoreDoc } from "@/models/Store";
+import { Types } from "mongoose";
+
 import { dbConnect } from "@/lib/db-connect";
 import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import Store, { IStore, StoreDoc } from "@/models/Store";
-import { Types } from "mongoose";
 
 export async function PATCH(
   req: Request,

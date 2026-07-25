@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { MinusCircle, PaintBucket, PlusCircle } from "lucide-react";
+import { Divide, MinusCircle, PaintBucket, PlusCircle } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { SketchPicker } from "react-color";
 
@@ -69,7 +69,11 @@ export default function AddInput<T extends InputDetail>({
       {/* HEADER */}
       {header && <h4>{header}</h4>}
       {/* Display PlusButton if no details exist */}
-      {inputDetails.length === 0 && <PlusButton onClick={handleAddInput} />}
+      {inputDetails.length === 0 && (
+        <div className="h-fit mb-0">
+          <PlusButton onClick={handleAddInput} />
+        </div>
+      )}
       {/* Map through details and render input fields */}
       {inputDetails.map((detail, index) => {
         return (

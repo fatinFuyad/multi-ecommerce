@@ -17,6 +17,14 @@ type BaseResponse = {
   message?: string;
   error?: string;
 };
+/*
+type BaseResponse = {
+  success: boolean;
+} & (
+  | { success: true; message: string; status: 200 | 201 }
+  | { success: false; error: string; status: 400 | 404 | 500 }
+);
+*/
 
 // dynamic property type // interfaced can't be dynamic mapped type
 export type ApiResponse<T = { data: null }> = {

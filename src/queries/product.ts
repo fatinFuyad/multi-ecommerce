@@ -1,6 +1,6 @@
 import axios from "@/lib/axios";
 import { ProductFormSchemaType } from "@/lib/schemas";
-import { ApiResponse, PrettifyType } from "@/lib/types";
+import { ApiResponse } from "@/lib/types";
 import { IProduct, ProductDoc, ProductVariantDoc } from "@/models/Product";
 import { MergeType, Types } from "mongoose";
 
@@ -74,7 +74,7 @@ export async function getAllProducts(
 }
 
 export async function getProductById<T = ProductDoc>(
-  _id: Types.ObjectId,
+  _id: Types.ObjectId | string,
   options?: MergeType<
     ApiQueryOptions,
     {
@@ -83,14 +83,22 @@ export async function getProductById<T = ProductDoc>(
     }
   >
 ) {
-  const { lean = false, populate = [], limitPopulateDoc = 10 } = options || {};
-  const response = await axios.get<ApiResponse<{ product: T }>>(
-    `/products/${_id}` + options?.fields ? `?fields=${options?.fields?.join(",")}` : "",
-    {
-      headers: { lean, populate: populate.join(","), limitPopulateDoc }
-    }
-  );
-  return response.data;
+  const { lean = false, populate, limitPopulateDoc } = options || {};
+  try {
+    // Malformed url can cause AxiosError: Request failed with status code 404
+    // also if the associated route is not created to send proper response
+    const reqUrl =
+      `/products/${_id}` +
+      (options?.fields ? `?fields=${options?.fields?.join(",")}` : "");
+    console.log(reqUrl);
+    const response = await axios.get<ApiResponse<{ product: T }>>(reqUrl, {
+      headers: { lean, populate: populate?.join(","), limitPopulateDoc }
+    });
+    return response.data;
+  } catch (error: any) {
+    console.log(error);
+    return { product: null, message: error?.message, error };
+  }
 }
 
 /////////////////

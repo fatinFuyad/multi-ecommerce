@@ -1,4 +1,4 @@
-import { restrictTo } from "@/app/api/apiUtils";
+import { restrictTo } from "@/lib/apiUtils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { ProductFormSchemaType } from "@/lib/schemas";
@@ -14,9 +14,15 @@ import Product, {
 } from "@/models/Product";
 import Store from "@/models/Store";
 
+/**
+ * @param value - The expected string to be slugified
+ * @param Model - The mongoose model for of your schema. Used for querying to generate unique slug
+ * @param options
+ * @returns `slug` as a resolved Promise
+ */
 async function generateSlug(
   value: string,
-  Model: any, // mongoose.model Model<T>,
+  Model?: any, // Mongoose Model
   options?: {
     field?: string;
     upperCase?: boolean;
@@ -60,9 +66,9 @@ async function generateSlug(
  * @name upsertProduct
  * @description Upserts a product and its variant into the database, ensuring proper association with the store.
  * @access Access Level: Seller Only
- * @param productData ProductWithVariant object containing details of the product and its variant.
- * @param storeUrl The `_id` of store to which the product belongs.
- * @returns Newly created or updated product with variant details `populated`
+ * @description `productData` ProductWithVariant object containing details of the product and its variant.
+ *  `storeUrl` of store to which the product belongs.
+ * @returns Newly created or updated product with variant
  */
 export async function POST(req: Request) {
   try {
@@ -75,13 +81,6 @@ export async function POST(req: Request) {
     } = await req.json();
     const storeUrl: string = productData.storeUrl;
 
-    const productSlug = await generateSlug(productData.name, Product, {
-      unique: true
-    });
-    const variantSlug = await generateSlug(productData.variantName, ProductVariant, {
-      unique: true
-    });
-
     // check if product already exists in database. then create a new variant for that product
     let existingProduct;
     if (productData.productId) {
@@ -92,18 +91,26 @@ export async function POST(req: Request) {
     const variantId = new Types.ObjectId();
     let productId = productData.productId as Types.ObjectId;
     let storeId: Types.ObjectId | undefined;
+    let productSlug;
+
+    const variantSlug = await generateSlug(productData.variantName, ProductVariant, {
+      unique: true
+    });
 
     if (!existingProduct) {
       const store = await Store.findOne({ url: storeUrl }).select("_id");
       storeId = store._id;
       productId = new Types.ObjectId();
+      productSlug = await generateSlug(productData.name, Product, {
+        unique: true
+      });
     }
 
     const commonProductData = {
       _id: productId,
       name: productData.name,
       description: productData.description,
-      slug: productSlug,
+      slug: productSlug as string,
       brand: productData.brand,
       rating: 0,
       store: storeId as Types.ObjectId,
@@ -200,31 +207,17 @@ export async function POST(req: Request) {
  */
 export async function GET(req: Request) {
   try {
-    await dbConnect(); // foremost
-
-    const options = {
-      lean: req.headers.get("lean"),
-      populate: req.headers.get("populate"),
-      limitPopulateDoc: req.headers.get("limitPopulateDoc")
-    };
+    await dbConnect();
 
     const query = new QueryBuilder(Product.find(), req.url)
       .filter()
       .sort()
       .limitFields()
+      .paginate()
+      .handleQueryOptions(req.headers)
       .build();
-    if (options.populate?.trim())
-      options.populate
-        .replaceAll(" ", "")
-        .split(",")
-        .forEach((field) =>
-          query.populate({
-            path: field,
-            perDocumentLimit: Number(options.limitPopulateDoc) || 10 // make sure to get 10 docs max for eqch query
-          })
-        );
-    if (options.lean) query.lean();
 
+    // const products = await handleQueryOptions(req.headers, query);
     const products = await query;
     return Response.json(
       {

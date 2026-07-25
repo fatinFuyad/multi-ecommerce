@@ -73,10 +73,7 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
           values
         );
       } else {
-        response = await axios.post<ApiResponse<{ store: StoreDoc }>>(
-          `/stores`,
-          values
-        );
+        response = await axios.post<ApiResponse<{ store: StoreDoc }>>(`/stores`, values);
       }
 
       toast({
@@ -125,9 +122,7 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
                           onChange={(url) => field.onChange([{ url }])}
                           onRemove={(url) =>
                             field.onChange([
-                              ...field.value.filter(
-                                (current) => current.url !== url
-                              )
+                              ...field.value.filter((current) => current.url !== url)
                             ])
                           }
                         />
@@ -148,9 +143,7 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
                           onChange={(url) => field.onChange([{ url }])}
                           onRemove={(url) =>
                             field.onChange([
-                              ...field.value.filter(
-                                (current) => current.url !== url
-                              )
+                              ...field.value.filter((current) => current.url !== url)
                             ])
                           }
                         />
@@ -246,10 +239,7 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel>Feature Store</FormLabel>
@@ -264,7 +254,7 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
                 {form.formState.isSubmitting
                   ? "Submitting..."
                   : data?._id
-                    ? "Save Store Data"
+                    ? "Save Store"
                     : "Create Store"}
               </Button>
             </form>
