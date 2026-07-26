@@ -27,16 +27,13 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import axios from "@/lib/axios";
 import { CategoryFormSchema, CategoryFormSchemaType } from "@/lib/schemas";
-import { ApiResponse } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
+import { createCategory, updateCategory } from "@/queries/category";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
-import { useEffect } from "react";
 
 interface CategoryDetailsProps {
-  //   data?: CategoryFormSchemaType;
   data?: CategoryDoc;
 }
 
@@ -76,25 +73,16 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
       const isUpdateSession = Boolean(data?._id);
       let response;
       if (isUpdateSession && data?._id) {
-        response = await axios.patch<ApiResponse<{ category: CategoryDoc }>>(
-          `/categories/${data._id}`,
-          values
-        );
+        response = await updateCategory(data._id, values);
       } else {
-        response = await axios.post<ApiResponse<{ category: CategoryDoc }>>(
-          `/categories`,
-          values
-        );
+        response = await createCategory(values);
       }
-
-      // Upserting category data // ⚠️ handle backend separetely
-      // const response = await Category.create({ data});
 
       // Displaying success message
       toast({
         title: isUpdateSession
           ? "Category has been updated."
-          : `Congratulations! ${response.data?.category.name} has now been created.`
+          : `Congratulations! ${response?.category.name} has now been created.`
       });
 
       // Redirect or Refresh data
@@ -104,12 +92,10 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
         router.push("/dashboard/admin/categories");
       }
     } catch (error: any) {
-      // const axiosErr = error as AxiosResponse;
-      // console.log({ ...axiosErr });
       toast({
         variant: "destructive",
         title: "Oops!",
-        description: error.response.data.message
+        description: error.message
       });
     }
   }
@@ -142,9 +128,7 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
                         onChange={(url) => field.onChange([{ url }])}
                         onRemove={(url) =>
                           field.onChange([
-                            ...field.value.filter(
-                              (current) => current.url !== url
-                            )
+                            ...field.value.filter((current) => current.url !== url)
                           ])
                         }
                       />
@@ -185,10 +169,7 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel>Feature Category</FormLabel>

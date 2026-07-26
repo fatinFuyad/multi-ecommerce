@@ -28,10 +28,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import axios from "@/lib/axios";
 import { StoreFormSchema, StoreFormSchemaType } from "@/lib/schemas";
-import { ApiResponse } from "@/lib/types";
 import { StoreDoc } from "@/models/Store";
+import { createStore, updateStore } from "@/queries/store";
 import ImageUpload from "../shared/image-upload";
 
 interface StoreDetailsProps {
@@ -66,28 +65,23 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
       console.log(values);
       const isUpdateSession = !!data?._id;
       let response;
-      // values.user = seller.user.id as;
       if (isUpdateSession) {
-        response = await axios.patch<ApiResponse<{ store: StoreDoc }>>(
-          `/stores/${data._id}`,
-          values
-        );
+        response = await updateStore(data._id, values);
       } else {
-        response = await axios.post<ApiResponse<{ store: StoreDoc }>>(`/stores`, values);
+        response = await createStore(values);
       }
 
       toast({
         title: "Congratulations!",
         description: isUpdateSession
-          ? `Your store ${response.data.store.name} has been updated successfully`
-          : `Your store ${response.data.store.name} has been created successfully`
+          ? `Your store ${response.store.name} has been updated successfully`
+          : `Your store ${response.store.name} has been created successfully`
       });
     } catch (error: any) {
       toast({
         title: "An Error Occured",
         description:
-          error.response?.data.message ||
-          "Unexpected error while creating/updating the store",
+          error.message || "Unexpected error while creating/updating the store",
         variant: "destructive"
       });
     }

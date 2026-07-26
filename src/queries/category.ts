@@ -3,6 +3,7 @@ import { CategoryDoc } from "@/models/Category";
 import { Types } from "mongoose";
 import {
   ApiQueryOptions,
+  createDoc,
   deleteDoc,
   getDocById,
   getDocs,
@@ -31,6 +32,10 @@ export async function deleteCategory(_id: Types.ObjectId) {
  */
 export async function upsertCategory(data: CategoryFormSchemaType) {
   return upsertDoc<{ category: CategoryDoc }>("/categories", data);
+}
+
+export async function createCategory(data: CategoryFormSchemaType) {
+  return createDoc<{ category: CategoryDoc }>("/categories", data);
 }
 
 export async function getCategories<T = CategoryDoc>(

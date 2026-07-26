@@ -70,7 +70,7 @@ async function generateSlug(
  *  `storeUrl` of store to which the product belongs.
  * @returns Newly created or updated product with variant
  */
-export async function POST(req: Request) {
+export async function PUT(req: Request) {
   try {
     await restrictTo("SELLER");
     await dbConnect();

@@ -3,6 +3,7 @@ import { ProductDoc, ProductVariantDoc } from "@/models/Product";
 import { Types } from "mongoose";
 import {
   ApiQueryOptions,
+  createDoc,
   deleteDoc,
   getDocById,
   getDocs,
@@ -33,6 +34,13 @@ export async function upsertProduct(
   data: ProductFormSchemaType & { productId?: Types.ObjectId; storeUrl: string }
 ) {
   return upsertDoc<{ product: ProductDoc; productVariant: ProductVariantDoc }>(
+    "/products",
+    data
+  );
+}
+
+export async function createProduct(data: ProductFormSchemaType) {
+  return createDoc<{ product: ProductDoc; productVariant: ProductVariantDoc }>(
     "/products",
     data
   );

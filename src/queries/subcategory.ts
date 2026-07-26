@@ -3,6 +3,7 @@ import { SubcategoryDoc } from "@/models/Subcategory";
 import { Types } from "mongoose";
 import {
   ApiQueryOptions,
+  createDoc,
   deleteDoc,
   getDocById,
   getDocs,
@@ -34,6 +35,10 @@ export async function deleteSubcategory(_id: Types.ObjectId) {
  */
 export async function upsertSubcategory(data: SubcategoryFormSchemaType) {
   return upsertDoc<{ subcategory: SubcategoryDoc }>("/subcategories", data);
+}
+
+export async function createSubcategory(data: SubcategoryFormSchemaType) {
+  return createDoc<{ subcategory: SubcategoryDoc }>("/subcategories", data);
 }
 
 export async function getSubcategories<T = SubcategoryDoc>(

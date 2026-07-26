@@ -3,6 +3,7 @@ import { StoreDoc } from "@/models/Store";
 import { Types } from "mongoose";
 import {
   ApiQueryOptions,
+  createDoc,
   deleteDoc,
   getDocById,
   getDocs,
@@ -31,6 +32,10 @@ export async function deleteStore(_id: Types.ObjectId) {
  */
 export async function upsertStore(data: StoreFormSchemaType) {
   return upsertDoc<{ store: StoreDoc }>("/stores", data);
+}
+
+export async function createStore(data: StoreFormSchemaType) {
+  return createDoc<{ store: StoreDoc }>("/stores", data);
 }
 
 export async function getStores<T = StoreDoc>(query?: string, options?: ApiQueryOptions) {

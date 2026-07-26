@@ -74,6 +74,20 @@ export async function upsertDoc<ResType = any, DataType = any>(
   routeUrl: string,
   data: DataType
 ): Promise<ApiResponse<ResType>> {
+  const response = await axios.put<ApiResponse<ResType>>(routeUrl, data);
+  return response.data;
+}
+
+/**
+ * @description Creates create operation. Use for creating document
+ * @param routeUrl - The api url for the update operation
+ * @param data - The data to be used to create doc
+ * @returns `Promise<ApiResponse>` -> created document
+ */
+export async function createDoc<ResType = any, DataType = any>(
+  routeUrl: string,
+  data: DataType
+): Promise<ApiResponse<ResType>> {
   const response = await axios.post<ApiResponse<ResType>>(routeUrl, data);
   return response.data;
 }

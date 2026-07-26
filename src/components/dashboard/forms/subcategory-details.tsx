@@ -36,10 +36,9 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import axios from "@/lib/axios";
-import { ApiResponse } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
 import { SubcategoryDoc } from "@/models/Subcategory";
+import { createSubcategory, updateSubcategory } from "@/queries/subcategory";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
@@ -76,25 +75,16 @@ export default function SubcategoryDetails({
       const isUpdateSession = Boolean(data?._id);
       let response;
       if (isUpdateSession && data?._id) {
-        response = await axios.patch<ApiResponse<{ subcategory: SubcategoryDoc }>>(
-          `/subcategories/${data._id}`,
-          values
-        );
+        response = await updateSubcategory(data._id, values);
       } else {
-        response = await axios.post<ApiResponse<{ subcategory: SubcategoryDoc }>>(
-          "/subcategories",
-          values
-        );
+        response = await createSubcategory(values);
       }
-
-      // Upserting subcategory data // ⚠️ handle backend separetely
-      // const response = await Subcategory.create({ data});
 
       // Displaying success message
       toast({
         title: isUpdateSession
-          ? `Subcategory ${response.data.subcategory.name} has been updated.`
-          : `Congratulations! ${response.data.subcategory.name} has now been created.`
+          ? `Subcategory ${response.subcategory.name} has been updated.`
+          : `Congratulations! ${response.subcategory.name} has now been created.`
       });
 
       // Redirect or Refresh data
@@ -104,13 +94,11 @@ export default function SubcategoryDetails({
         router.push("/dashboard/admin/subcategories");
       }
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Oops!",
         description:
-          error.response?.data.message ||
-          "An Error occured while createing or updating subcategory"
+          error.message || "An Error occured while createing or updating subcategory"
       });
     }
   }
