@@ -1,7 +1,7 @@
 import Store, { IStore, StoreDoc } from "@/models/Store";
 import { Types } from "mongoose";
 
-import { restrictTo } from "@/lib/apiUtils";
+import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";

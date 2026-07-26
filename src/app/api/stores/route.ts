@@ -1,7 +1,7 @@
 import Store, { IStore, StoreDoc } from "@/models/Store";
 import User from "@/models/User";
 
-import { restrictTo } from "@/lib/apiUtils";
+import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { StoreFormSchemaType } from "@/lib/schemas";
