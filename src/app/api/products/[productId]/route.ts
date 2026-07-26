@@ -1,6 +1,6 @@
 import Product, { IProduct } from "@/models/Product";
 
-import { handleQueryOptions, restrictTo } from "@/lib/apiUtils";
+import { restrictTo } from "@/lib/apiUtils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { Types } from "mongoose";

@@ -1,10 +1,10 @@
 import Subcategory, { SubcategoryDoc } from "@/models/Subcategory";
 import mongoose from "mongoose";
 
+import { restrictTo } from "@/lib/apiUtils";
 import { dbConnect } from "@/lib/db-connect";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import { restrictTo } from "../@/lib/apiUtils";
 import { createUpdateSubcategory } from "../route";
 
 interface RouteParams {

@@ -72,8 +72,8 @@ async function generateSlug(
  */
 export async function POST(req: Request) {
   try {
-    await dbConnect();
     await restrictTo("SELLER");
+    await dbConnect();
 
     const productData: ProductFormSchemaType & {
       productId?: Types.ObjectId;

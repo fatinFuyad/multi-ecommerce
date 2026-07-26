@@ -1,9 +1,9 @@
 import Category from "@/models/Category";
 
+import { restrictTo } from "@/lib/apiUtils";
 import { dbConnect } from "@/lib/db-connect";
 import { CategoryFormSchemaType } from "@/lib/schemas";
 import { Types } from "mongoose";
-import { restrictTo } from "../@/lib/apiUtils";
 import { createUpdateCategory } from "../route";
 
 interface RouteParams {

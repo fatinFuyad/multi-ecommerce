@@ -38,6 +38,7 @@ const productSchema = new Schema(
 );
 
 productSchema.index({ slug: "asc" }, { unique: true });
+productSchema.index({ store: "asc" });
 
 const productVariantSchema = new Schema(
   {

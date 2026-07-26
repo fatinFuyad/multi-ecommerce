@@ -1,18 +1,22 @@
 import ProductDetails from "@/components/dashboard/forms/product-details";
-import { IProduct } from "@/models/Product";
-import { getAllCategories } from "@/queries/category";
+import { ProductDoc } from "@/models/Product";
+import { getCategories } from "@/queries/category";
 import { getProductById } from "@/queries/product";
+import { Types } from "mongoose";
 
 async function NewPrductVariantPage({
   params
 }: {
-  params: { storeUrl: string; productId: string };
+  params: { storeUrl: string; productId: Types.ObjectId };
 }) {
-  const categories = await getAllCategories();
+  const { categories } = await getCategories();
   const fields = ["name", "brand", "description", "subcategory", "category"] as const;
-  const res = await getProductById<Pick<IProduct, (typeof fields)[number]>>(
+  const res = await getProductById<Pick<ProductDoc, (typeof fields)[number]>>(
     params.productId,
-    { lean: true, fields: fields }
+    `fields:${fields.join(",")}`,
+    {
+      lean: true
+    }
   );
 
   if (!res.product) return <h2>No Product ⚠️</h2>;

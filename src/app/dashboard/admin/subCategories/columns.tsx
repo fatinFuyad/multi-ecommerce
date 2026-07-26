@@ -32,13 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useModal } from "@/providers/modal-provider";
 
 // Lucide icons
-import {
-  BadgeCheck,
-  BadgeMinus,
-  Edit,
-  MoreHorizontal,
-  Trash
-} from "lucide-react";
+import { BadgeCheck, BadgeMinus, Edit, MoreHorizontal, Trash } from "lucide-react";
 
 // Queries
 
@@ -49,11 +43,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import SubcategoryDetails from "@/components/dashboard/forms/subcategory-details";
 import { SubcategoryWithCateogry } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
+import { getCategories } from "@/queries/category";
+import { deleteSubcategory, getSubcategoryById } from "@/queries/subcategory";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getAllCategories } from "@/queries/category";
-import { deleteSubcategory, getSubcategory } from "@/queries/subcategory";
 
 export const columns: ColumnDef<SubcategoryWithCateogry>[] = [
   {
@@ -78,9 +72,7 @@ export const columns: ColumnDef<SubcategoryWithCateogry>[] = [
     header: "Name",
     cell: ({ row }) => {
       return (
-        <span className="font-extrabold text-lg capitalize">
-          {row.original.name}
-        </span>
+        <span className="font-extrabold text-lg capitalize">{row.original.name}</span>
       );
     }
   },
@@ -141,7 +133,7 @@ export function CellActions({ rowData }: CellActionsProps) {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const categories = await getAllCategories();
+      const { categories } = await getCategories();
       setCategories(categories);
     };
     fetchCategories();
@@ -170,7 +162,7 @@ export function CellActions({ rowData }: CellActionsProps) {
                 </CustomModal>,
                 async () => {
                   return {
-                    rowData: await getSubcategory(rowData._id)
+                    rowData: await getSubcategoryById(rowData._id)
                   };
                 }
               );
@@ -193,8 +185,8 @@ export function CellActions({ rowData }: CellActionsProps) {
             Are you absolutely sure?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-left">
-            This action cannot be undone. This will permanently delete the
-            subcategory and related data.
+            This action cannot be undone. This will permanently delete the subcategory and
+            related data.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex items-center">

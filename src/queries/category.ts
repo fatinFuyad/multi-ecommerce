@@ -1,31 +1,55 @@
-import axios from "@/lib/axios";
-import { ApiResponse } from "@/lib/types";
+import { CategoryFormSchemaType } from "@/lib/schemas";
 import { CategoryDoc } from "@/models/Category";
-import mongoose from "mongoose";
+import { Types } from "mongoose";
+import {
+  ApiQueryOptions,
+  deleteDoc,
+  getDocById,
+  getDocs,
+  updateDoc,
+  upsertDoc
+} from "./api-query";
 
-// make api requests from the frontend for category operations
-
-export async function getAllCategories(): Promise<CategoryDoc[]> {
-  try {
-    const response =
-      await axios.get<ApiResponse<{ categories: CategoryDoc[] }>>(
-        "/categories"
-      );
-
-    return response.data.categories;
-  } catch {
-    return [];
-  }
+/**
+ * @description Use for updating category document
+ */
+export async function updateCategory(_id: Types.ObjectId, data: CategoryFormSchemaType) {
+  return updateDoc<{ category: CategoryDoc }>(`/categories/${_id}`, data);
 }
 
-export async function getCategory(_id: mongoose.Types.ObjectId) {
-  const response = await axios.get<ApiResponse<{ category: CategoryDoc }>>(
-    `/categories/${_id}`
+/**
+ * @description Creates delete operation. Use for deleting document
+ */
+export async function deleteCategory(_id: Types.ObjectId) {
+  return deleteDoc<{ category: null }>(`/categories/${_id}`);
+}
+
+/**
+ * @description Use for api req creating or updating category
+ * @param data - The data to be upserted
+ * @returns `Promise<ApiResponse>` - upserted document
+ */
+export async function upsertCategory(data: CategoryFormSchemaType) {
+  return upsertDoc<{ category: CategoryDoc }>("/categories", data);
+}
+
+export async function getCategories<T = CategoryDoc>(
+  query?: string,
+  options?: ApiQueryOptions
+) {
+  return getDocs<{ categories: T[] }>(
+    "/categories" + (query ? `?${query}` : ""),
+    options
   );
-  return response.data.category;
 }
 
-export async function deleteCategory(_id: mongoose.Types.ObjectId) {
-  await axios.delete(`/categories/${_id}`);
-  return null;
+export async function getCategoryById<T = CategoryDoc>(
+  _id: Types.ObjectId,
+  query?: string,
+  options?: ApiQueryOptions
+) {
+  return getDocById<{ category: T }>(
+    `/categories/${_id}` + (query ? `?${query}` : ""),
+    options
+  );
 }

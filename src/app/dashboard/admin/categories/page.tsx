@@ -1,11 +1,11 @@
 import CategoryDetails from "@/components/dashboard/forms/category-details";
 import DataTable from "@/components/ui/data-table";
-import { getAllCategories } from "@/queries/category";
+import { getCategories } from "@/queries/category";
 import { Plus } from "lucide-react";
 import { columns } from "./columns";
 
 export default async function AdminCategoriesPage() {
-  const categories = await getAllCategories();
+  const { categories } = await getCategories();
 
   return (
     <section className="grid gap-4">

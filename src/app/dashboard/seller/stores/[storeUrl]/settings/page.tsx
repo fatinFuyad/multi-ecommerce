@@ -1,16 +1,15 @@
 import StoreDetails from "@/components/dashboard/forms/store-details";
-import { getStore } from "@/queries/store";
+import { StoreDoc } from "@/models/Store";
+import { getDocs } from "@/queries/api-query";
 
-async function SellerStoreSettingsPage({
-  params
-}: {
-  params: { storeUrl: string };
-}) {
-  const storeData = await getStore({ findBy: "url", value: params.storeUrl });
+async function SellerStoreSettingsPage({ params }: { params: { storeUrl: string } }) {
+  const response = await getDocs<{ stores: StoreDoc[] }>(
+    `/stores?url=${params.storeUrl}`
+  );
 
   return (
     <div>
-      <StoreDetails data={storeData} />
+      <StoreDetails data={response.stores[0]} />
     </div>
   );
 }

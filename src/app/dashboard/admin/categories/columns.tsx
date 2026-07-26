@@ -33,13 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useModal } from "@/providers/modal-provider";
 
 // Lucide icons
-import {
-  BadgeCheck,
-  BadgeMinus,
-  Edit,
-  MoreHorizontal,
-  Trash
-} from "lucide-react";
+import { BadgeCheck, BadgeMinus, Edit, MoreHorizontal, Trash } from "lucide-react";
 
 // Queries
 
@@ -51,7 +45,7 @@ import { CategoryDoc } from "@/models/Category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { deleteCategory, getCategory } from "@/queries/category";
+import { deleteCategory, getCategoryById } from "@/queries/category";
 
 export const columns: ColumnDef<CategoryDoc>[] = [
   {
@@ -76,9 +70,7 @@ export const columns: ColumnDef<CategoryDoc>[] = [
     header: "Name",
     cell: ({ row }) => {
       return (
-        <span className="font-extrabold text-lg capitalize">
-          {row.original.name}
-        </span>
+        <span className="font-extrabold text-lg capitalize">{row.original.name}</span>
       );
     }
   },
@@ -153,7 +145,7 @@ export function CellActions({ rowData }: CellActionsProps) {
                 </CustomModal>,
                 async () => {
                   return {
-                    rowData: await getCategory(rowData._id)
+                    rowData: await getCategoryById(rowData._id)
                   };
                 }
               );
@@ -176,8 +168,8 @@ export function CellActions({ rowData }: CellActionsProps) {
             Are you absolutely sure?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-left">
-            This action cannot be undone. This will permanently delete the
-            category and related data.
+            This action cannot be undone. This will permanently delete the category and
+            related data.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex items-center">

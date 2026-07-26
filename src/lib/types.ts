@@ -14,6 +14,7 @@ export interface DashboardSidebarMenuInterface {
 type BaseResponse = {
   success: boolean;
   status: number;
+  total?: number;
   message?: string;
   error?: string;
 };

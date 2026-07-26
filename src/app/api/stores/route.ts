@@ -1,10 +1,11 @@
 import Store, { IStore, StoreDoc } from "@/models/Store";
 import User from "@/models/User";
 
+import { restrictTo } from "@/lib/apiUtils";
+import { dbConnect } from "@/lib/db-connect";
+import { QueryBuilder } from "@/lib/query-builder";
 import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import { Types } from "mongoose";
-import { restrictTo } from "@/lib/apiUtils";
 
 // Function: Upserts store details into the database, ensuring uniqueness of name,url, email, and phone number.
 // Access Level: Seller Only
@@ -48,11 +49,8 @@ export async function POST(req: Request) {
       defaultShippingService: "No Default Service",
       defaultDeliveryFees: null,
       defaultDeliveryTimeMin: null,
-      defaultDeliveryTimeMax: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      _id: new Types.ObjectId()
-    } satisfies IStore;
+      defaultDeliveryTimeMax: null
+    } satisfies Omit<IStore, "_id" | "createdAt" | "updatedAt">;
 
     const newStore: StoreDoc = await Store.create(storeData);
 
@@ -81,32 +79,36 @@ export async function POST(req: Request) {
   }
 }
 
-// even though the the dynamic param is storeId but it might receive other query params to find store
 export async function GET(req: Request) {
   try {
-    console.log("Route===>", new URL(req.url).search);
-    const { searchParams } = new URL(req.url);
-    const queryObj = Object.fromEntries(searchParams.entries());
-    console.log(queryObj);
-    const store = await Store.findOne(queryObj);
+    //  await restrictTo('SELLER')
+    await dbConnect();
+    const query = new QueryBuilder(Store.find(), req.url)
+      .filter()
+      .limitFields()
+      .sort()
+      .paginate()
+      .build();
+    const stores = await query;
 
     return Response.json(
       {
-        store: store,
+        total: stores.length,
         success: true,
-        status: 201,
-        message: "Get store was successful"
-      } satisfies ApiResponse<{ store: StoreDoc }>,
-      { status: 201 }
+        status: 200,
+        message: "Get store was successful",
+        stores
+      } satisfies ApiResponse<{ stores: StoreDoc[] }>,
+      { status: 200 }
     );
   } catch (error: any) {
     return Response.json(
       {
-        stores: null,
+        stores: [],
         success: false,
         status: 500,
-        message: error.message || "An error occured while querying the store"
-      } satisfies ApiResponse<{ stores: null }>,
+        message: error.message || "An error occured while querying the stores"
+      } satisfies ApiResponse<{ stores: [] }>,
       { status: 500 }
     );
   }

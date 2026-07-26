@@ -42,7 +42,7 @@ import { ProductWithVariant } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
 import { SubcategoryDoc } from "@/models/Subcategory";
 import { upsertProduct } from "@/queries/product";
-import { getAllSubcategories } from "@/queries/subcategory";
+import { getSubcategories } from "@/queries/subcategory";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
@@ -236,10 +236,10 @@ export default function ProductDetails({
   const categoryField = form.watch("category");
   useEffect(() => {
     async function subcategories() {
-      const results = await getAllSubcategories<SubcategoryDoc>({
-        query: `category=${categoryField}`
-      });
-      setSubcategories(results || []);
+      const subResponse = await getSubcategories<SubcategoryDoc>(
+        `category=${categoryField}`
+      );
+      setSubcategories(subResponse.subcategories || []);
     }
 
     if (!categoryField) return;
