@@ -27,10 +27,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import {
-  SubcategoryFormSchema,
-  SubcategoryFormSchemaType
-} from "@/lib/schemas";
+import { SubcategoryFormSchema, SubcategoryFormSchemaType } from "@/lib/schemas";
 
 import {
   Select,
@@ -79,13 +76,15 @@ export default function SubcategoryDetails({
       const isUpdateSession = Boolean(data?._id);
       let response;
       if (isUpdateSession && data?._id) {
-        response = await axios.patch<
-          ApiResponse<{ subcategory: SubcategoryDoc }>
-        >(`/subcategories/${data._id}`, values);
+        response = await axios.patch<ApiResponse<{ subcategory: SubcategoryDoc }>>(
+          `/subcategories/${data._id}`,
+          values
+        );
       } else {
-        response = await axios.post<
-          ApiResponse<{ subcategory: SubcategoryDoc }>
-        >("/subcategories", values);
+        response = await axios.post<ApiResponse<{ subcategory: SubcategoryDoc }>>(
+          "/subcategories",
+          values
+        );
       }
 
       // Upserting subcategory data // ⚠️ handle backend separetely
@@ -144,9 +143,7 @@ export default function SubcategoryDetails({
                         onChange={(url) => field.onChange([{ url }])}
                         onRemove={(url) =>
                           field.onChange([
-                            ...field.value.filter(
-                              (current) => current.url !== url
-                            )
+                            ...field.value.filter((current) => current.url !== url)
                           ])
                         }
                       />
@@ -216,10 +213,7 @@ export default function SubcategoryDetails({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel>Feature Subcategory</FormLabel>
