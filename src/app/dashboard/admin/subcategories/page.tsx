@@ -9,7 +9,7 @@ import { columns } from "./columns";
 async function AdminSubcategoriesPage() {
   const { categories } = await getCategories();
   const { subcategories } = await getSubcategories<SubcategoryWithCateogry>(undefined, {
-    populate: ["category"]
+    populate: "category"
   });
 
   return (

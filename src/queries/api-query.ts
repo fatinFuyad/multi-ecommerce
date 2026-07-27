@@ -4,22 +4,11 @@ import { ApiResponse } from "@/lib/types";
 /////////////////
 // GENERALIZED FUNCTIONS FOR API REQUESTS
 
-type PopulateFields =
-  | "category"
-  | "categories"
-  | "subcategory"
-  | "subcategories"
-  | "store"
-  | "stores"
-  | "product"
-  | "products"
-  | "variants"
-  | "prodcutVariants";
-
-export type ApiQueryOptions = {
-  lean?: boolean;
-  populate?: PopulateFields[];
+export type ApiQueryHeaders = {
+  lean?: boolean; // get plain objects
+  populate?: string; // fields to populated in a doc. format: "product,store"
   limitPopulateDoc?: number;
+  fields?: string; // select the fields in the populated doc. format: "product=name,price&store=name,url"
 };
 
 /**
@@ -35,12 +24,10 @@ export type ApiQueryOptions = {
  */
 export async function getDocs<T = any>(
   queryUrl: string,
-  options?: ApiQueryOptions
+  options: ApiQueryHeaders = {}
 ): Promise<ApiResponse<T>> {
-  const { lean, populate, limitPopulateDoc } = options || {};
-
   const response = await axios.get<ApiResponse<T>>(queryUrl, {
-    headers: { lean, populate: populate?.join(","), limitPopulateDoc }
+    headers: { ...options }
   });
   return response.data;
 }
@@ -54,12 +41,10 @@ export async function getDocs<T = any>(
  */
 export async function getDocById<T = any>(
   routeUrl: string,
-  options?: ApiQueryOptions
+  options: ApiQueryHeaders = {}
 ): Promise<ApiResponse<T>> {
-  const { lean, populate, limitPopulateDoc } = options || {};
-
   const response = await axios.get<ApiResponse<T>>(routeUrl, {
-    headers: { lean, populate: populate?.join(","), limitPopulateDoc }
+    headers: { ...options }
   });
   return response.data;
 }

@@ -1,7 +1,7 @@
-import { CategoryDoc } from "@/models/Category";
-import { ProductDoc, ProductVariantDoc } from "@/models/Product";
-import { StoreDoc } from "@/models/Store";
-import { SubcategoryDoc } from "@/models/Subcategory";
+import { ICategory } from "@/models/Category";
+import { IProduct, IProductVariant, ProductDoc } from "@/models/Product";
+import { IStore } from "@/models/Store";
+import { ISubcategory, SubcategoryDoc } from "@/models/Subcategory";
 import { UserDoc } from "@/models/User";
 
 export interface DashboardSidebarMenuInterface {
@@ -35,18 +35,27 @@ export type ApiResponse<T = { data: null }> = {
 // Merging the type of SubcategoryDoc with CategoryDoc for category field
 // this is essential for defining the popolated data type
 export type SubcategoryWithCateogry = Omit<SubcategoryDoc, "category"> & {
-  category: CategoryDoc;
+  category: ICategory;
 };
 
 export type UserWithStore = Omit<UserDoc, "stores"> & {
-  stores: StoreDoc[];
+  stores: IStore[];
 };
 
 export type ProductWithVariant = Omit<ProductDoc, "variants"> & {
-  variants: ProductVariantDoc[];
+  variants: IProductVariant[];
 };
 
-//
+export type ProductDetailedType = Omit<
+  IProduct,
+  "variants" | "subcategory" | "category" | "store"
+> & {
+  variants: IProductVariant[];
+  subcategory: ISubcategory;
+  category: ICategory;
+  store: IStore;
+};
+
 //
 export type MergeType<T, U> = Omit<T, keyof U> & U;
 

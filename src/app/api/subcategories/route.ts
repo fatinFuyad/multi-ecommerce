@@ -76,8 +76,8 @@ export async function POST(req: Request) {
   try {
     // Verify admin permission
     await restrictTo("ADMIN");
-
     await dbConnect();
+
     const subcategory: SubcategoryFormSchemaType = await req.json();
     const newSubcategory = await createUpdateSubcategory(subcategory);
     return Response.json({ subcategory: newSubcategory, success: true }, { status: 201 });
@@ -101,6 +101,7 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   try {
     await dbConnect();
+
     const query = new QueryBuilder(Subcategory.find(), req.url);
     const dbQuery = query.filter().limitFields().paginate().build();
 

@@ -2,7 +2,7 @@ import { ProductFormSchemaType } from "@/lib/schemas";
 import { ProductDoc, ProductVariantDoc } from "@/models/Product";
 import { Types } from "mongoose";
 import {
-  ApiQueryOptions,
+  ApiQueryHeaders,
   createDoc,
   deleteDoc,
   getDocById,
@@ -48,7 +48,7 @@ export async function createProduct(data: ProductFormSchemaType) {
 
 export async function getProducts<T = ProductDoc>(
   query?: string,
-  options?: ApiQueryOptions
+  options?: ApiQueryHeaders
 ) {
   return getDocs<{ products: T[] }>("/products" + (query ? `?${query}` : ""), options);
 }
@@ -56,7 +56,7 @@ export async function getProducts<T = ProductDoc>(
 export async function getProductById<T = ProductDoc>(
   _id: Types.ObjectId,
   query?: string,
-  options?: ApiQueryOptions
+  options?: ApiQueryHeaders
 ) {
   return getDocById<{ product: T }>(
     `/products/${_id}` + (query ? `?${query}` : ""),

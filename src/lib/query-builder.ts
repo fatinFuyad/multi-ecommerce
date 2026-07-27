@@ -1,3 +1,4 @@
+import { ApiQueryHeaders } from "@/queries/api-query";
 import { Document, FilterQuery, Model, QueryWithHelpers } from "mongoose";
 
 type QueryParams = Record<string, string | string[] | undefined>;
@@ -53,8 +54,10 @@ export class QueryBuilder<T extends Document> {
   filter() {
     const queryObj = { ...this.queryParams };
 
-    const excludedFields = ["sort", "fields", "page", "limit", "search"];
-
+    const excludedFields = ["sort", "fields", "page", "limit", "search", "populate"];
+    Object.keys(queryObj).forEach(
+      (key) => key.endsWith("Fields") && excludedFields.push(key)
+    );
     excludedFields.forEach((field) => delete queryObj[field]);
 
     let queryString = JSON.stringify(queryObj);
@@ -148,27 +151,31 @@ export class QueryBuilder<T extends Document> {
   }
 
   /**
-   * @description Updates the query by adding populate, lean from the options if presents that are passed from the fronted as axios headers
+   * @description Updates the query by adding populate, lean from the options if presents that are passed from the fronted as axios headers.
    * @param headers - The headers of the Request object
    * @returns this
    */
   handleQueryOptions(headers: Headers) {
     const options = {
-      lean: headers.get("lean"),
+      lean: Boolean(headers.get("lean")),
       populate: headers.get("populate"),
-      limitPopulateDoc: Number(headers.get("limitPopulateDoc")) || undefined
-    };
+      limitPopulateDoc: Number(headers.get("limitPopulateDoc")),
+      fields: headers.get("fields")
+    } as ApiQueryHeaders;
+    const fieldsArr = options.fields?.split("&").map((value) => value.split("=")) || [];
+    const populateFields = Object.fromEntries(fieldsArr);
 
     if (options.populate)
       options.populate
-        .replaceAll(" ", "")
+        ?.replace(/\s+/g, "")
         .split(",")
-        .forEach((field) =>
+        .forEach((field) => {
           this.query.populate({
             path: field,
+            select: populateFields[field]?.replace(/\W+/g, " "),
             perDocumentLimit: options.limitPopulateDoc
-          })
-        );
+          });
+        });
     if (options.lean) this.query.lean();
     return this;
   }

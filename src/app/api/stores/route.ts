@@ -15,8 +15,8 @@ import { ApiResponse } from "@/lib/types";
 
 export async function POST(req: Request) {
   try {
+    await dbConnect();
     const seller = await restrictTo("SELLER");
-
     const store: StoreFormSchemaType = await req.json();
 
     // Seller can use same email or phone number for other stores as well

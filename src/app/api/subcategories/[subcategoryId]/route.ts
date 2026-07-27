@@ -20,6 +20,8 @@ interface RouteParams {
 // Returns: Details of the requested subcategory.
 export async function GET(req: Request, { params }: RouteParams) {
   try {
+    await dbConnect();
+
     const subcategory = await Subcategory.findById(params.subcategoryId);
     return Response.json(
       {
@@ -48,8 +50,8 @@ export async function PATCH(req: Request, { params }: RouteParams) {
   try {
     // Verify admin permission
     await restrictTo("ADMIN");
-
     await dbConnect();
+
     const subcategory: SubcategoryFormSchemaType = await req.json();
 
     const updatedSubcategory = await createUpdateSubcategory({
@@ -89,8 +91,8 @@ export async function DELETE(req: Request, { params }: RouteParams) {
   try {
     // Verify admin permission
     await restrictTo("ADMIN");
-
     await dbConnect();
+
     await Subcategory.findByIdAndDelete(params.subcategoryId);
     return Response.json(
       {

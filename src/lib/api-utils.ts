@@ -3,6 +3,7 @@ import { Roles } from "@/models/User";
 import { SessionUser } from "@/types/next-auth";
 import { getServerSession } from "next-auth";
 import { QueryWithHelpers } from "mongoose";
+import { ApiQueryHeaders } from "@/queries/api-query";
 
 export async function restrictTo(role: Roles): Promise<SessionUser> {
   const session = await getServerSession(authOptions);
@@ -28,22 +29,26 @@ export function handleQueryOptions<T>(
   query: QueryWithHelpers<T[], T>
 ) {
   const options = {
-    lean: reqHeaders.get("lean"),
+    lean: Boolean(reqHeaders.get("lean")),
     populate: reqHeaders.get("populate"),
-    limitPopulateDoc: Number(reqHeaders.get("limitPopulateDoc")) || undefined
-  };
+    limitPopulateDoc: Number(reqHeaders.get("limitPopulateDoc")),
+    fields: reqHeaders.get("fields")
+  } as ApiQueryHeaders;
+  const fieldsArr = options.fields?.split("&").map((value) => value.split("=")) || [];
+  const populateFields = Object.fromEntries(fieldsArr);
 
-  const newQuery = query;
+  let newQuery = query;
   if (options.populate)
     options.populate
-      .replaceAll(" ", "")
+      ?.replace(/\s+/g, "")
       .split(",")
-      .forEach((field) =>
-        newQuery.populate({
+      .forEach((field) => {
+        newQuery = query.populate({
           path: field,
+          select: populateFields[field]?.replace(/\W+/g, " "),
           perDocumentLimit: options.limitPopulateDoc
-        })
-      );
+        });
+      });
   if (options.lean) newQuery.lean();
   return newQuery;
 }

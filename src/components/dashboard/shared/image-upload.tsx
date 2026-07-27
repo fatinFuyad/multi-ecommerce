@@ -16,12 +16,16 @@ interface ImageUploadProps {
 
 function CloudWidget({
   onChange,
-  disabled
-}: Pick<ImageUploadProps, "onChange" | "disabled">) {
+  disabled,
+  btnType = "default"
+}: Pick<ImageUploadProps, "onChange" | "disabled"> & {
+  btnType?: "default" | "standard";
+}) {
   const handleUpload = (result: any) => {
     console.log("Image upload result", result);
     onChange(result.info.secure_url);
   };
+
   return (
     <CldUploadWidget
       uploadPreset={"ecomimg493dk"}
@@ -32,7 +36,22 @@ function CloudWidget({
       // }}
     >
       {({ open }) => {
-        return (
+        return btnType === "standard" ? (
+          <>
+            <button
+              type="button"
+              className="flex items-center font-medium text-[17px] py-3 px-6 text-white bg-gradient-to-t from-primary to-blue-300 border-none shadow-lg rounded-full hover:shadow-md active:shadow-sm"
+              disabled={disabled}
+              onClick={() => {
+                document.body.style.pointerEvents = "auto";
+                open();
+              }}
+            >
+              <CloudUpload className="mr-2" />
+              <span>Upload images</span>
+            </button>
+          </>
+        ) : (
           <button
             type="button"
             className="size-12 flex justify-center items-center font-medium text-xl text-white bg-gradient-to-t from-primary to-blue-300 border-none shadow-lg rounded-full hover:shadow-md active:shadow-sm"
@@ -155,8 +174,7 @@ function ImageUpload({
             })}
         </div>
         <div className="flex justify-start items-center gap-2">
-          <CloudWidget onChange={onChange} disabled={disabled} />
-          <span>Upload Images</span>
+          <CloudWidget onChange={onChange} disabled={disabled} btnType="standard" />
         </div>
       </div>
     );

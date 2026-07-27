@@ -2,7 +2,7 @@ import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import { SubcategoryDoc } from "@/models/Subcategory";
 import { Types } from "mongoose";
 import {
-  ApiQueryOptions,
+  ApiQueryHeaders,
   createDoc,
   deleteDoc,
   getDocById,
@@ -43,7 +43,7 @@ export async function createSubcategory(data: SubcategoryFormSchemaType) {
 
 export async function getSubcategories<T = SubcategoryDoc>(
   query?: string,
-  options?: ApiQueryOptions
+  options?: ApiQueryHeaders
 ) {
   return getDocs<{ subcategories: T[] }>(
     "/subcategories" + (query ? `?${query}` : ""),
@@ -54,7 +54,7 @@ export async function getSubcategories<T = SubcategoryDoc>(
 export async function getSubcategoryById<T = SubcategoryDoc>(
   _id: Types.ObjectId,
   query?: string,
-  options?: ApiQueryOptions
+  options?: ApiQueryHeaders
 ) {
   return getDocById<{ subcategory: T }>(
     `/subcategories/${_id}` + (query ? `?${query}` : ""),

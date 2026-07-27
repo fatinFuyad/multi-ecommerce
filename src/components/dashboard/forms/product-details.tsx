@@ -38,7 +38,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { useToast } from "@/hooks/use-toast";
 import { ProductFormSchema, ProductFormSchemaType } from "@/lib/schemas";
-import { ProductWithVariant } from "@/lib/types";
+import { ProductDetailedType, ProductWithVariant } from "@/lib/types";
 import { CategoryDoc } from "@/models/Category";
 import { SubcategoryDoc } from "@/models/Subcategory";
 import { upsertProduct } from "@/queries/product";
@@ -48,6 +48,7 @@ import { useEffect, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
 import ImagePreviewGrid from "../shared/image-preview-grid";
 import AddInput from "./add-input";
+import { IProductVariant } from "@/models/Product";
 
 interface ProductDetailsProps {
   data?: Partial<ProductWithVariant>;
@@ -114,7 +115,7 @@ export default function ProductDetails({
   storeUrl
 }: ProductDetailsProps) {
   const { toast } = useToast();
-  const variant = data?.variants && data.variants[0];
+  const variant = data?.variants && (data.variants[0] as IProductVariant);
   // Temporary state for preserving previous images
   const [images, setImages] = useState<ProductFormSchemaType["images"]>(defaultImages);
   const [colors, setColors] = useState<{ color: string }[]>(

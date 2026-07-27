@@ -2,7 +2,7 @@ import { StoreFormSchemaType } from "@/lib/schemas";
 import { StoreDoc } from "@/models/Store";
 import { Types } from "mongoose";
 import {
-  ApiQueryOptions,
+  ApiQueryHeaders,
   createDoc,
   deleteDoc,
   getDocById,
@@ -38,14 +38,14 @@ export async function createStore(data: StoreFormSchemaType) {
   return createDoc<{ store: StoreDoc }>("/stores", data);
 }
 
-export async function getStores<T = StoreDoc>(query?: string, options?: ApiQueryOptions) {
+export async function getStores<T = StoreDoc>(query?: string, options?: ApiQueryHeaders) {
   return getDocs<{ stores: T[] }>("/stores" + (query ? `?${query}` : ""), options);
 }
 
 export async function getStoreById<T = StoreDoc>(
   _id: Types.ObjectId,
   query?: string,
-  options?: ApiQueryOptions
+  options?: ApiQueryHeaders
 ) {
   return getDocById<{ store: T }>(`/stores/${_id}` + (query ? `?${query}` : ""), options);
 }

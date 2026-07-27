@@ -2,16 +2,10 @@ import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { ProductFormSchemaType } from "@/lib/schemas";
-import { ApiResponse } from "@/lib/types";
+import { ApiResponse, ProductWithVariant } from "@/lib/types";
 import { Types } from "mongoose";
 
-import Product, {
-  IProduct,
-  IProductVariant,
-  ProductDoc,
-  ProductVariant,
-  ProductVariantDoc
-} from "@/models/Product";
+import Product, { IProduct, IProductVariant, ProductVariant } from "@/models/Product";
 import Store from "@/models/Store";
 
 /**
@@ -177,12 +171,11 @@ export async function PUT(req: Request) {
 
     return Response.json(
       {
-        product: newProduct,
-        productVariant: newVariant,
+        product: { ...newProduct, variants: [newVariant] },
         success: true,
         message: "Upsert product and variant was successful",
         status: 201
-      } satisfies ApiResponse<{ product: ProductDoc; productVariant: ProductVariantDoc }>,
+      } satisfies ApiResponse<{ product: ProductWithVariant }>,
       { status: 201 }
     );
   } catch (error: any) {
@@ -190,11 +183,10 @@ export async function PUT(req: Request) {
     return Response.json(
       {
         product: null,
-        productVariant: null,
         success: false,
         message: error.message,
         status: 500
-      } satisfies ApiResponse<{ product: null; productVariant: null }>,
+      } satisfies ApiResponse<{ product: null }>,
       { status: 500 }
     );
   }

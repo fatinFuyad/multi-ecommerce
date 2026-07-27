@@ -2,7 +2,7 @@ import { CategoryFormSchemaType } from "@/lib/schemas";
 import { CategoryDoc } from "@/models/Category";
 import { Types } from "mongoose";
 import {
-  ApiQueryOptions,
+  ApiQueryHeaders,
   createDoc,
   deleteDoc,
   getDocById,
@@ -40,7 +40,7 @@ export async function createCategory(data: CategoryFormSchemaType) {
 
 export async function getCategories<T = CategoryDoc>(
   query?: string,
-  options?: ApiQueryOptions
+  options?: ApiQueryHeaders
 ) {
   return getDocs<{ categories: T[] }>(
     "/categories" + (query ? `?${query}` : ""),
@@ -51,7 +51,7 @@ export async function getCategories<T = CategoryDoc>(
 export async function getCategoryById<T = CategoryDoc>(
   _id: Types.ObjectId,
   query?: string,
-  options?: ApiQueryOptions
+  options?: ApiQueryHeaders
 ) {
   return getDocById<{ category: T }>(
     `/categories/${_id}` + (query ? `?${query}` : ""),

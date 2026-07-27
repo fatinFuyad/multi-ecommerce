@@ -5,7 +5,6 @@ import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { StoreFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
-import StoreDetails from "@/components/dashboard/forms/store-details";
 
 export async function PATCH(
   req: Request,
@@ -72,11 +71,7 @@ export async function PATCH(
 // the dynamic param storeId is url but it might receive other storeId params to find store
 export async function GET(req: Request, { params }: { params: { storeId: string } }) {
   try {
-    // console.log("storeId file====>", new URL(req.url));
-    // from the client a custom header storeId is sent to find store
-
-    // const findBy: string = req.headers.get("storeId") || "_id";
-    // const store = await Store.findOne({ [findBy]: params.storeId });
+    await dbConnect();
 
     const store = await Store.findById(params.storeId);
 

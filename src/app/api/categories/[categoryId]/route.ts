@@ -19,6 +19,7 @@ interface RouteParams {
 // Returns: Details of the requested category.
 export async function GET(req: Request, { params }: RouteParams) {
   try {
+    await dbConnect();
     const category = await Category.findById(params.categoryId);
     return Response.json({ category, success: true }, { status: 200 });
   } catch (error: any) {
@@ -31,8 +32,8 @@ export async function PATCH(req: Request, { params }: RouteParams) {
   try {
     // Verify admin permission
     await restrictTo("ADMIN");
-
     await dbConnect();
+
     const category: CategoryFormSchemaType = await req.json();
 
     const updatedCategory = await createUpdateCategory({
@@ -62,8 +63,8 @@ export async function DELETE(req: Request, { params }: RouteParams) {
   try {
     // Verify admin permission
     await restrictTo("ADMIN");
-
     await dbConnect();
+
     await Category.findByIdAndDelete(params.categoryId);
     return Response.json(
       { success: true, message: "Category has been successfully deleted." }
