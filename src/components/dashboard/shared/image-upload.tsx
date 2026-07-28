@@ -94,7 +94,7 @@ function ImageUpload({
           value.length > 0 && (
             <Image
               src={value[0]}
-              alt="profile image"
+              alt=""
               width={300}
               height={300}
               className="size-52 rounded-full absolute inset-0 object-cover bg-center"

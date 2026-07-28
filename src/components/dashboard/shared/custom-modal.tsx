@@ -24,7 +24,7 @@ const CustomModal = ({ children, defaultOpen, subheading, heading }: Props) => {
   const { isOpen, setClose } = useModal();
   return (
     <Dialog modal open={isOpen || defaultOpen} onOpenChange={setClose}>
-      <DialogContent className="overflow-y-scroll md:max-h-[600px] md:h-fit h-screen bg-card">
+      <DialogContent className="overflow-scroll lg:max-w-4xl max-h-[600px] px-10 bg-card">
         <DialogHeader className="pt-8 text-left">
           {heading ? (
             <DialogTitle className="text-2xl font-bold">{heading}</DialogTitle>

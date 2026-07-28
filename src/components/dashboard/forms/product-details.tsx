@@ -38,8 +38,10 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { useToast } from "@/hooks/use-toast";
 import { ProductFormSchema, ProductFormSchemaType } from "@/lib/schemas";
-import { ProductDetailedType, ProductWithVariant } from "@/lib/types";
+import { ProductWithVariant } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { CategoryDoc } from "@/models/Category";
+import { IProductVariant } from "@/models/Product";
 import { SubcategoryDoc } from "@/models/Subcategory";
 import { upsertProduct } from "@/queries/product";
 import { getSubcategories } from "@/queries/subcategory";
@@ -48,7 +50,6 @@ import { useEffect, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
 import ImagePreviewGrid from "../shared/image-preview-grid";
 import AddInput from "./add-input";
-import { IProductVariant } from "@/models/Product";
 
 interface ProductDetailsProps {
   data?: Partial<ProductWithVariant>;
@@ -138,9 +139,9 @@ export default function ProductDetails({
       variantName: variant?.variantName || "",
       variantDescription: variant?.variantDescription || "",
       images: variant?.images || images,
-      variantImage: [{ url: variant?.variantImage || "" }],
-      category: data?.category?.toString() || "",
-      subcategory: data?.subcategory?.toString() || "",
+      variantImage: variant?.variantImage ? [{ url: variant.variantImage }] : [],
+      category: data?.category?.toString(),
+      subcategory: data?.subcategory?.toString(),
       brand: data?.brand || "",
       sku: variant?.sku || "",
       keywords: variant?.keywords ? variant.keywords.split(" ") : [],
@@ -435,11 +436,7 @@ export default function ProductDetails({
                     return (
                       <FormItem className="flex-1 justify-self-end">
                         <FormLabel>Select Category</FormLabel>
-                        <Select
-                          disabled={isSubmitting}
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a parent category" />
@@ -453,6 +450,7 @@ export default function ProductDetails({
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     );
                   }}
@@ -483,6 +481,7 @@ export default function ProductDetails({
                               ))}
                             </SelectContent>
                           </Select>
+                          <FormMessage />
                         </FormItem>
                       );
                     }}
@@ -518,6 +517,31 @@ export default function ProductDetails({
                   )}
                 />
               </div>
+              {/* VARIANT IMAGE */}
+              <FormField
+                control={form.control}
+                name="variantImage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Variant Image</FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        showPreview={false}
+                        type="profile"
+                        value={field.value.map((image) => image.url)}
+                        disabled={isSubmitting}
+                        onChange={(url) => field.onChange([{ url }])}
+                        onRemove={(url) =>
+                          field.onChange([
+                            ...field.value.filter((current) => current.url !== url)
+                          ])
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage className="!mt-4" />
+                  </FormItem>
+                )}
+              />
               {/* KEYWORDS */}
               <div className="w-full flex-1 space-y-3">
                 <FormField
@@ -528,6 +552,7 @@ export default function ProductDetails({
                       <FormLabel>Product Keywords</FormLabel>
                       <FormControl>
                         <ReactTags
+                          autofocus={false}
                           handleAddition={handleAddKeyword}
                           handleDelete={() => {}}
                           placeholder="Keywords (e.g., winter jacket, warm, stylish)"
@@ -556,7 +581,6 @@ export default function ProductDetails({
                   ))}
                 </div>
               </div>
-
               {/* SIZES*/}
               <div className="w-full flex flex-col gap-y-3">
                 <AddInput
@@ -607,7 +631,11 @@ export default function ProductDetails({
                 />
               </div>
 
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className={cn({ "animate-pulse": isSubmitting })}
+              >
                 {form.formState.isSubmitting
                   ? "Submitting..."
                   : data?._id
