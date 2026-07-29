@@ -41,7 +41,6 @@ export async function PATCH(
         ...store,
         logo: store.logo[0].url,
         cover: store.logo[0].url
-        // featured:false, // should admin make store featured ?
       } satisfies Pick<IStore, keyof StoreFormSchemaType>,
       { new: true }
     );

@@ -1,10 +1,9 @@
 "use client";
 
-// Form handling utilities
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-// UI Components
+// SHANDCN UI COMPONENTS
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +22,6 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
-import ImageUpload from "../shared/image-upload";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -34,8 +32,9 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// HOOKS, UTILITY FUNCTIONS & TYPES
 import { useToast } from "@/hooks/use-toast";
 import { ProductFormSchema, ProductFormSchemaType } from "@/lib/schemas";
 import { ProductWithVariant } from "@/lib/types";
@@ -45,10 +44,19 @@ import { IProductVariant } from "@/models/Product";
 import { SubcategoryDoc } from "@/models/Subcategory";
 import { upsertProduct } from "@/queries/product";
 import { getSubcategories } from "@/queries/subcategory";
+import { format } from "date-fns";
 import { XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
+
+// UITILITY UI COMPOENENTS
+import JoditEditor from "jodit-react";
+import "react-calendar/dist/Calendar.css";
+import "react-clock/dist/Clock.css";
+import DateTimePicker from "react-datetime-picker";
+import "react-datetime-picker/dist/DateTimePicker.css";
 import ImagePreviewGrid from "../shared/image-preview-grid";
+import ImageUpload from "../shared/image-upload";
 import AddInput from "./add-input";
 
 interface ProductDetailsProps {
@@ -116,6 +124,9 @@ export default function ProductDetails({
   storeUrl
 }: ProductDetailsProps) {
   const { toast } = useToast();
+  const productDescEditor = useRef(null);
+  const variantDescEditor = useRef(null);
+
   const variant = data?.variants && (data.variants[0] as IProductVariant);
   // Temporary state for preserving previous images
   const [images, setImages] = useState<ProductFormSchemaType["images"]>(defaultImages);
@@ -155,7 +166,7 @@ export default function ProductDetails({
         }
       ],
       isSale: variant?.isSale || false,
-      saleEndDate: variant?.saleEndDate || ""
+      saleEndDate: variant?.saleEndDate || format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
     }
     // defaultValues: {
     //   name: "Mens Premium Casual Shirt",
@@ -255,7 +266,7 @@ export default function ProductDetails({
   function handleDeleteKeyword(index: number) {
     setKeywords((prevState) => prevState.filter((key, i) => i !== index));
   }
-  console.log(errors.sizes);
+
   // 2. Define a submit handler.
   async function onSubmit(values: ProductFormSchemaType) {
     try {
@@ -390,43 +401,60 @@ export default function ProductDetails({
                   )}
                 />
               </div>
-              {/* DESCRIPTION FOR PRODUCT AND VARIANT */}
-              <div className="flex flex-col lg:flex-row gap-6">
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          // className="resize-none"
-                          placeholder="Describe your product"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="variantDescription"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Description for variant</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          // className="resize-none"
-                          placeholder="Describe your product variant"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {/* TABBED DESCRIPTION FOR PRODUCT AND VARIANT WITH EDITOR */}
+              <Tabs defaultValue="product" className="w-full">
+                <TabsList className="grid grid-cols-2 mb-4">
+                  <TabsTrigger value="product">Product Description</TabsTrigger>
+                  <TabsTrigger value="variant">Variant Description</TabsTrigger>
+                </TabsList>
+                <TabsContent value="product">
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={() => (
+                      <FormItem className={"dark:bg-slate-100 dark:text-gray-900"}>
+                        <FormControl>
+                          <JoditEditor
+                            ref={productDescEditor}
+                            value={form.getValues("description")}
+                            config={{
+                              placeholder: "Describe your product"
+                            }}
+                            onBlur={(content) => {
+                              form.setValue("description", content);
+                            }}
+                            // onChange={handleChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+                <TabsContent value="variant">
+                  <FormField
+                    control={form.control}
+                    name="variantDescription"
+                    render={() => (
+                      <FormItem className={"dark:bg-slate-100 dark:text-gray-900"}>
+                        <FormControl>
+                          <JoditEditor
+                            ref={variantDescEditor}
+                            value={form.getValues("variantDescription")}
+                            config={{
+                              placeholder: "Describe your variant"
+                            }}
+                            onBlur={(content) => {
+                              form.setValue("variantDescription", content);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+              </Tabs>
               {/* CATEGORIES AND SUBCATEGORIES */}
               <div className="flex flex-col justify-between lg:flex-row gap-6">
                 <FormField
@@ -609,26 +637,47 @@ export default function ProductDetails({
                   </>
                 )}
               </div>
-              {/* IS PRODUCT ON SALE */}
-              <div className="flex border rounded-md">
+              {/* SALE STATUS AND SALE END DATE */}
+              <div className="grid grid-cols-2 border rounded-md p-4 px-4">
                 <FormField
                   control={form.control}
                   name="isSale"
                   render={({ field }) => (
-                    <FormItem className="flex items-center flex-row gap-3 px-4 py-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
+                    <FormItem>
+                      <div className="flex gap-2 items-center">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
                         <FormLabel>On Sale</FormLabel>
-                        <FormDescription>Is this product on sale?</FormDescription>
                       </div>
+                      <FormDescription>Is this product on sale?</FormDescription>
                     </FormItem>
                   )}
                 />
+                {form.getValues("isSale") && (
+                  <FormField
+                    control={form.control}
+                    name="saleEndDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <DateTimePicker
+                            className={"bg-slate-100 text-gray-900"}
+                            onChange={(date) => {
+                              field.onChange(
+                                date ? format(date, "yyyy-MM-dd'T'HH:mm:ss") : ""
+                              );
+                            }}
+                            value={field.value ? new Date(field.value) : null}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
 
               <Button

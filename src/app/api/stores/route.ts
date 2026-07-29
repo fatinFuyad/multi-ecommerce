@@ -44,7 +44,6 @@ export async function POST(req: Request) {
       user: seller._id,
       averageRating: 0,
       status: "PENDING",
-      featured: false, // should admin make stores featured??
       returnPolicy: "No Return Policy",
       defaultShippingService: "No Default Service",
       defaultDeliveryFees: null,
