@@ -41,13 +41,13 @@ import { BadgeCheck, BadgeMinus, Edit, MoreHorizontal, Trash } from "lucide-reac
 import { ColumnDef } from "@tanstack/react-table";
 
 // models
-import { CategoryDoc } from "@/models/Category";
+import { ICategory } from "@/models/Category";
+import { deleteCategory, getCategoryById } from "@/queries/category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { deleteCategory, getCategoryById } from "@/queries/category";
 
-export const columns: ColumnDef<CategoryDoc>[] = [
+export const columns: ColumnDef<ICategory>[] = [
   {
     accessorKey: "image",
     header: "Category Image",
@@ -109,7 +109,7 @@ export const columns: ColumnDef<CategoryDoc>[] = [
 
 // Define props interface for CellActions component
 interface CellActionsProps {
-  rowData: CategoryDoc;
+  rowData: ICategory;
 }
 
 // CellActions component definition

@@ -177,6 +177,8 @@ export const ProductFormSchema = z.object({
     .object({ url: z.string() })
     .array()
     .length(1, "Choose a product variant image."),
+  productId: z.string().optional(),
+  storeUrl: z.string(),
   category: z.string({
     error: (issue) =>
       !issue.input
@@ -261,34 +263,30 @@ export const ProductFormSchema = z.object({
         error: "All size inputs must be filled correctly."
       }
     ),
-  // product_specs: z
-  //   .object({
-  //     name: z.string(),
-  //     value: z.string()
-  //   })
-  //   .array()
-  //   .min(1, "Please provide at least one product spec.")
-  //   .refine(
-  //     (product_specs) =>
-  //       product_specs.every((s) => s.name.length > 0 && s.value.length > 0),
-  //     {
-  //       error: "All product specs inputs must be filled correctly."
-  //     }
-  //   ),
-  // variant_specs: z
-  //   .object({
-  //     name: z.string(),
-  //     value: z.string()
-  //   })
-  //   .array()
-  //   .min(1, "Please provide at least one product variant spec.")
-  //   .refine(
-  //     (product_specs) =>
-  //       product_specs.every((s) => s.name.length > 0 && s.value.length > 0),
-  //     {
-  //       error: "All product variant specs inputs must be filled correctly."
-  //     }
-  //   ),
+  productSpecs: z
+    .object({
+      name: z.string(),
+      value: z.string()
+    })
+    .array()
+    .min(1, "Please provide at least one product specification.")
+    .refine((specs) => specs.every((spec) => spec.name && spec.value), {
+      error: "All product specification inputs must be filled correctly."
+    }),
+  variantSpecs: z
+    .object({
+      name: z.string(),
+      value: z.string()
+    })
+    .array()
+    .min(1, "Please provide at least one product variant specification.")
+    .refine(
+      (specs) => specs.every((spec) => spec.name && spec.value),
+
+      {
+        error: "All product variant specification inputs must be filled correctly."
+      }
+    ),
   // questions: z
   //   .object({
   //     question: z.string(),

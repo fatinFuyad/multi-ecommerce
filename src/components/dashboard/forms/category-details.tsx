@@ -28,13 +28,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { CategoryFormSchema, CategoryFormSchemaType } from "@/lib/schemas";
-import { CategoryDoc } from "@/models/Category";
+import { ICategory } from "@/models/Category";
 import { createCategory, updateCategory } from "@/queries/category";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
 interface CategoryDetailsProps {
-  data?: CategoryDoc;
+  data?: ICategory;
 }
 
 export default function CategoryDetails({ data }: CategoryDetailsProps) {

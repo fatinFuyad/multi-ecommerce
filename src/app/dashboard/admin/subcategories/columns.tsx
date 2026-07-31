@@ -41,15 +41,15 @@ import { ColumnDef } from "@tanstack/react-table";
 
 // models
 import SubcategoryDetails from "@/components/dashboard/forms/subcategory-details";
-import { SubcategoryWithCateogry } from "@/lib/types";
-import { CategoryDoc } from "@/models/Category";
+import { SubcategoryWithCategory } from "@/lib/types";
+import { ICategory } from "@/models/Category";
 import { getCategories } from "@/queries/category";
 import { deleteSubcategory, getSubcategoryById } from "@/queries/subcategory";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export const columns: ColumnDef<SubcategoryWithCateogry>[] = [
+export const columns: ColumnDef<SubcategoryWithCategory>[] = [
   {
     accessorKey: "image",
     header: "Subcategory Image",
@@ -117,7 +117,7 @@ export const columns: ColumnDef<SubcategoryWithCateogry>[] = [
 
 // Define props interface for CellActions component
 interface CellActionsProps {
-  rowData: SubcategoryWithCateogry;
+  rowData: SubcategoryWithCategory;
 }
 
 // CellActions component definition
@@ -129,7 +129,7 @@ export function CellActions({ rowData }: CellActionsProps) {
   const router = useRouter();
 
   // Get categories
-  const [categories, setCategories] = useState<CategoryDoc[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {

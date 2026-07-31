@@ -36,15 +36,15 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { CategoryDoc } from "@/models/Category";
-import { SubcategoryDoc } from "@/models/Subcategory";
+import { SubcategoryWithCategory } from "@/lib/types";
+import { ICategory } from "@/models/Category";
 import { createSubcategory, updateSubcategory } from "@/queries/subcategory";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
 interface SubcategoryDetailsProps {
-  data?: Omit<SubcategoryDoc, "category"> & { category: CategoryDoc };
-  categories: CategoryDoc[];
+  data?: SubcategoryWithCategory;
+  categories: ICategory[];
 }
 
 export default function SubcategoryDetails({

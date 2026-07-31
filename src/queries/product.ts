@@ -1,5 +1,6 @@
 import { ProductFormSchemaType } from "@/lib/schemas";
-import { ProductDoc, ProductVariantDoc } from "@/models/Product";
+import { ProductWithVariant } from "@/lib/types";
+import { IProduct } from "@/models/Product";
 import { Types } from "mongoose";
 import {
   ApiQueryHeaders,
@@ -15,7 +16,7 @@ import {
  * @description Use for updating product document
  */
 export async function updateProduct(_id: Types.ObjectId, data: ProductFormSchemaType) {
-  return updateDoc<{ product: ProductDoc }>(`/products/${_id}`, data);
+  return updateDoc<{ product: IProduct }>(`/products/${_id}`, data);
 }
 
 /**
@@ -30,30 +31,22 @@ export const deleteProduct = async (_id: Types.ObjectId) => {
  * @param data - The data to be upserted
  * @returns `Promise<ApiResponse>` - upserted document
  */
-export async function upsertProduct(
-  data: ProductFormSchemaType & { productId?: Types.ObjectId; storeUrl: string }
-) {
-  return upsertDoc<{ product: ProductDoc; productVariant: ProductVariantDoc }>(
-    "/products",
-    data
-  );
+export async function upsertProduct(data: ProductFormSchemaType) {
+  return upsertDoc<{ product: ProductWithVariant }>("/products", data);
 }
 
 export async function createProduct(data: ProductFormSchemaType) {
-  return createDoc<{ product: ProductDoc; productVariant: ProductVariantDoc }>(
-    "/products",
-    data
-  );
+  return createDoc<{ product: ProductWithVariant }>("/products", data);
 }
 
-export async function getProducts<T = ProductDoc>(
+export async function getProducts<T = IProduct>(
   query?: string,
   options?: ApiQueryHeaders
 ) {
   return getDocs<{ products: T[] }>("/products" + (query ? `?${query}` : ""), options);
 }
 
-export async function getProductById<T = ProductDoc>(
+export async function getProductById<T = IProduct>(
   _id: Types.ObjectId,
   query?: string,
   options?: ApiQueryHeaders

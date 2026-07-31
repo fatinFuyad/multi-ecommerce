@@ -1,5 +1,4 @@
 import Subcategory, { SubcategoryDoc } from "@/models/Subcategory";
-import mongoose from "mongoose";
 
 import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
@@ -9,7 +8,7 @@ import { createUpdateSubcategory } from "../route";
 
 interface RouteParams {
   params: {
-    subcategoryId: mongoose.Types.ObjectId;
+    subcategoryId: string;
   };
 }
 

@@ -69,10 +69,7 @@ export async function PUT(req: Request) {
     await restrictTo("SELLER");
     await dbConnect();
 
-    const productData: ProductFormSchemaType & {
-      productId?: Types.ObjectId;
-      storeUrl: string;
-    } = await req.json();
+    const productData: ProductFormSchemaType = await req.json();
     const storeUrl: string = productData.storeUrl;
 
     // check if product already exists in database. then create a new variant for that product
@@ -83,7 +80,9 @@ export async function PUT(req: Request) {
 
     // Generating _id before store in database for early reference
     const variantId = new Types.ObjectId();
-    let productId = productData.productId as Types.ObjectId;
+    let productId = productData.productId
+      ? (new Types.ObjectId(productData.productId) as Types.ObjectId)
+      : undefined;
     let storeId: Types.ObjectId | undefined;
     let productSlug;
 
@@ -101,17 +100,20 @@ export async function PUT(req: Request) {
     }
 
     const commonProductData = {
-      _id: productId,
+      _id: productId as Types.ObjectId,
       name: productData.name,
       description: productData.description,
       slug: productSlug as string,
       brand: productData.brand,
-      rating: 0,
       store: storeId as Types.ObjectId,
       variants: [variantId], // Types.ObjectId[],
       category: new Types.ObjectId(productData.category),
-      subcategory: new Types.ObjectId(productData.subcategory)
-    } satisfies Omit<IProduct, "createdAt" | "updatedAt">;
+      subcategory: new Types.ObjectId(productData.subcategory),
+      specifications: productData.productSpecs as Types.DocumentArray<{
+        name: string;
+        value: string;
+      }>
+    } satisfies Omit<IProduct, "createdAt" | "updatedAt" | "rating">;
 
     const commonVariantData = {
       _id: variantId,
@@ -132,9 +134,13 @@ export async function PUT(req: Request) {
         price: number;
         discount: number;
       }>,
+      specifications: productData.variantSpecs as Types.DocumentArray<{
+        name: string;
+        value: string;
+      }>,
       isSale: productData.isSale,
       slug: variantSlug,
-      product: productId
+      product: productId as Types.ObjectId
     } satisfies Omit<IProductVariant, "createdAt" | "updatedAt">;
 
     let newProduct;

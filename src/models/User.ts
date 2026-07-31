@@ -1,10 +1,10 @@
 import {
-  Types,
-  Schema,
-  models,
-  model,
   HydratedDocument,
-  InferSchemaType
+  InferSchemaType,
+  Schema,
+  Types,
+  model,
+  models
 } from "mongoose";
 
 export type Roles = "ADMIN" | "SELLER" | "USER"; // "admin" | "moderator";

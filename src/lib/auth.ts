@@ -1,4 +1,5 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { Roles } from "@/models/User";
 import { SessionUser } from "@/types/next-auth";
 import { getServerSession, Session } from "next-auth";
 import { redirect } from "next/navigation";
@@ -19,4 +20,14 @@ export async function auth(): Promise<{
   }
 
   return { expires: session.expires, user: session.user };
+}
+
+/**
+ * @description  prevents unauthorized users from accessing certain routes, pages and redirect user to unauthorized page. Use this utility function on the server side routes
+ * @returns `Promise<SessionUser>`
+ */
+export async function authorize(role: Roles): Promise<SessionUser> {
+  const { user } = await auth();
+  if (user.role !== role) return redirect("/error/unauthorized");
+  return user;
 }

@@ -1,7 +1,6 @@
 import DashboardHeader from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { authorize } from "@/lib/auth";
 
 interface Props {
   children: React.ReactNode;
@@ -9,13 +8,12 @@ interface Props {
 export default async function AdminDashboardLayout({
   children
 }: Props): Promise<React.ReactNode> {
-  const { user } = await auth();
-  if (user.role !== "ADMIN") return redirect("/error/unauthorized");
+  const admin = await authorize("ADMIN");
 
   return (
     <div className="w-full h-full">
       {/* sidebar on the left */}
-      <Sidebar isAdmin={true} user={user} />
+      <Sidebar isAdmin={true} user={admin} />
 
       {/* main area with full width */}
       <div className="ml-80">

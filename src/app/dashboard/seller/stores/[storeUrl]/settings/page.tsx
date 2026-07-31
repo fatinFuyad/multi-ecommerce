@@ -1,11 +1,9 @@
 import StoreDetails from "@/components/dashboard/forms/store-details";
-import { StoreDoc } from "@/models/Store";
+import { IStore } from "@/models/Store";
 import { getDocs } from "@/queries/api-query";
 
 async function SellerStoreSettingsPage({ params }: { params: { storeUrl: string } }) {
-  const response = await getDocs<{ stores: StoreDoc[] }>(
-    `/stores?url=${params.storeUrl}`
-  );
+  const response = await getDocs<{ stores: IStore[] }>(`/stores?url=${params.storeUrl}`);
 
   return (
     <div>

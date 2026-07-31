@@ -1,44 +1,22 @@
-import { auth } from "@/lib/auth";
-import { dbConnect } from "@/lib/db-connect";
-import Store, { IStore } from "@/models/Store";
-import User, { UserDoc } from "@/models/User";
-import { PopulateOptions } from "mongoose";
+import { authorize } from "@/lib/auth";
+import { IStore } from "@/models/Store";
+import { getStores } from "@/queries/store";
 import { redirect } from "next/navigation";
 // import { TableStores } from "./table";
 
 async function SellerDashboardPage() {
   // prevent non-seller users accessing this page & redirect user to unauthorized;
-  const { user } = await auth();
-  if (user.role !== "SELLER") return redirect("/error/unauthorized");
+  const user = await authorize("SELLER");
 
-  // Alert: mongodb should be connected before querying
-  await dbConnect();
+  const { stores } = await getStores<Pick<IStore, "url">>(`user=${user._id}&fields=url`);
 
-  // prevents MissingSchemaError: Schema hasn't been registered for model "Store"
-  if (!Store.modelName) return <h1>Store model was&appos;nt registered</h1>;
-
-  const seller:
-    | (Omit<UserDoc, "stores"> & { stores: Pick<IStore, "_id" | "url">[] })
-    | null = await User.findOne({ _id: user._id })
-    .sort({ createdAt: "asc" })
-    .populate({
-      path: "stores",
-      select: "url", // "name email phone url featured"
-      options: {
-        limit: 1 // limits number of docs from the populate reference array
-      }
-    } satisfies PopulateOptions)
-    .exec();
-
-  if (!seller) return null;
-  console.log(seller);
   // if user has no stores & redirect to create new store page
-  if (!seller.stores.length) {
+  if (!stores || !stores.length) {
     return redirect("/dashboard/seller/stores/new");
   }
 
   // if seller has stores & redirect them to them latest store
-  return redirect(`/dashboard/seller/stores/${seller.stores[0].url}`);
+  return redirect(`/dashboard/seller/stores/${stores[0].url}`);
 
   // return (
   //   <div className="grid gap-6 p-8">

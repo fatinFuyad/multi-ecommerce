@@ -1,5 +1,5 @@
 import { StoreFormSchemaType } from "@/lib/schemas";
-import { StoreDoc } from "@/models/Store";
+import { IStore } from "@/models/Store";
 import { Types } from "mongoose";
 import {
   ApiQueryHeaders,
@@ -15,7 +15,7 @@ import {
  * @description Use for updating store document
  */
 export async function updateStore(_id: Types.ObjectId, data: StoreFormSchemaType) {
-  return updateDoc<{ store: StoreDoc }>(`/stores/${_id}`, data);
+  return updateDoc<{ store: IStore }>(`/stores/${_id}`, data);
 }
 
 /**
@@ -31,18 +31,18 @@ export async function deleteStore(_id: Types.ObjectId) {
  * @returns `Promise<ApiResponse>` - upserted document
  */
 export async function upsertStore(data: StoreFormSchemaType) {
-  return upsertDoc<{ store: StoreDoc }>("/stores", data);
+  return upsertDoc<{ store: IStore }>("/stores", data);
 }
 
 export async function createStore(data: StoreFormSchemaType) {
-  return createDoc<{ store: StoreDoc }>("/stores", data);
+  return createDoc<{ store: IStore }>("/stores", data);
 }
 
-export async function getStores<T = StoreDoc>(query?: string, options?: ApiQueryHeaders) {
+export async function getStores<T = IStore>(query?: string, options?: ApiQueryHeaders) {
   return getDocs<{ stores: T[] }>("/stores" + (query ? `?${query}` : ""), options);
 }
 
-export async function getStoreById<T = StoreDoc>(
+export async function getStoreById<T = IStore>(
   _id: Types.ObjectId,
   query?: string,
   options?: ApiQueryHeaders

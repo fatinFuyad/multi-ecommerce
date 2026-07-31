@@ -1,5 +1,5 @@
 import { CategoryFormSchemaType } from "@/lib/schemas";
-import { CategoryDoc } from "@/models/Category";
+import { ICategory } from "@/models/Category";
 import { Types } from "mongoose";
 import {
   ApiQueryHeaders,
@@ -15,7 +15,7 @@ import {
  * @description Use for updating category document
  */
 export async function updateCategory(_id: Types.ObjectId, data: CategoryFormSchemaType) {
-  return updateDoc<{ category: CategoryDoc }>(`/categories/${_id}`, data);
+  return updateDoc<{ category: ICategory }>(`/categories/${_id}`, data);
 }
 
 /**
@@ -31,14 +31,14 @@ export async function deleteCategory(_id: Types.ObjectId) {
  * @returns `Promise<ApiResponse>` - upserted document
  */
 export async function upsertCategory(data: CategoryFormSchemaType) {
-  return upsertDoc<{ category: CategoryDoc }>("/categories", data);
+  return upsertDoc<{ category: ICategory }>("/categories", data);
 }
 
 export async function createCategory(data: CategoryFormSchemaType) {
-  return createDoc<{ category: CategoryDoc }>("/categories", data);
+  return createDoc<{ category: ICategory }>("/categories", data);
 }
 
-export async function getCategories<T = CategoryDoc>(
+export async function getCategories<T = ICategory>(
   query?: string,
   options?: ApiQueryHeaders
 ) {
@@ -48,7 +48,7 @@ export async function getCategories<T = CategoryDoc>(
   );
 }
 
-export async function getCategoryById<T = CategoryDoc>(
+export async function getCategoryById<T = ICategory>(
   _id: Types.ObjectId,
   query?: string,
   options?: ApiQueryHeaders

@@ -76,9 +76,7 @@ export default function DataTable<TData, TValue>({
           <Search />
           <Input
             placeholder={searchPlaceholder}
-            value={
-              (table.getColumn(filterValue)?.getFilterValue() as string) ?? ""
-            }
+            value={(table.getColumn(filterValue)?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn(filterValue)?.setFilterValue(event.target.value)
             }
@@ -92,10 +90,7 @@ export default function DataTable<TData, TValue>({
               onClick={() => {
                 if (modalChildren)
                   setOpen(
-                    <CustomModal
-                      heading={heading || ""}
-                      subheading={subheading || ""}
-                    >
+                    <CustomModal heading={heading || ""} subheading={subheading || ""}>
                       {modalChildren}
                     </CustomModal>
                   );
@@ -144,19 +139,10 @@ export default function DataTable<TData, TValue>({
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => {
                 return (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className="max-w-[400px] break-words"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                      <TableCell key={cell.id} className="max-w-[400px] break-words">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -165,10 +151,7 @@ export default function DataTable<TData, TValue>({
             ) : (
               // No results message
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No Results.
                 </TableCell>
               </TableRow>

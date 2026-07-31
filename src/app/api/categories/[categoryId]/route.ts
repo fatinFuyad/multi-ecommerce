@@ -3,12 +3,11 @@ import Category from "@/models/Category";
 import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { CategoryFormSchemaType } from "@/lib/schemas";
-import { Types } from "mongoose";
 import { createUpdateCategory } from "../route";
 
 interface RouteParams {
   params: {
-    categoryId: Types.ObjectId;
+    categoryId: string;
   };
 }
 

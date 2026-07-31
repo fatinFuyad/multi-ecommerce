@@ -1,5 +1,5 @@
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
-import { SubcategoryDoc } from "@/models/Subcategory";
+import { ISubcategory } from "@/models/Subcategory";
 import { Types } from "mongoose";
 import {
   ApiQueryHeaders,
@@ -18,7 +18,7 @@ export async function updateSubcategory(
   _id: Types.ObjectId,
   data: SubcategoryFormSchemaType
 ) {
-  return updateDoc<{ subcategory: SubcategoryDoc }>(`/subcategories/${_id}`, data);
+  return updateDoc<{ subcategory: ISubcategory }>(`/subcategories/${_id}`, data);
 }
 
 /**
@@ -34,14 +34,14 @@ export async function deleteSubcategory(_id: Types.ObjectId) {
  * @returns `Promise<ApiResponse>` - upserted document
  */
 export async function upsertSubcategory(data: SubcategoryFormSchemaType) {
-  return upsertDoc<{ subcategory: SubcategoryDoc }>("/subcategories", data);
+  return upsertDoc<{ subcategory: ISubcategory }>("/subcategories", data);
 }
 
 export async function createSubcategory(data: SubcategoryFormSchemaType) {
-  return createDoc<{ subcategory: SubcategoryDoc }>("/subcategories", data);
+  return createDoc<{ subcategory: ISubcategory }>("/subcategories", data);
 }
 
-export async function getSubcategories<T = SubcategoryDoc>(
+export async function getSubcategories<T = ISubcategory>(
   query?: string,
   options?: ApiQueryHeaders
 ) {
@@ -51,7 +51,7 @@ export async function getSubcategories<T = SubcategoryDoc>(
   );
 }
 
-export async function getSubcategoryById<T = SubcategoryDoc>(
+export async function getSubcategoryById<T = ISubcategory>(
   _id: Types.ObjectId,
   query?: string,
   options?: ApiQueryHeaders

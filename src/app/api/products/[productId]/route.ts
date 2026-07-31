@@ -7,7 +7,7 @@ import { Types } from "mongoose";
 
 interface RouteParams {
   params: {
-    productId: Types.ObjectId;
+    productId: string; // in params _id is string not ObjectId
   };
 }
 
@@ -20,8 +20,10 @@ interface RouteParams {
 export async function GET(req: Request, { params }: RouteParams) {
   try {
     await dbConnect();
-
-    const query = new QueryBuilder(Product.findOne({ _id: params.productId }), req.url)
+    const query = new QueryBuilder(
+      Product.findOne({ _id: new Types.ObjectId(params.productId) }),
+      req.url
+    )
       .limitFields()
       .handleQueryOptions(req.headers)
       .build();

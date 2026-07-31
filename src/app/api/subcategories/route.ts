@@ -1,9 +1,9 @@
+import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
-import { ApiResponse, SubcategoryWithCateogry } from "@/lib/types";
+import { ApiResponse, SubcategoryWithCategory } from "@/lib/types";
 import { Types } from "mongoose";
-import { restrictTo } from "@/lib/api-utils";
 
 import Category from "@/models/Category";
 import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory";
@@ -15,7 +15,7 @@ import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory"
  * @returns: Updated or newly created subcategory details.
  */
 export async function createUpdateSubcategory(
-  subcategory: SubcategoryFormSchemaType & { _id?: Types.ObjectId }
+  subcategory: SubcategoryFormSchemaType & { _id?: Types.ObjectId | string }
 ): Promise<SubcategoryDoc | null> {
   if (!subcategory) throw new Error("Subcategory data can't be empty");
   const isUpdateSession = Boolean(subcategory._id);
@@ -52,7 +52,7 @@ export async function createUpdateSubcategory(
         ...subcategory,
         image: subcategory.image[0].url,
         category: new Types.ObjectId(subcategory.category)
-      } satisfies Partial<ISubcategory>, // updates do not require all schema fields
+      } satisfies Partial<Omit<ISubcategory, "_id">>, // updates do not require all schema fields
       { new: true }
     );
   } else {
@@ -119,7 +119,7 @@ export async function GET(req: Request) {
       success: true,
       message: "Get all subcategories with specified query was successful",
       subcategories
-    } as ApiResponse<{ subcategories: (SubcategoryDoc | SubcategoryWithCateogry)[] }>);
+    } as ApiResponse<{ subcategories: (ISubcategory | SubcategoryWithCategory)[] }>);
   } catch (error: any) {
     console.log(error.message);
     return Response.json({ success: false, status: 500, message: "Api response Error" });

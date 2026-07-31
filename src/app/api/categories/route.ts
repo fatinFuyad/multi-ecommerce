@@ -1,5 +1,5 @@
 import Category, { CategoryDoc, ICategory } from "@/models/Category";
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 
 import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
@@ -13,7 +13,7 @@ import { ApiResponse } from "@/lib/types";
 // Returns: Updated or newly created category details.
 
 export async function createUpdateCategory(
-  category: CategoryFormSchemaType & { _id?: mongoose.Types.ObjectId }
+  category: CategoryFormSchemaType & { _id?: Types.ObjectId | string }
 ): Promise<CategoryDoc | null> {
   if (!category) throw new Error("Category data can't be empty");
   const isUpdateSession = Boolean(category._id);

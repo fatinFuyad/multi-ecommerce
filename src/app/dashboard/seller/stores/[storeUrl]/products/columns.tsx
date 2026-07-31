@@ -35,14 +35,13 @@ import { useModal } from "@/providers/modal-provider";
 import { CopyPlus, Edit, FilePenLine, MoreHorizontal, Trash } from "lucide-react";
 
 // Queries
+import { deleteProduct, getProductById } from "@/queries/product";
 
 // Tanstack React Table
 import { ColumnDef } from "@tanstack/react-table";
 
-// models
 import ProductDetails from "@/components/dashboard/forms/product-details";
 import { ProductDetailedType } from "@/lib/types";
-import { deleteProduct, getProductById } from "@/queries/product";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -51,15 +50,15 @@ import { useState } from "react";
 export const columns: ColumnDef<ProductDetailedType>[] = [
   {
     accessorKey: "image",
-    header: "",
+    header: "Product & Image",
     cell: ({ row }) => {
       return (
         <div className="flex flex-col gap-y-3">
-          {/* Product name */}
+          {/* PRODUCT NAME*/}
           <h1 className="font-bold truncate pb-3 border-b capitalize">
             {row.original.name}
           </h1>
-          {/* Product variants */}
+          {/* PRODUCT VARIANT*/}
           <div className="relative flex flex-wrap gap-2">
             {row.original.variants.map((variant) => (
               <div key={variant._id.toString()} className="flex flex-col gap-y-2 group">
@@ -116,15 +115,15 @@ export const columns: ColumnDef<ProductDetailedType>[] = [
       );
     }
   },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => {
-      return (
-        <span className="font-extrabold text-lg capitalize">{row.original.name}</span>
-      );
-    }
-  },
+  // {
+  //   accessorKey: "name",
+  //   header: "Name",
+  //   cell: ({ row }) => {
+  //     return (
+  //       <span className="font-extrabold text-lg capitalize">{row.original.name}</span>
+  //     );
+  //   }
+  // },
 
   {
     accessorKey: "brand",

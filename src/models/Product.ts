@@ -30,7 +30,16 @@ const productSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Subcategory",
       required: true
-    }
+    },
+    specifications: [
+      {
+        name: {
+          type: String,
+          required: true
+        },
+        value: { type: String, required: true }
+      }
+    ]
   },
   {
     timestamps: true
@@ -50,8 +59,14 @@ const productVariantSchema = new Schema(
     saleEndDate: { type: String },
     sku: { type: String, required: true },
     keywords: { type: String, required: true },
-
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+    images: [
+      {
+        url: { type: String, required: true },
+        alt: { type: String, default: "productImage" },
+        order: { type: Number }
+      }
+    ],
     colors: [
       {
         color: {
@@ -68,12 +83,13 @@ const productVariantSchema = new Schema(
         discount: { type: Number, required: true }
       }
     ],
-
-    images: [
+    specifications: [
       {
-        url: { type: String, required: true },
-        alt: { type: String, default: "productImage" },
-        order: { type: Number }
+        name: {
+          type: String,
+          required: true
+        },
+        value: { type: String, required: true }
       }
     ]
   },

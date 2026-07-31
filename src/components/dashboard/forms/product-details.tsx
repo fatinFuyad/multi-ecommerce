@@ -39,7 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ProductFormSchema, ProductFormSchemaType } from "@/lib/schemas";
 import { ProductWithVariant } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { CategoryDoc } from "@/models/Category";
+import { ICategory } from "@/models/Category";
 import { IProductVariant } from "@/models/Product";
 import { SubcategoryDoc } from "@/models/Subcategory";
 import { upsertProduct } from "@/queries/product";
@@ -51,6 +51,7 @@ import { WithOutContext as ReactTags } from "react-tag-input";
 
 // UITILITY UI COMPOENENTS
 import JoditEditor from "jodit-react";
+import { Types } from "mongoose";
 import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
 import DateTimePicker from "react-datetime-picker";
@@ -61,7 +62,7 @@ import AddInput from "./add-input";
 
 interface ProductDetailsProps {
   data?: Partial<ProductWithVariant>;
-  categories: CategoryDoc[];
+  categories: ICategory[];
   storeUrl: string;
 }
 
@@ -136,8 +137,17 @@ export default function ProductDetails({
   const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>([
     { size: "", quantity: 0, price: 0, discount: 0 }
   ]);
+  const [productSpecs, setProductSpecs] = useState<{ name: string; value: string }[]>(
+    (data?.specifications as Types.DocumentArray<{ name: string; value: string }>) || [
+      { name: "", value: "" }
+    ]
+  );
+  const [variantSpecs, setVariantSpecs] = useState<{ name: string; value: string }[]>(
+    (variant?.specifications as Types.DocumentArray<{ name: string; value: string }>) || [
+      { name: "", value: "" }
+    ]
+  );
   const [keywords, setKeywords] = useState<string[]>([]);
-  // State for subcategories
   const [subcategories, setSubcategories] = useState<SubcategoryDoc[]>([]);
 
   // 1. Define your form.
@@ -165,6 +175,14 @@ export default function ProductDetails({
           discount: 0
         }
       ],
+      productSpecs:
+        (data?.specifications as Types.DocumentArray<{ name: string; value: string }>) ||
+        [],
+      variantSpecs:
+        (variant?.specifications as Types.DocumentArray<{
+          name: string;
+          value: string;
+        }>) || [],
       isSale: variant?.isSale || false,
       saleEndDate: variant?.saleEndDate || format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
     }
@@ -243,7 +261,9 @@ export default function ProductDetails({
     form.setValue("colors", colors);
     form.setValue("sizes", sizes);
     form.setValue("keywords", keywords);
-  }, [form, colors, sizes, keywords]);
+    form.setValue("productSpecs", productSpecs);
+    form.setValue("variantSpecs", variantSpecs);
+  }, [form, colors, sizes, keywords, productSpecs, variantSpecs]);
 
   // Get subcategories for particular category
   const categoryField = form.watch("category");
@@ -272,14 +292,18 @@ export default function ProductDetails({
     try {
       console.log(values);
       const isUpdateSession = !!data?._id;
-      const response = await upsertProduct({ ...values, productId: data?._id, storeUrl });
+      const response = await upsertProduct({
+        ...values,
+        productId: data?._id?.toString(),
+        storeUrl: storeUrl
+      });
       console.log(response);
 
       toast({
         title: "Congratulations!",
         description: isUpdateSession
-          ? `Your product ${response.product.name} and variant ${response.productVariant.variantName} has been updated successfully`
-          : `Your product ${response.product.name} and variant ${response.productVariant.variantName} has been created successfully`
+          ? `Your product ${response.product.name} and variant ${response.product.variants[0].variantName} has been updated successfully`
+          : `Your product ${response.product.name} and variant ${response.product.variants[0].variantName} has been created successfully`
       });
       form.reset();
     } catch (error: any) {
@@ -412,7 +436,7 @@ export default function ProductDetails({
                     control={form.control}
                     name="description"
                     render={() => (
-                      <FormItem className={"dark:bg-slate-100 dark:text-gray-900"}>
+                      <FormItem className={"dark:bg-gray-500 dark:text-gray-900"}>
                         <FormControl>
                           <JoditEditor
                             ref={productDescEditor}
@@ -436,7 +460,7 @@ export default function ProductDetails({
                     control={form.control}
                     name="variantDescription"
                     render={() => (
-                      <FormItem className={"dark:bg-slate-100 dark:text-gray-900"}>
+                      <FormItem className={"dark:bg-gray-500 dark:text-gray-900"}>
                         <FormControl>
                           <JoditEditor
                             ref={variantDescEditor}
@@ -637,6 +661,39 @@ export default function ProductDetails({
                   </>
                 )}
               </div>
+              {/* TABBED SPECIFICATIONS FOR PRODUCT AND VARIANT */}
+              <Tabs defaultValue="product" className="w-full">
+                <TabsList className="grid grid-cols-2 mb-4">
+                  <TabsTrigger value="product">Product Specification</TabsTrigger>
+                  <TabsTrigger value="variant">Variant Specification</TabsTrigger>
+                </TabsList>
+                <TabsContent value="product">
+                  <AddInput
+                    initialInputDetail={{ name: "", value: "" }}
+                    inputDetails={productSpecs}
+                    setInputDetails={setProductSpecs}
+                    header="Add specifications"
+                  />
+                  {errors.productSpecs && (
+                    <span className="text-sm font-medium text-destructive">
+                      {errors.productSpecs.message}
+                    </span>
+                  )}
+                </TabsContent>
+                <TabsContent value="variant">
+                  <AddInput
+                    initialInputDetail={{ name: "", value: "" }}
+                    inputDetails={variantSpecs}
+                    setInputDetails={setVariantSpecs}
+                    header="Add specifications"
+                  />
+                  {errors.variantSpecs && (
+                    <span className="text-sm font-medium text-destructive">
+                      {errors.variantSpecs.message}
+                    </span>
+                  )}
+                </TabsContent>
+              </Tabs>
               {/* SALE STATUS AND SALE END DATE */}
               <div className="grid grid-cols-2 border rounded-md p-4 px-4">
                 <FormField
@@ -665,7 +722,7 @@ export default function ProductDetails({
                       <FormItem>
                         <FormControl>
                           <DateTimePicker
-                            className={"bg-slate-100 text-gray-900"}
+                            className={"dark:bg-gray-100 dark:text-gray-900"}
                             onChange={(date) => {
                               field.onChange(
                                 date ? format(date, "yyyy-MM-dd'T'HH:mm:ss") : ""

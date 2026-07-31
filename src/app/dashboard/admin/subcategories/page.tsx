@@ -1,6 +1,6 @@
 import SubcategoryDetails from "@/components/dashboard/forms/subcategory-details";
 import DataTable from "@/components/ui/data-table";
-import { SubcategoryWithCateogry } from "@/lib/types";
+import { SubcategoryWithCategory } from "@/lib/types";
 import { getCategories } from "@/queries/category";
 import { getSubcategories } from "@/queries/subcategory";
 import { Plus } from "lucide-react";
@@ -8,7 +8,7 @@ import { columns } from "./columns";
 
 async function AdminSubcategoriesPage() {
   const { categories } = await getCategories();
-  const { subcategories } = await getSubcategories<SubcategoryWithCateogry>(undefined, {
+  const { subcategories } = await getSubcategories<SubcategoryWithCategory>(undefined, {
     populate: "category"
   });
 

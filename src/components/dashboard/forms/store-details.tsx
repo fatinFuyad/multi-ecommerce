@@ -29,12 +29,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { StoreFormSchema, StoreFormSchemaType } from "@/lib/schemas";
-import { StoreDoc } from "@/models/Store";
+import { IStore } from "@/models/Store";
 import { createStore, updateStore } from "@/queries/store";
 import ImageUpload from "../shared/image-upload";
 
 interface StoreDetailsProps {
-  data?: StoreDoc;
+  data?: IStore;
 }
 
 export default function StoreDetails({ data }: StoreDetailsProps) {
