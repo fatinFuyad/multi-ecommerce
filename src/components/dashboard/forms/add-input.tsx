@@ -65,7 +65,7 @@ export default function AddInput<T extends InputDetail>({
   }
 
   return (
-    <div className="flex flex-col gap-y-4">
+    <div className="w-full flex flex-col gap-y-4">
       {/* HEADER */}
       {header && <h4>{header}</h4>}
       {/* Display PlusButton if no details exist */}
@@ -80,7 +80,7 @@ export default function AddInput<T extends InputDetail>({
           <div key={index} className="flex items-center gap-x-4">
             {Object.entries(detail).map(([key, value], entryIndex) => {
               return (
-                <div key={entryIndex} className="flex items-center gap-x-4">
+                <div key={entryIndex} className="w-full flex items-center gap-x-4">
                   {/*COLOR-PICKER TOGGLE*/}
                   {key === "color" && colorPicker && (
                     <div className="flex gap-x-4">
@@ -109,7 +109,7 @@ export default function AddInput<T extends InputDetail>({
                   )}
 
                   <Input
-                    className="w-28"
+                    className="w-full"
                     type={typeof value === "number" ? "number" : "text"}
                     name={key}
                     placeholder={key}

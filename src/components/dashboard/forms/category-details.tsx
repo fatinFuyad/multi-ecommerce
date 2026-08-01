@@ -92,10 +92,13 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
         router.push("/dashboard/admin/categories");
       }
     } catch (error: any) {
+      console.log(error);
       toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: error.message
+        title: "An Error Occurred",
+        description:
+          error.response?.data.message ||
+          "An unexpected error occured in the server while creating or updating",
+        variant: "destructive"
       });
     }
   }

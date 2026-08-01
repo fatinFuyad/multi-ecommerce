@@ -112,6 +112,10 @@ export async function PUT(req: Request) {
       specifications: productData.productSpecs as Types.DocumentArray<{
         name: string;
         value: string;
+      }>,
+      questions: productData.questions as Types.DocumentArray<{
+        question: string;
+        answer: string;
       }>
     } satisfies Omit<IProduct, "createdAt" | "updatedAt" | "rating">;
 
@@ -145,7 +149,8 @@ export async function PUT(req: Request) {
 
     let newProduct;
     let newVariant;
-
+    const x = "error";
+    if (x) throw new Error("Something went wrong in product route!");
     if (!existingProduct) {
       // Create both the product and the variant
       newProduct = await Product.findByIdAndUpdate(productId, commonProductData, {
@@ -177,7 +182,8 @@ export async function PUT(req: Request) {
 
     return Response.json(
       {
-        product: { ...newProduct, variants: [newVariant] },
+        // if we spread doc then additional properties also copied. but we need _doc only
+        product: { ...newProduct._doc, variants: [newVariant] },
         success: true,
         message: "Upsert product and variant was successful",
         status: 201

@@ -78,10 +78,12 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
           : `Your store ${response.store.name} has been created successfully`
       });
     } catch (error: any) {
+      console.log(error);
       toast({
-        title: "An Error Occured",
+        title: "An Error Occurred",
         description:
-          error.message || "Unexpected error while creating/updating the store",
+          error.response?.data.message ||
+          "An unexpected error occured in the server while creating or updating",
         variant: "destructive"
       });
     }

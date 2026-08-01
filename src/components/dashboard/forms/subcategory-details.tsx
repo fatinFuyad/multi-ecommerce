@@ -94,11 +94,13 @@ export default function SubcategoryDetails({
         router.push("/dashboard/admin/subcategories");
       }
     } catch (error: any) {
+      console.log(error);
       toast({
-        variant: "destructive",
-        title: "Oops!",
+        title: "An Error Occurred",
         description:
-          error.message || "An Error occured while createing or updating subcategory"
+          error.response?.data.message ||
+          "An unexpected error occured in the server while creating or updating",
+        variant: "destructive"
       });
     }
   }

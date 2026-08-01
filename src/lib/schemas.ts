@@ -1,9 +1,18 @@
 import z from "zod";
 
 export const UserFormSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters."
-  }),
+  username: z
+    .string({
+      error: (iss) =>
+        iss.input === undefined ? "Username is required" : "Invalid username"
+    })
+    .min(2, {
+      message: "Username must be at least 2 characters."
+    })
+    .regex(/^(?!.*[_-]{2})[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+)*$/, {
+      error:
+        "Only allowed alphanumerics and special characters like: (_ -). Not allowed special characters at the beginning or end and consecutive occurances between words."
+    }),
   email: z.email("Email is required"),
   password: z
     .string()
@@ -12,7 +21,10 @@ export const UserFormSchema = z.object({
   name: z
     .string()
     .max(50, "Name is too long")
-    .regex(/^[\s\w]+$/, "Name should not contain any special characters")
+    .regex(
+      /^(?:[a-zA-Z]+ |[a-zA-Z]+\.|[a-zA-Z]+\. )*[a-zA-Z]+$/,
+      "Not allowed special characters and spaces at the beginning or end or multiple spaces between words. Only allowed alphabets and (.) as special character."
+    )
     .trim()
 });
 
@@ -23,10 +35,9 @@ export const CategoryFormSchema = z.object({
     })
     .min(2, { error: "Category name must be at least 2 characters long." })
     .max(50, { error: "Category name cannot exceed 50 characters." })
-    // .regex(/^(?!.*__)(?!.*--)[a-zA-Z0-9_\-\s]+$/, {
     .regex(/^(?!.*[ _-]{2})[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/, {
       error:
-        "Only alphanumeric characters and only one separator like space( ), underscore(_), hyphen(-) between words are allowed. Also starting or ending with separators not allowed."
+        "Only allowed alphanumerics and special characters like: (space _ -). Not allowed special characters at the beginning or end and consecutive occurances between words."
     }),
   image: z
     .object({
@@ -34,21 +45,16 @@ export const CategoryFormSchema = z.object({
     })
     .array()
     .length(1, "Choose an image for category."),
-  // image: z.string(),
   url: z
     .string({
       error: "Category url is required"
     })
     .min(2, { error: "Category url must be at least 2 characters long." })
     .max(50, { error: "Category url cannot exceed 50 characters." })
-    .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_ -]+$/, {
+    .regex(/^(?!.*[ _-]{2})[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/, {
       error:
-        "Only letters, numbers, space, hyphen, and underscore are allowed in the url and consecutive occurrences of hyphens, underscores, or spaces are not permitted."
+        "Only allowed alphanumerics and special characters like: (space _ -). Not allowed special characters at the beginning or end and consecutive occurances between words."
     }),
-  // .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_-]+$/, {
-  //   error:
-  //     "Only letters, numbers, hyphen, and underscore are allowed in the category url, and consecutive occurrences of hyphens, underscores, or spaces are not permitted."
-  // }),
   featured: z.boolean() //   // adding default doesn't work in form resolver
 });
 
@@ -61,7 +67,7 @@ export const SubcategoryFormSchema = z.object({
     .max(50, { error: "Subcategory name cannot exceed 50 characters." })
     .regex(/^(?!.*[ _-]{2})[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/, {
       error:
-        "Only alphanumeric characters and only one separator like space( ), underscore(_), hyphen(-) between words are allowed. Also starting or ending with separators not allowed."
+        "Only allowed alphanumerics and special characters like: (space _ -). Not allowed special characters at the beginning or end and consecutive occurances between words."
     }),
   image: z
     .object({
@@ -69,20 +75,15 @@ export const SubcategoryFormSchema = z.object({
     })
     .array()
     .length(1, "Choose an image for Subcategory."),
-  // image: z.string(),
   url: z
     .string("Store url is required")
     .min(2, { error: "Subcategory url must be at least 2 characters long." })
     .max(50, { error: "Subcategory url cannot exceed 50 characters." })
-    .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_-]+$/, {
+    .regex(/^(?!.*[ _-]{2})[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/, {
       error:
-        "Only letters, numbers, hyphen, and underscore are allowed in the url, and consecutive occurrences of hyphens, underscores, or spaces are not permitted."
+        "Only allowed alphanumerics and special characters like: (space _ -). Not allowed special characters at the beginning or end and consecutive occurances between words."
     }),
   featured: z.boolean(),
-  // category: z.custom<mongoose.Types.ObjectId>(
-  //   (val) => typeof val === mongoose.Types.ObjectId.toString(),
-  //   { error: "Category ID is required for creating subcategory" }
-  // )
   category: z.string("Category ID is required for creating subcategory").nonoptional()
 });
 
@@ -94,11 +95,13 @@ export const StoreFormSchema = z.object({
     })
     .min(2, { error: "Store name must be at least 2 characters long." })
     .max(50, { error: "Store name cannot exceed 50 characters." })
-    // .regex(/^(?!.*[ _-]{2})[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/,
-    .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_ -]+$/, {
-      error:
-        "Only letters, numbers, space, hyphen, and underscore are allowed in the store name, and consecutive occurrences of hyphens, underscores, or spaces are not permitted."
-    }),
+    .regex(
+      /^(?!.*[ _-]{2})[A-Za-z0-9]+(?:[_-][A-Za-z0-9]+| [A-Za-z0-9]+| [&$] [A-Za-z0-9]+)*$/,
+      {
+        error:
+          "Only allowed aphanumerics and special characters like: (space-_$&). Not allowed special characters or spaces at the beginning or end and consecutive occurances between words. There must be space between words and special character"
+      }
+    ),
   description: z
     .string("Descirption is required")
     .min(10, "Description should be at least 10 characters")
@@ -111,14 +114,13 @@ export const StoreFormSchema = z.object({
     .string("Store url is required")
     .min(2, { error: "Store url must be at least 2 characters long." })
     .max(50, { error: "Store url cannot exceed 50 characters." })
-    .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_-]+$/, {
+    .regex(/^(?!.*[ _-]{2})[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/, {
       error:
-        "Only letters, numbers, hyphen, and underscore are allowed in the store url, and consecutive occurrences of hyphens, underscores, or spaces are not permitted."
+        "Only allowed alphanumerics and special characters like: (space _ -). Not allowed special characters at the beginning or end and consecutive occurances between words."
     }),
   logo: z.object({ url: z.string() }).array().length(1, "Choose a logo image."),
   cover: z.object({ url: z.string() }).array().length(1, "Choose a cover image."),
   featured: z.boolean()
-  // status: z.string()
 });
 
 export const ProductFormSchema = z.object({
@@ -131,9 +133,9 @@ export const ProductFormSchema = z.object({
     })
     .min(2, { error: "Product name should be at least 2 characters long." })
     .max(200, { error: "Product name cannot exceed 200 characters." })
-    .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_ -]+$/, {
+    .regex(/^(?!.*[  ]{2})[A-Za-z0-9]+(?: [A-Za-z0-9]+| [-_&$] [A-Za-z0-9]+)*$/, {
       error:
-        "Product name may only contain letters, numbers, spaces, hyphens, and underscores, without consecutive special characters."
+        "Only allowed aphanumerics and special characters like: (space-_$&). Not allowed special characters or spaces at the beginning or end and consecutive occurances between words. There must be space between words and special character"
     }),
   description: z
     .string({
@@ -155,10 +157,10 @@ export const ProductFormSchema = z.object({
     .min(2, {
       error: "Product variant name should be at least 2 characters long."
     })
-    .max(100, { error: "Product variant name cannot exceed 100 characters." })
-    .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_ -]+$/, {
+    .max(200, { error: "Product variant name cannot exceed 200 characters." })
+    .regex(/^(?!.*[  ]{2})[A-Za-z0-9]+(?: [A-Za-z0-9]+| [-_&$] [A-Za-z0-9]+)*$/, {
       error:
-        "Product variant name may only contain letters, numbers, spaces, hyphens, and underscores, without consecutive special characters."
+        "Only allowed aphanumerics and special characters like: (space-_$&). Not allowed special characters or spaces at the beginning or end and consecutive occurances between words. There must be space between words and special character"
     }),
   variantDescription: z
     .string({
@@ -280,29 +282,23 @@ export const ProductFormSchema = z.object({
     })
     .array()
     .min(1, "Please provide at least one product variant specification.")
+    .refine((specs) => specs.every((spec) => spec.name && spec.value), {
+      error: "All product variant specification inputs must be filled correctly."
+    }),
+  questions: z
+    .object({
+      question: z.string(),
+      answer: z.string()
+    })
+    .array()
+    .min(1, "Please provide at least one product question.")
     .refine(
-      (specs) => specs.every((spec) => spec.name && spec.value),
-
+      (questions) => questions.every((q) => q.question.length > 0 && q.answer.length > 0),
       {
-        error: "All product variant specification inputs must be filled correctly."
+        error: "All product question inputs must be filled correctly."
       }
     ),
-  // questions: z
-  //   .object({
-  //     question: z.string(),
-  //     answer: z.string()
-  //   })
-  //   .array()
-  //   .min(1, "Please provide at least one product question.")
-  //   .refine(
-  //     (questions) =>
-  //       questions.every((q) => q.question.length > 0 && q.answer.length > 0),
-  //     {
-  //       error: "All product question inputs must be filled correctly."
-  //     }
-  //   ),
   isSale: z.boolean().default(false).nonoptional(),
-
   saleEndDate: z.string().optional()
 });
 

@@ -41,21 +41,23 @@ import { ProductWithVariant } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ICategory } from "@/models/Category";
 import { IProductVariant } from "@/models/Product";
-import { SubcategoryDoc } from "@/models/Subcategory";
+import { ISubcategory } from "@/models/Subcategory";
 import { upsertProduct } from "@/queries/product";
 import { getSubcategories } from "@/queries/subcategory";
 import { format } from "date-fns";
 import { XIcon } from "lucide-react";
+import { Types } from "mongoose";
 import { useEffect, useRef, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
 
 // UITILITY UI COMPOENENTS
-import JoditEditor from "jodit-react";
-import { Types } from "mongoose";
+import DateTimePicker from "react-datetime-picker";
+
 import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
-import DateTimePicker from "react-datetime-picker";
 import "react-datetime-picker/dist/DateTimePicker.css";
+
+import JoditEditor from "jodit-react";
 import ImagePreviewGrid from "../shared/image-preview-grid";
 import ImageUpload from "../shared/image-upload";
 import AddInput from "./add-input";
@@ -130,13 +132,15 @@ export default function ProductDetails({
 
   const variant = data?.variants && (data.variants[0] as IProductVariant);
   // Temporary state for preserving previous images
-  const [images, setImages] = useState<ProductFormSchemaType["images"]>(defaultImages);
-  const [colors, setColors] = useState<{ color: string }[]>(
-    () => variant?.colors || [{ color: "" }]
+  const [images, setImages] = useState<ProductFormSchemaType["images"]>(
+    defaultImages || []
   );
-  const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>([
-    { size: "", quantity: 0, price: 0, discount: 0 }
-  ]);
+  const [colors, setColors] = useState<{ color: string }[]>(
+    () => variant?.colors || defaultColors || [{ color: "" }]
+  );
+  const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>(
+    defaultSizes || [{ size: "", quantity: 0, price: 0, discount: 0 }]
+  );
   const [productSpecs, setProductSpecs] = useState<{ name: string; value: string }[]>(
     (data?.specifications as Types.DocumentArray<{ name: string; value: string }>) || [
       { name: "", value: "" }
@@ -147,129 +151,134 @@ export default function ProductDetails({
       { name: "", value: "" }
     ]
   );
-  const [keywords, setKeywords] = useState<string[]>([]);
-  const [subcategories, setSubcategories] = useState<SubcategoryDoc[]>([]);
+  const [questions, setQuestions] = useState<{ question: string; answer: string }[]>(
+    data?.questions || [{ question: "", answer: "" }]
+  );
+  const [keywords, setKeywords] = useState<string[]>(defaultKeywords || []);
+  const [subcategories, setSubcategories] = useState<ISubcategory[]>([]);
 
   // 1. Define your form.
   const form = useForm<ProductFormSchemaType>({
     resolver: zodResolver(ProductFormSchema),
-    // mode: "onBlur",
+    mode: "onBlur",
+    // defaultValues: {
+    //   name: data?.name,
+    //   description: data?.description,
+    //   variantName: variant?.variantName,
+    //   variantDescription: variant?.variantDescription || "",
+    //   images: variant?.images || images,
+    //   variantImage: variant?.variantImage ? [{ url: variant.variantImage }] : [],
+    //   category: data?.category?.toString(),
+    //   subcategory: data?.subcategory?.toString(),
+    //   storeUrl:storeUrl,
+    //   brand: data?.brand,
+    //   sku: variant?.sku,
+    //   keywords: variant?.keywords ? variant.keywords.split(" ") : [],
+    //   colors: variant?.colors || [],
+    //   sizes: variant?.sizes || [
+    //     {
+    //       size: "",
+    //       quantity: 0,
+    //       price: 0,
+    //       discount: 0
+    //     }
+    //   ],
+    //   productSpecs: data?.specifications || [],
+    //   variantSpecs: variant?.specifications || [],
+    //   questions: data?.questions || [],
+    //   isSale: variant?.isSale || false,
+    //   saleEndDate: variant?.saleEndDate || format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
+    // }
     defaultValues: {
-      name: data?.name || "",
-      description: data?.description || "",
-      variantName: variant?.variantName || "",
-      variantDescription: variant?.variantDescription || "",
-      images: variant?.images || images,
-      variantImage: variant?.variantImage ? [{ url: variant.variantImage }] : [],
-      category: data?.category?.toString(),
-      subcategory: data?.subcategory?.toString(),
-      brand: data?.brand || "",
-      sku: variant?.sku || "",
-      keywords: variant?.keywords ? variant.keywords.split(" ") : [],
-      colors: variant?.colors || [],
-      sizes: variant?.sizes || [
+      name: "Mens Premium Casual Shirt",
+      description:
+        "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
+      variantName: "Dreamcore",
+      variantDescription:
+        "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
+      images: [
         {
-          size: "",
-          quantity: 0,
-          price: 0,
-          discount: 0
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
+        },
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
         }
       ],
-      productSpecs:
-        (data?.specifications as Types.DocumentArray<{ name: string; value: string }>) ||
-        [],
-      variantSpecs:
-        (variant?.specifications as Types.DocumentArray<{
-          name: string;
-          value: string;
-        }>) || [],
-      isSale: variant?.isSale || false,
-      saleEndDate: variant?.saleEndDate || format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
+      variantImage: [
+        {
+          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+        }
+      ],
+      category: "6a605c3165fc6b0b3f2fdcb7",
+      subcategory: "6a605db565fc6b0b3f2fdce0",
+      brand: "Dreamcore",
+      sku: "dreamcore_1010",
+      keywords: ["Dreamcore", "comfortable", "premium", "cotton", "ultra"],
+      colors: [
+        {
+          color: "#ffffff"
+        },
+        {
+          color: "#C9D5F4"
+        },
+        {
+          color: "#2B467E"
+        }
+      ],
+      sizes: [
+        {
+          size: "xl",
+          quantity: 5,
+          price: 10,
+          discount: 15
+        },
+        {
+          size: "lg",
+          quantity: 10,
+          price: 8,
+          discount: 10
+        }
+      ],
+      questions: [
+        { question: "Is good quality?", answer: "Yes! we can assure you." },
+        { question: "Is premium product?", answer: "Oviously." }
+      ],
+      isSale: false,
+      storeUrl: storeUrl
     }
-    // defaultValues: {
-    //   name: "Mens Premium Casual Shirt",
-    //   description:
-    //     "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
-    //   variantName: "Dreamcore",
-    //   variantDescription:
-    //     "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
-    //   images: [
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
-    //     }
-    //   ],
-    //   variantImage: [
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
-    //     }
-    //   ],
-    //   category: "6a605c3165fc6b0b3f2fdcb7",
-    //   subcategory: "6a605db565fc6b0b3f2fdce0",
-    //   brand: "Dreamcore",
-    //   sku: "dreamcore_1010",
-    //   keywords: ["Dreamcore", "comfortable", "premium", "cotton", "ultra"],
-    //   colors: [
-    //     {
-    //       color: "#ffffff"
-    //     },
-    //     {
-    //       color: "#C9D5F4"
-    //     },
-    //     {
-    //       color: "#2B467E"
-    //     }
-    //   ],
-    //   sizes: [
-    //     {
-    //       size: "xl",
-    //       quantity: 5,
-    //       price: 10,
-    //       discount: 15
-    //     },
-    //     {
-    //       size: "lg",
-    //       quantity: 10,
-    //       price: 8,
-    //       discount: 10
-    //     }
-    //   ],
-    //   isSale: true,
-    //   saleEndDate: ""
-    // }
   });
 
   const isSubmitting = form.formState.isSubmitting;
   const errors = form.formState.errors;
 
-  // Whenever colors, sizes, keywords changes we update the form values
+  // whenever state changes we update the form values
   useEffect(() => {
     form.setValue("colors", colors);
     form.setValue("sizes", sizes);
     form.setValue("keywords", keywords);
     form.setValue("productSpecs", productSpecs);
     form.setValue("variantSpecs", variantSpecs);
-  }, [form, colors, sizes, keywords, productSpecs, variantSpecs]);
+    form.setValue("questions", questions);
+    form.clearErrors();
+  }, [form, colors, sizes, keywords, productSpecs, variantSpecs, questions]);
 
   // Get subcategories for particular category
   const categoryField = form.watch("category");
   useEffect(() => {
     async function subcategories() {
-      const subResponse = await getSubcategories<SubcategoryDoc>(
+      const subResponse = await getSubcategories<ISubcategory>(
         `category=${categoryField}`
       );
       setSubcategories(subResponse.subcategories || []);
@@ -294,8 +303,7 @@ export default function ProductDetails({
       const isUpdateSession = !!data?._id;
       const response = await upsertProduct({
         ...values,
-        productId: data?._id?.toString(),
-        storeUrl: storeUrl
+        productId: data?._id?.toString()
       });
       console.log(response);
 
@@ -309,14 +317,15 @@ export default function ProductDetails({
     } catch (error: any) {
       console.log(error);
       toast({
-        title: "An Error Occured",
+        title: "An Error Occurred",
         description:
-          error.message || "Unexpected error while creating/updating the product",
+          error.response?.data.message ||
+          "An unexpected error occured in the server while creating or updating",
         variant: "destructive"
       });
     }
   }
-
+  console.log(errors);
   return (
     <AlertDialog>
       <Card className="w-full">
@@ -450,7 +459,6 @@ export default function ProductDetails({
                             // onChange={handleChange}
                           />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -473,11 +481,20 @@ export default function ProductDetails({
                             }}
                           />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </TabsContent>
+                {errors.description && (
+                  <p className="text-sm font-medium text-destructive">
+                    {errors.description.message}
+                  </p>
+                )}
+                {errors.variantDescription && (
+                  <p className="text-sm font-medium text-destructive">
+                    {errors.variantDescription.message}
+                  </p>
+                )}
               </Tabs>
               {/* CATEGORIES AND SUBCATEGORIES */}
               <div className="flex flex-col justify-between lg:flex-row gap-6">
@@ -674,11 +691,6 @@ export default function ProductDetails({
                     setInputDetails={setProductSpecs}
                     header="Add specifications"
                   />
-                  {errors.productSpecs && (
-                    <span className="text-sm font-medium text-destructive">
-                      {errors.productSpecs.message}
-                    </span>
-                  )}
                 </TabsContent>
                 <TabsContent value="variant">
                   <AddInput
@@ -687,13 +699,32 @@ export default function ProductDetails({
                     setInputDetails={setVariantSpecs}
                     header="Add specifications"
                   />
-                  {errors.variantSpecs && (
-                    <span className="text-sm font-medium text-destructive">
-                      {errors.variantSpecs.message}
-                    </span>
-                  )}
                 </TabsContent>
+                {errors.productSpecs && (
+                  <p className="text-sm font-medium text-destructive">
+                    {errors.productSpecs.message}
+                  </p>
+                )}
+                {errors.variantSpecs && (
+                  <p className="text-sm font-medium text-destructive">
+                    {errors.variantSpecs.message}
+                  </p>
+                )}
               </Tabs>
+              {/* SIZES*/}
+              <div className="w-full flex flex-col gap-y-3">
+                <AddInput
+                  initialInputDetail={{ question: "", answer: "" }}
+                  inputDetails={questions}
+                  setInputDetails={setQuestions}
+                  header="Common Q & A"
+                />
+                {errors.questions && (
+                  <span className="text-sm font-medium text-destructive">
+                    {errors.questions.message}
+                  </span>
+                )}
+              </div>
               {/* SALE STATUS AND SALE END DATE */}
               <div className="grid grid-cols-2 border rounded-md p-4 px-4">
                 <FormField

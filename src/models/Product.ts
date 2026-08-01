@@ -39,6 +39,12 @@ const productSchema = new Schema(
         },
         value: { type: String, required: true }
       }
+    ],
+    questions: [
+      {
+        question: { type: String, required: true },
+        answer: { type: String, required: true }
+      }
     ]
   },
   {
