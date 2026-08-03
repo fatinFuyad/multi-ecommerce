@@ -3,6 +3,7 @@ import OfferTag, { IOfferTag } from "@/models/OfferTag";
 import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
+import { OfferTagFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
 import { Types } from "mongoose";
 
@@ -21,7 +22,7 @@ export async function PUT(req: Request) {
     await dbConnect();
 
     // retrieve data from the frontend request
-    const offerTag: IOfferTag = await req.json();
+    const offerTag: OfferTagFormSchemaType = await req.json();
     console.log({ offerTag });
     // Ensure offer tag data is provided
     if (!Object.keys(offerTag).length) throw new Error("Please provide offer tag data.");
@@ -102,49 +103,3 @@ export async function GET(req: Request) {
     );
   }
 }
-
-/*
-export  async function getAllOfferTags (storeUrl?: string) {
-  let storeId: string | undefined;
-
-  if (storeUrl) {
-    // Retrieve the storeId based on the storeUrl
-    const store = await db.store.findUnique({
-      where: { url: storeUrl }
-    });
-
-    // If no store is found, return an empty array or handle as needed
-    if (!store) {
-      return [];
-    }
-
-    storeId = store.id;
-  }
-
-  // Retrieve all offer tags from the database
-  const offerTgas = await db.offerTag.findMany({
-    where: storeId
-      ? {
-          products: {
-            some: {
-              storeId: storeId
-            }
-          }
-        }
-      : {},
-    include: {
-      products: {
-        select: {
-          id: true
-        }
-      }
-    },
-    orderBy: {
-      products: {
-        _count: "desc" // Order by the count of associated products in descending order
-      }
-    }
-  });
-  return offerTgas;
-};
-*/

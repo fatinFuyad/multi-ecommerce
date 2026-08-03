@@ -55,7 +55,8 @@ function OfferTagDetails({ data }: OfferTagDetailsProps) {
     defaultValues: {
       // Setting default form values from data (if available)
       name: data?.name,
-      url: data?.url
+      url: data?.url,
+      _id: data?._id.toString() // for update the _id is needed
     }
   });
 

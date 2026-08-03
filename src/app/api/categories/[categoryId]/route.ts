@@ -3,6 +3,7 @@ import Category from "@/models/Category";
 import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { CategoryFormSchemaType } from "@/lib/schemas";
+import { Types } from "mongoose";
 import { createUpdateCategory } from "../route";
 
 interface RouteParams {
@@ -37,12 +38,11 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 
     const updatedCategory = await createUpdateCategory({
       ...category,
-      _id: params.categoryId
+      _id: new Types.ObjectId(params.categoryId)
     });
 
     return Response.json(updatedCategory, { status: 200 });
   } catch (error: any) {
-    console.log(error.message || error.errMsg);
     return Response.json(
       {
         success: false,

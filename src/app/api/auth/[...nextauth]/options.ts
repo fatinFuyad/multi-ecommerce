@@ -1,5 +1,5 @@
 import { dbConnect } from "@/lib/db-connect";
-import User, { IUser, UserDoc } from "@/models/User";
+import User, { UserDoc, UserSchema } from "@/models/User";
 import bcrypt from "bcryptjs";
 import { Types } from "mongoose";
 import NextAuth, {
@@ -116,7 +116,7 @@ export const authOptions = {
         });
 
         if (existingUser) {
-          existingUser.signinMethod = account?.provider as IUser["signinMethod"];
+          existingUser.signinMethod = account?.provider as UserSchema["signinMethod"];
           existingUser.lastSignin = new Date();
           await existingUser.save();
           return true;
@@ -126,15 +126,12 @@ export const authOptions = {
           name: user.name as string,
           username: user.email.split("@")[0],
           email: user.email,
-          image: user.image as string,
-          signinMethod: account?.provider as IUser["signinMethod"],
-          lastSignin: new Date(),
-          role: "USER",
-          isPasswordEnabled: false,
-          isVerified: true,
+          signinMethod: account?.provider as UserSchema["signinMethod"],
           stores: [] as Types.ObjectId[],
-          gender: "UNKOWN"
-        } satisfies Omit<IUser, "_id" | "createdAt" | "updatedAt">);
+          image: user.image as string,
+          isPasswordEnabled: false,
+          isVerified: true
+        } satisfies UserSchema);
 
         return true;
       } catch (error) {

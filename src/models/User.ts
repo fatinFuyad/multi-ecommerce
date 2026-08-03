@@ -1,3 +1,4 @@
+import { MergeType, PrettifyType } from "@/lib/types";
 import {
   HydratedDocument,
   InferSchemaType,
@@ -17,12 +18,10 @@ const userSchema = new Schema(
     },
     email: {
       type: String,
-      required: [true, "User should provide a email"],
-      unique: true
+      required: [true, "User should provide a email"]
     },
     username: {
       type: String,
-      unique: true,
       required: [true, "Username is required"]
     },
     password: {
@@ -66,10 +65,20 @@ const userSchema = new Schema(
   }
 );
 
+// INDEXING FOR USER
+userSchema.index({ email: "asc" }, { unique: true });
+userSchema.index({ username: "asc" }, { unique: true });
+
 export type IUser = InferSchemaType<typeof userSchema> & {
   _id: Types.ObjectId;
 };
 export type UserDoc = HydratedDocument<IUser>;
+
+// prettier-ignore
+export type UserSchema = PrettifyType<
+  MergeType< IUser, Partial<
+      Pick<IUser, "isPasswordEnabled"|"isVerified"|"lastSignin"|"role"|"gender"|"createdAt"|"updatedAt"|"_id">
+  >>>;
 
 const User = models.User<IUser> || model<IUser>("User", userSchema);
 

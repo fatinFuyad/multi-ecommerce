@@ -1,6 +1,8 @@
+import { PrettifyType } from "@/lib/types";
 import {
   HydratedDocument,
   InferSchemaType,
+  MergeType,
   model,
   models,
   Schema,
@@ -13,7 +15,7 @@ const productSchema = new Schema(
     description: { type: String, required: true },
     slug: { type: String, required: true },
     brand: { type: String, required: true },
-    rating: { type: Number, required: true, default: 0 },
+    rating: { type: Number, default: 0 },
     store: {
       type: Schema.Types.ObjectId,
       ref: "Store",
@@ -52,6 +54,7 @@ const productSchema = new Schema(
   }
 );
 
+// INDEXING FOR PRODUCT
 productSchema.index({ slug: "asc" }, { unique: true });
 productSchema.index({ store: "asc" });
 
@@ -102,6 +105,7 @@ const productVariantSchema = new Schema(
   { timestamps: true }
 );
 
+// INDEXING FOR PRODUCT VARIANT
 productVariantSchema.index({ slug: "asc" }, { unique: true });
 
 export type IProduct = InferSchemaType<typeof productSchema> & {
@@ -109,10 +113,22 @@ export type IProduct = InferSchemaType<typeof productSchema> & {
 };
 export type ProductDoc = HydratedDocument<IProduct>;
 
+// prettier-ignore
+export type ProductSchema = PrettifyType<
+  MergeType<IProduct, Partial<
+      Pick<IProduct, "rating"|"createdAt"|"updatedAt"|"_id">
+  >>>;
+
 export type IProductVariant = InferSchemaType<typeof productVariantSchema> & {
   _id: Types.ObjectId;
 };
 export type ProductVariantDoc = HydratedDocument<IProductVariant>;
+
+// prettier-ignore
+export type ProductVariantSchema = PrettifyType<
+  MergeType<IProductVariant, Partial<
+      Pick<IProductVariant, "isSale" | "createdAt" | "updatedAt" | "_id">
+  >>>;
 
 export const ProductVariant =
   models.ProductVariant<IProductVariant> ||

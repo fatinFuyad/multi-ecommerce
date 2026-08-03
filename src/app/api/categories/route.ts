@@ -1,4 +1,4 @@
-import Category, { CategoryDoc, ICategory } from "@/models/Category";
+import Category, { CategoryDoc, CategorySchema, ICategory } from "@/models/Category";
 import { Types } from "mongoose";
 
 import { restrictTo } from "@/lib/api-utils";
@@ -13,7 +13,7 @@ import { ApiResponse } from "@/lib/types";
 // Returns: Updated or newly created category details.
 
 export async function createUpdateCategory(
-  category: CategoryFormSchemaType & { _id?: Types.ObjectId | string }
+  category: CategoryFormSchemaType & { _id?: Types.ObjectId }
 ): Promise<CategoryDoc | null> {
   if (!category) throw new Error("Category data can't be empty");
   const isUpdateSession = Boolean(category._id);
@@ -30,7 +30,6 @@ export async function createUpdateCategory(
       $or: [{ name: category.name }, { url: category.url }]
     });
   }
-  console.log({ existingCategory });
 
   // Throw error if category with same name or URL already exists
   if (existingCategory) {
@@ -58,7 +57,7 @@ export async function createUpdateCategory(
       ...category,
       image: category.image[0].url,
       subcategories: [] as Types.ObjectId[]
-    } satisfies Omit<ICategory, "_id" | "createdAt" | "updatedAt">);
+    } satisfies CategorySchema);
 
     return newCategory;
   }
@@ -75,7 +74,6 @@ export async function POST(req: Request) {
     const newCategory = await createUpdateCategory(category);
     return Response.json({ category: newCategory }, { status: 201 });
   } catch (error: any) {
-    console.log(error.message || error.errMsg);
     return Response.json(
       {
         success: false,

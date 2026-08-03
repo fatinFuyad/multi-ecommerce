@@ -1,4 +1,4 @@
-import Store, { IStore, StoreDoc } from "@/models/Store";
+import Store, { StoreDoc, StoreSchema } from "@/models/Store";
 import User from "@/models/User";
 
 import { restrictTo } from "@/lib/api-utils";
@@ -41,15 +41,8 @@ export async function POST(req: Request) {
       ...store,
       logo: store.logo[0].url,
       cover: store.logo[0].url,
-      user: seller._id,
-      averageRating: 0,
-      status: "PENDING",
-      returnPolicy: "No Return Policy",
-      defaultShippingService: "No Default Service",
-      defaultDeliveryFees: null,
-      defaultDeliveryTimeMin: null,
-      defaultDeliveryTimeMax: null
-    } satisfies Omit<IStore, "_id" | "createdAt" | "updatedAt">;
+      user: seller._id
+    } satisfies StoreSchema;
 
     const newStore: StoreDoc = await Store.create(storeData);
 

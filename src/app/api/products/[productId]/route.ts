@@ -1,4 +1,4 @@
-import Product, { IProduct } from "@/models/Product";
+import Product from "@/models/Product";
 
 import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
@@ -35,37 +35,6 @@ export async function GET(req: Request, { params }: RouteParams) {
     return Response.json(
       { success: false, product: null, message: error.message },
       { status: 404 }
-    );
-  }
-}
-
-/**
- * @description Updates a product in the database.
- * @access Permission Level: SELLER only
- * @param productId - The ID of the product to be deleted.
- * @returns Response with the updated product
- */
-export async function PATCH(req: Request, { params }: RouteParams) {
-  try {
-    // Verify Seller permission
-    await restrictTo("SELLER");
-    await dbConnect();
-
-    const product: IProduct = await req.json();
-
-    const updatedProduct = await Product.findByIdAndUpdate(params.productId, {
-      ...product
-    } satisfies Partial<IProduct>);
-
-    return Response.json(updatedProduct, { status: 200 });
-  } catch (error: any) {
-    console.log(error.message || error.errMsg);
-    return Response.json(
-      {
-        success: false,
-        message: error.message || "An internal error occured while updating the product."
-      },
-      { status: 500 }
     );
   }
 }

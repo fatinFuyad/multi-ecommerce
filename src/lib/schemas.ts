@@ -321,7 +321,8 @@ export const OfferTagFormSchema = z.object({
     .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_-]+$/, {
       message:
         "Only letters, numbers, hyphen, and underscore are allowed in the offer tag url, and consecutive occurrences of hyphens, underscores, or spaces are not permitted."
-    })
+    }),
+  _id: z.string().optional()
 });
 
 export type UserFormSchemaType = z.infer<typeof UserFormSchema>;

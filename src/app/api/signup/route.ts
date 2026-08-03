@@ -1,4 +1,4 @@
-import UserModel, { IUser, UserDoc } from "@/models/User";
+import UserModel, { UserDoc, UserSchema } from "@/models/User";
 import bcrypt from "bcryptjs";
 
 import { dbConnect } from "@/lib/db-connect";
@@ -35,17 +35,14 @@ export async function POST(request: Request) {
       isPasswordEnabled: true,
       isVerified: true, // making all users to be verfied without verify code ⚠️⚠️
       signinMethod: "credentials",
-      role: "USER",
-      stores: [],
-      gender: "UNKOWN"
-    } satisfies Omit<IUser, "_id" | "createdAt" | "updatedAt" | "lastSignin">);
+      stores: []
+    } satisfies UserSchema);
 
     newUser.password = undefined;
 
     // Ensure we return a `Response` from a route handler
     return Response.json(
       {
-        // user: newUser,
         user: newUser,
         status: 201,
         success: true,

@@ -5,7 +5,11 @@ import { ProductFormSchemaType } from "@/lib/schemas";
 import { ApiResponse, ProductWithVariant } from "@/lib/types";
 import { Types } from "mongoose";
 
-import Product, { IProduct, IProductVariant, ProductVariant } from "@/models/Product";
+import Product, {
+  ProductSchema,
+  ProductVariant,
+  ProductVariantSchema
+} from "@/models/Product";
 import Store from "@/models/Store";
 
 /**
@@ -119,7 +123,7 @@ export async function PUT(req: Request) {
         answer: string;
       }>,
       offerTag: new Types.ObjectId(productData.offerTagId)
-    } satisfies Omit<IProduct, "createdAt" | "updatedAt">;
+    } satisfies ProductSchema;
 
     const commonVariantData = {
       _id: variantId,
@@ -147,7 +151,7 @@ export async function PUT(req: Request) {
       isSale: productData.isSale,
       slug: variantSlug,
       product: productId as Types.ObjectId
-    } satisfies Omit<IProductVariant, "createdAt" | "updatedAt">;
+    } satisfies ProductVariantSchema;
 
     let newProduct;
     let newVariant;

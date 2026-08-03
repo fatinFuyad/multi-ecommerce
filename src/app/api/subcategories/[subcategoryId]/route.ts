@@ -4,6 +4,7 @@ import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse } from "@/lib/types";
+import { Types } from "mongoose";
 import { createUpdateSubcategory } from "../route";
 
 interface RouteParams {
@@ -55,7 +56,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 
     const updatedSubcategory = await createUpdateSubcategory({
       ...subcategory,
-      _id: params.subcategoryId
+      _id: new Types.ObjectId(params.subcategoryId)
     });
 
     return Response.json(

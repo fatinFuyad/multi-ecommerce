@@ -6,7 +6,11 @@ import { ApiResponse, SubcategoryWithCategory } from "@/lib/types";
 import { Types } from "mongoose";
 
 import Category from "@/models/Category";
-import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory";
+import Subcategory, {
+  ISubcategory,
+  SubcategoryDoc,
+  SubcategorySchema
+} from "@/models/Subcategory";
 
 /**
  * @description: Creates or updates a subcategory into the database
@@ -15,7 +19,7 @@ import Subcategory, { ISubcategory, SubcategoryDoc } from "@/models/Subcategory"
  * @returns: Updated or newly created subcategory details.
  */
 export async function createUpdateSubcategory(
-  subcategory: SubcategoryFormSchemaType & { _id?: Types.ObjectId | string }
+  subcategory: SubcategoryFormSchemaType & { _id?: Types.ObjectId }
 ): Promise<SubcategoryDoc | null> {
   if (!subcategory) throw new Error("Subcategory data can't be empty");
   const isUpdateSession = Boolean(subcategory._id);
@@ -60,7 +64,7 @@ export async function createUpdateSubcategory(
       ...subcategory,
       image: subcategory.image[0].url,
       category: new Types.ObjectId(subcategory.category)
-    } satisfies Omit<ISubcategory, "_id" | "createdAt" | "updatedAt">);
+    } satisfies SubcategorySchema);
 
     if (subcategoryDoc) {
       await Category.findByIdAndUpdate(subcategory.category, {

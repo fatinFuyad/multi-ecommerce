@@ -41,7 +41,7 @@ export async function PATCH(
         ...store,
         logo: store.logo[0].url,
         cover: store.logo[0].url
-      } satisfies Pick<IStore, keyof StoreFormSchemaType>,
+      } satisfies Partial<IStore>,
       { new: true }
     );
 
