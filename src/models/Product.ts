@@ -20,7 +20,7 @@ const productSchema = new Schema(
       required: true
     },
     variants: [{ type: Schema.Types.ObjectId, ref: "ProductVariant", required: true }],
-
+    offerTag: { type: Schema.Types.ObjectId, ref: "OfferTag" },
     category: {
       type: Schema.Types.ObjectId,
       ref: "Category",

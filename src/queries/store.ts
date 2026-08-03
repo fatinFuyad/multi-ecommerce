@@ -14,14 +14,17 @@ import {
 /**
  * @description Use for updating store document
  */
-export async function updateStore(_id: Types.ObjectId, data: StoreFormSchemaType) {
+export async function updateStore(
+  _id: Types.ObjectId | string,
+  data: StoreFormSchemaType
+) {
   return updateDoc<{ store: IStore }>(`/stores/${_id}`, data);
 }
 
 /**
  * @description Creates delete operation. Use for deleting document
  */
-export async function deleteStore(_id: Types.ObjectId) {
+export async function deleteStore(_id: Types.ObjectId | string) {
   return deleteDoc<{ store: null }>(`/stores/${_id}`);
 }
 
@@ -43,7 +46,7 @@ export async function getStores<T = IStore>(query?: string, options?: ApiQueryHe
 }
 
 export async function getStoreById<T = IStore>(
-  _id: Types.ObjectId,
+  _id: Types.ObjectId | string,
   query?: string,
   options?: ApiQueryHeaders
 ) {

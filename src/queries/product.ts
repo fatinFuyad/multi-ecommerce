@@ -15,14 +15,17 @@ import {
 /**
  * @description Use for updating product document
  */
-export async function updateProduct(_id: Types.ObjectId, data: ProductFormSchemaType) {
+export async function updateProduct(
+  _id: Types.ObjectId | string,
+  data: ProductFormSchemaType
+) {
   return updateDoc<{ product: IProduct }>(`/products/${_id}`, data);
 }
 
 /**
  * @description Creates delete operation. Use for deleting document
  */
-export const deleteProduct = async (_id: Types.ObjectId) => {
+export const deleteProduct = async (_id: Types.ObjectId | string) => {
   return deleteDoc<{ product: null }>(`/products/${_id}`);
 };
 
@@ -47,7 +50,7 @@ export async function getProducts<T = IProduct>(
 }
 
 export async function getProductById<T = IProduct>(
-  _id: Types.ObjectId,
+  _id: Types.ObjectId | string,
   query?: string,
   options?: ApiQueryHeaders
 ) {

@@ -14,14 +14,17 @@ import {
 /**
  * @description Use for updating category document
  */
-export async function updateCategory(_id: Types.ObjectId, data: CategoryFormSchemaType) {
+export async function updateCategory(
+  _id: Types.ObjectId | string,
+  data: CategoryFormSchemaType
+) {
   return updateDoc<{ category: ICategory }>(`/categories/${_id}`, data);
 }
 
 /**
  * @description Creates delete operation. Use for deleting document
  */
-export async function deleteCategory(_id: Types.ObjectId) {
+export async function deleteCategory(_id: Types.ObjectId | string) {
   return deleteDoc<{ category: null }>(`/categories/${_id}`);
 }
 
@@ -49,7 +52,7 @@ export async function getCategories<T = ICategory>(
 }
 
 export async function getCategoryById<T = ICategory>(
-  _id: Types.ObjectId,
+  _id: Types.ObjectId | string,
   query?: string,
   options?: ApiQueryHeaders
 ) {

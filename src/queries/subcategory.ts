@@ -15,7 +15,7 @@ import {
  * @description Use for updating subcategory document
  */
 export async function updateSubcategory(
-  _id: Types.ObjectId,
+  _id: Types.ObjectId | string,
   data: SubcategoryFormSchemaType
 ) {
   return updateDoc<{ subcategory: ISubcategory }>(`/subcategories/${_id}`, data);
@@ -24,7 +24,7 @@ export async function updateSubcategory(
 /**
  * @description Creates delete operation. Use for deleting document
  */
-export async function deleteSubcategory(_id: Types.ObjectId) {
+export async function deleteSubcategory(_id: Types.ObjectId | string) {
   return deleteDoc<{ subcategory: null }>(`/subcategories/${_id}`);
 }
 
@@ -52,7 +52,7 @@ export async function getSubcategories<T = ISubcategory>(
 }
 
 export async function getSubcategoryById<T = ISubcategory>(
-  _id: Types.ObjectId,
+  _id: Types.ObjectId | string,
   query?: string,
   options?: ApiQueryHeaders
 ) {

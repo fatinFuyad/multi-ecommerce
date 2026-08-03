@@ -44,8 +44,7 @@ export type ICategory = InferSchemaType<typeof categorySchema> & {
 };
 export type CategoryDoc = HydratedDocument<ICategory>;
 
-// on inital time the models will be and empty {}; and so reading any property will be undefined
-
+// if model is already registered, prevent re-creating new model
 const Category = models.Category || model<ICategory>("Category", categorySchema);
 
 export default Category;
