@@ -6,6 +6,7 @@ import { getStores } from "@/queries/store";
 import { Plus } from "lucide-react";
 import { columns } from "./columns";
 import { ProductDetailedType } from "@/lib/types";
+import { getOfferTags } from "@/queries/offer-tag";
 
 export default async function SellerProductsPage({
   params: { storeUrl }
@@ -13,6 +14,8 @@ export default async function SellerProductsPage({
   params: { storeUrl: string };
 }) {
   const { categories } = await getCategories();
+  const { offerTags } = await getOfferTags();
+
   const storeRes = await getStores(`url=${storeUrl}&fields=name,url`);
   const productRes = await getProducts<ProductDetailedType>(
     `store=${storeRes.stores[0]._id}`,
@@ -36,7 +39,13 @@ export default async function SellerProductsPage({
         columns={columns}
         filterValue="name"
         searchPlaceholder="Search product name..."
-        modalChildren={<ProductDetails categories={categories} storeUrl={storeUrl} />}
+        modalChildren={
+          <ProductDetails
+            categories={categories}
+            offerTags={offerTags}
+            storeUrl={storeUrl}
+          />
+        }
         newTabLink={`/dashboard/seller/stores/${storeUrl}/products/new`}
       />
     </section>

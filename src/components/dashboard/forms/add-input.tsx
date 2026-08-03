@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { Divide, MinusCircle, PaintBucket, PlusCircle } from "lucide-react";
+import { MinusCircle, PaintBucket, PlusCircle } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { SketchPicker } from "react-color";
 
@@ -76,6 +76,8 @@ export default function AddInput<T extends InputDetail>({
       )}
       {/* Map through details and render input fields */}
       {inputDetails.map((detail, index) => {
+        if (detail._id) delete detail["_id"]; // delete the subdocument _id field so that it doesn't appear as an input field
+
         return (
           <div key={index} className="flex items-center gap-x-4">
             {Object.entries(detail).map(([key, value], entryIndex) => {

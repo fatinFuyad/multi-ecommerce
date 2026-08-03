@@ -106,6 +106,7 @@ export async function PUT(req: Request) {
       slug: productSlug as string,
       brand: productData.brand,
       store: storeId as Types.ObjectId,
+      rating: 0,
       variants: [variantId], // Types.ObjectId[],
       category: new Types.ObjectId(productData.category),
       subcategory: new Types.ObjectId(productData.subcategory),
@@ -116,8 +117,9 @@ export async function PUT(req: Request) {
       questions: productData.questions as Types.DocumentArray<{
         question: string;
         answer: string;
-      }>
-    } satisfies Omit<IProduct, "createdAt" | "updatedAt" | "rating">;
+      }>,
+      offerTag: new Types.ObjectId(productData.offerTagId)
+    } satisfies Omit<IProduct, "createdAt" | "updatedAt">;
 
     const commonVariantData = {
       _id: variantId,
@@ -149,8 +151,7 @@ export async function PUT(req: Request) {
 
     let newProduct;
     let newVariant;
-    const x = "error";
-    if (x) throw new Error("Something went wrong in product route!");
+
     if (!existingProduct) {
       // Create both the product and the variant
       newProduct = await Product.findByIdAndUpdate(productId, commonProductData, {
