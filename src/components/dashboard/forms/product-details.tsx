@@ -46,7 +46,6 @@ import { upsertProduct } from "@/queries/product";
 import { getSubcategories } from "@/queries/subcategory";
 import { format } from "date-fns";
 import { XIcon } from "lucide-react";
-import { Types } from "mongoose";
 import { useEffect, useRef, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
 
@@ -57,6 +56,7 @@ import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
 import "react-datetime-picker/dist/DateTimePicker.css";
 
+import { IOfferTag } from "@/models/OfferTag";
 import JoditEditor from "jodit-react";
 import ImagePreviewGrid from "../shared/image-preview-grid";
 import ImageUpload from "../shared/image-upload";
@@ -65,6 +65,7 @@ import AddInput from "./add-input";
 interface ProductDetailsProps {
   data?: Partial<ProductWithVariant>;
   categories: ICategory[];
+  offerTags: IOfferTag[];
   storeUrl: string;
 }
 
@@ -124,12 +125,13 @@ const defaultColors = [
 export default function ProductDetails({
   data,
   categories,
+  offerTags,
   storeUrl
 }: ProductDetailsProps) {
   const { toast } = useToast();
   const productDescEditor = useRef(null);
   const variantDescEditor = useRef(null);
-
+  console.log(data);
   const variant = data?.variants && (data.variants[0] as IProductVariant);
   // Temporary state for preserving previous images
   const [images, setImages] = useState<ProductFormSchemaType["images"]>(
@@ -139,20 +141,22 @@ export default function ProductDetails({
     () => variant?.colors || defaultColors || [{ color: "" }]
   );
   const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>(
-    defaultSizes || [{ size: "", quantity: 0, price: 0, discount: 0 }]
+    variant?.sizes || defaultSizes || [{ size: "", quantity: 0, price: 0, discount: 0 }]
   );
-  const [productSpecs, setProductSpecs] = useState<{ name: string; value: string }[]>(
-    (data?.specifications as Types.DocumentArray<{ name: string; value: string }>) || [
-      { name: "", value: "" }
-    ]
-  );
-  const [variantSpecs, setVariantSpecs] = useState<{ name: string; value: string }[]>(
-    (variant?.specifications as Types.DocumentArray<{ name: string; value: string }>) || [
-      { name: "", value: "" }
-    ]
-  );
+  const [productSpecs, setProductSpecs] = useState<
+    {
+      name: string;
+      value: string;
+    }[]
+  >(() => data?.specifications || [{ name: "", value: "" }]);
+  const [variantSpecs, setVariantSpecs] = useState<
+    {
+      name: string;
+      value: string;
+    }[]
+  >(() => variant?.specifications || [{ name: "", value: "" }]);
   const [questions, setQuestions] = useState<{ question: string; answer: string }[]>(
-    data?.questions || [{ question: "", answer: "" }]
+    () => data?.questions || [{ question: "", answer: "" }]
   );
   const [keywords, setKeywords] = useState<string[]>(defaultKeywords || []);
   const [subcategories, setSubcategories] = useState<ISubcategory[]>([]);
@@ -160,104 +164,96 @@ export default function ProductDetails({
   // 1. Define your form.
   const form = useForm<ProductFormSchemaType>({
     resolver: zodResolver(ProductFormSchema),
-    mode: "onBlur",
+    defaultValues: {
+      name: data?.name,
+      description: data?.description,
+      variantName: variant?.variantName,
+      variantDescription: variant?.variantDescription || "",
+      images: variant?.images || images,
+      variantImage: variant?.variantImage ? [{ url: variant.variantImage }] : [],
+      category: data?.category?.toString(),
+      subcategory: data?.subcategory?.toString(),
+      storeUrl: storeUrl,
+      brand: data?.brand,
+      sku: variant?.sku,
+      keywords: variant?.keywords ? variant.keywords.split(" ") : [],
+      colors: variant?.colors,
+      sizes: variant?.sizes,
+      productSpecs: data?.specifications,
+      variantSpecs: variant?.specifications,
+      questions: data?.questions,
+      isSale: variant?.isSale || false,
+      saleEndDate: variant?.saleEndDate || format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
+    }
     // defaultValues: {
-    //   name: data?.name,
-    //   description: data?.description,
-    //   variantName: variant?.variantName,
-    //   variantDescription: variant?.variantDescription || "",
-    //   images: variant?.images || images,
-    //   variantImage: variant?.variantImage ? [{ url: variant.variantImage }] : [],
-    //   category: data?.category?.toString(),
-    //   subcategory: data?.subcategory?.toString(),
-    //   storeUrl:storeUrl,
-    //   brand: data?.brand,
-    //   sku: variant?.sku,
-    //   keywords: variant?.keywords ? variant.keywords.split(" ") : [],
-    //   colors: variant?.colors || [],
-    //   sizes: variant?.sizes || [
+    //   name: "Mens Premium Casual Shirt",
+    //   description:
+    //     "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
+    //   variantName: "Dreamcore",
+    //   variantDescription:
+    //     "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
+    //   images: [
     //     {
-    //       size: "",
-    //       quantity: 0,
-    //       price: 0,
-    //       discount: 0
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
+    //     },
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
     //     }
     //   ],
-    //   productSpecs: data?.specifications || [],
-    //   variantSpecs: variant?.specifications || [],
-    //   questions: data?.questions || [],
-    //   isSale: variant?.isSale || false,
-    //   saleEndDate: variant?.saleEndDate || format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
+    //   variantImage: [
+    //     {
+    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+    //     }
+    //   ],
+    //   category: "6a605c3165fc6b0b3f2fdcb7",
+    //   subcategory: "6a605db565fc6b0b3f2fdce0",
+    //   brand: "Dreamcore",
+    //   sku: "dreamcore_1010",
+    //   keywords: ["Dreamcore", "comfortable", "premium", "cotton", "ultra"],
+    //   colors: [
+    //     {
+    //       color: "#ffffff"
+    //     },
+    //     {
+    //       color: "#C9D5F4"
+    //     },
+    //     {
+    //       color: "#2B467E"
+    //     }
+    //   ],
+    //   sizes: [
+    //     {
+    //       size: "xl",
+    //       quantity: 5,
+    //       price: 10,
+    //       discount: 15
+    //     },
+    //     {
+    //       size: "lg",
+    //       quantity: 10,
+    //       price: 8,
+    //       discount: 10
+    //     }
+    //   ],
+    //   questions: [
+    //     { question: "Is good quality?", answer: "Yes! we can assure you." },
+    //     { question: "Is premium product?", answer: "Oviously." }
+    //   ],
+    //   isSale: false,
+    //   storeUrl: storeUrl
     // }
-    defaultValues: {
-      name: "Mens Premium Casual Shirt",
-      description:
-        "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
-      variantName: "Dreamcore",
-      variantDescription:
-        "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
-      images: [
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
-        },
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
-        }
-      ],
-      variantImage: [
-        {
-          url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
-        }
-      ],
-      category: "6a605c3165fc6b0b3f2fdcb7",
-      subcategory: "6a605db565fc6b0b3f2fdce0",
-      brand: "Dreamcore",
-      sku: "dreamcore_1010",
-      keywords: ["Dreamcore", "comfortable", "premium", "cotton", "ultra"],
-      colors: [
-        {
-          color: "#ffffff"
-        },
-        {
-          color: "#C9D5F4"
-        },
-        {
-          color: "#2B467E"
-        }
-      ],
-      sizes: [
-        {
-          size: "xl",
-          quantity: 5,
-          price: 10,
-          discount: 15
-        },
-        {
-          size: "lg",
-          quantity: 10,
-          price: 8,
-          discount: 10
-        }
-      ],
-      questions: [
-        { question: "Is good quality?", answer: "Yes! we can assure you." },
-        { question: "Is premium product?", answer: "Oviously." }
-      ],
-      isSale: false,
-      storeUrl: storeUrl
-    }
   });
 
   const isSubmitting = form.formState.isSubmitting;
@@ -557,6 +553,44 @@ export default function ProductDetails({
                   />
                 )}
               </div>
+              {/* OFFER TAG FOR PRODUCT*/}
+              <FormField
+                disabled={isSubmitting}
+                control={form.control}
+                name="offerTagId"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Product Offer tag</FormLabel>
+                    <Select
+                      disabled={isSubmitting || categories.length == 0}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            defaultValue={field.value}
+                            placeholder="Select an offer tag"
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {offerTags &&
+                          offerTags.map((offer) => (
+                            <SelectItem
+                              key={offer._id.toString()}
+                              value={offer._id.toString()}
+                            >
+                              {offer.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               {/* BRAND AND SKU OF PRODUCT */}
               <div className="flex flex-col lg:flex-row gap-6">
                 <FormField

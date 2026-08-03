@@ -185,22 +185,20 @@ export const ProductFormSchema = z.object({
     error: (issue) =>
       !issue.input
         ? "Product category ID is mandatory."
-        : "Product category ID must be a valid UUID."
+        : "Product category ID must be a valid string ObjectId."
   }),
   subcategory: z.string({
     error: (issue) =>
       !issue.input
         ? "Product subcategory ID is mandatory."
-        : "Product subcategory ID must be a valid UUID."
+        : "Product subcategory ID must be a valid string ObjectId."
   }),
-  // offerTagId: z
-  //   .string({
-  //     error: (issue) =>
-  //       !issue.input
-  //         ? "Product offer tag ID is mandatory."
-  //         : "Product offer tag ID must be a valid UUID."
-  //   })
-  //   .uuid(),
+  offerTagId: z.string({
+    error: (issue) =>
+      !issue.input
+        ? "Product offer tag ID is mandatory."
+        : "Product offer tag ID must be a valid string ObjectId."
+  }),
   brand: z
     .string({
       error: (issue) =>
@@ -302,8 +300,33 @@ export const ProductFormSchema = z.object({
   saleEndDate: z.string().optional()
 });
 
+export const OfferTagFormSchema = z.object({
+  name: z
+    .string({
+      error: (issue) =>
+        !issue.input ? "Offer tag name is required." : "Offer tag name must be a string."
+    })
+    .min(2, { message: "Offer tag name must be at least 2 characters long." })
+    .max(50, { message: "Offer tag name cannot exceed 50 characters." })
+    .regex(/^[a-zA-Z0-9\s&$.%,']+$/, {
+      message: "Only letters, numbers, and spaces are allowed in the offer tag name."
+    }),
+  url: z
+    .string({
+      error: (issue) =>
+        !issue.input ? "Offer tag url is required" : "Offer tag url must be a string"
+    })
+    .min(2, { message: "Offer tag url must be at least 2 characters long." })
+    .max(50, { message: "Offer tag url cannot exceed 50 characters." })
+    .regex(/^(?!.*(?:[-_ ]){2,})[a-zA-Z0-9_-]+$/, {
+      message:
+        "Only letters, numbers, hyphen, and underscore are allowed in the offer tag url, and consecutive occurrences of hyphens, underscores, or spaces are not permitted."
+    })
+});
+
 export type UserFormSchemaType = z.infer<typeof UserFormSchema>;
 export type CategoryFormSchemaType = z.infer<typeof CategoryFormSchema>;
 export type SubcategoryFormSchemaType = z.infer<typeof SubcategoryFormSchema>;
 export type StoreFormSchemaType = z.infer<typeof StoreFormSchema>;
 export type ProductFormSchemaType = z.infer<typeof ProductFormSchema>;
+export type OfferTagFormSchemaType = z.infer<typeof OfferTagFormSchema>;

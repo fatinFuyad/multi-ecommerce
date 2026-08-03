@@ -2,76 +2,82 @@ import {
   BoxesIcon,
   BoxListIcon,
   CategoriesIcon,
+  CouponIcon,
   CreateStoreIcon,
   DashboardIcon,
-  StoreIcon,
-  SettingsIcon,
-  ThreeBoxesIcon,
-  ProductsIcon,
   InventoryIcon,
-  CouponIcon,
+  OfferIcon,
+  ProductsIcon,
+  SettingsIcon,
   ShippingIcon,
+  StoreIcon,
+  ThreeBoxesIcon
 } from "@/components/dashboard/icons";
 
 export const icons = [
   {
     label: "Dashboard",
     value: "dashboard",
-    path: DashboardIcon,
+    path: DashboardIcon
   },
   {
     label: "Store",
     value: "store",
-    path: StoreIcon,
+    path: StoreIcon
   },
   {
     label: "Create Store",
     value: "create-store",
-    path: CreateStoreIcon,
+    path: CreateStoreIcon
   },
   {
     label: "Box List",
     value: "box-list",
-    path: BoxListIcon,
+    path: BoxListIcon
   },
   {
     label: "Boxes",
     value: "boxes",
-    path: BoxesIcon,
+    path: BoxesIcon
   },
   {
     label: "Categories",
     value: "categories",
-    path: CategoriesIcon,
+    path: CategoriesIcon
   },
   {
     label: "Settings",
     value: "settings",
-    path: SettingsIcon,
+    path: SettingsIcon
   },
   {
     label: "ThreeBoxes",
     value: "threeboxes",
-    path: ThreeBoxesIcon,
+    path: ThreeBoxesIcon
   },
   {
     label: "Products",
     value: "products",
-    path: ProductsIcon,
+    path: ProductsIcon
   },
   {
     label: "Inventory",
     value: "inventory",
-    path: InventoryIcon,
+    path: InventoryIcon
   },
   {
     label: "Coupon",
     value: "coupon",
-    path: CouponIcon,
+    path: CouponIcon
   },
   {
     label: "shipping",
     value: "shipping",
-    path: ShippingIcon,
+    path: ShippingIcon
   },
+  {
+    label: "Offer",
+    value: "offer",
+    path: OfferIcon
+  }
 ];

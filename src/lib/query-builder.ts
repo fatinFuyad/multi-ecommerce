@@ -160,22 +160,23 @@ export class QueryBuilder<T extends Document> {
       lean: Boolean(headers.get("lean")),
       populate: headers.get("populate"),
       limitPopulateDoc: Number(headers.get("limitPopulateDoc")),
+      docId: headers.get("docId"),
       fields: headers.get("fields")
     } as ApiQueryHeaders;
     const fieldsArr = options.fields?.split("&").map((value) => value.split("=")) || [];
     const populateFields = Object.fromEntries(fieldsArr);
 
-    if (options.populate)
-      options.populate
-        ?.replace(/\s+/g, "")
-        .split(",")
-        .forEach((field) => {
-          this.query.populate({
-            path: field,
-            select: populateFields[field]?.replace(/\W+/g, " "),
-            perDocumentLimit: options.limitPopulateDoc
-          });
+    if (options.populate) {
+      const populateFieldsArr = options.populate?.replace(/\s+/g, "").split(",");
+      populateFieldsArr.forEach((field) => {
+        this.query.populate({
+          path: field,
+          select: populateFields[field]?.replace(/\W+/g, " "),
+          match: options.docId ? { _id: options.docId } : undefined,
+          perDocumentLimit: options.limitPopulateDoc
         });
+      });
+    }
     if (options.lean) this.query.lean();
     return this;
   }

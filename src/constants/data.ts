@@ -40,6 +40,11 @@ export const adminDashboardSidebarOptions: DashboardSidebarMenuInterface[] = [
     label: "Update Product",
     icon: "products",
     link: "/products/manage-product/id"
+  },
+  {
+    label: "Offer Tags",
+    icon: "offer",
+    link: "/dashboard/admin/offer-tags"
   }
 ];
 

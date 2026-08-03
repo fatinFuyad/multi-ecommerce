@@ -5,7 +5,7 @@ import { getServerSession, Session } from "next-auth";
 import { redirect } from "next/navigation";
 
 /**
- * @description Checkes the server session and authenticates user. Use this utility function on the server side routes
+ * @description Checkes the server session and authenticates user. Use this utility function on the server side pages.
  * @returns Session
  */
 export async function auth(): Promise<{
@@ -23,7 +23,7 @@ export async function auth(): Promise<{
 }
 
 /**
- * @description  prevents unauthorized users from accessing certain routes, pages and redirect user to unauthorized page. Use this utility function on the server side routes
+ * @description  prevents unauthorized users from accessing certain routes, pages and redirect user to unauthorized page. Use this utility function on the server side pages.
  * @returns `Promise<SessionUser>`
  */
 export async function authorize(role: Roles): Promise<SessionUser> {
