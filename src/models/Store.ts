@@ -29,13 +29,13 @@ const storeSchema = new Schema(
     featured: { type: Boolean, required: true },
     averageRating: { type: Number, required: true, default: 0 },
     returnPolicy: { type: String, default: "Return in 30 days." },
-    shippingService: { type: String, default: "International Delivery" },
-    deliveryTimeMin: { type: Number, default: 7 },
-    deliveryTimeMax: { type: Number, default: 31 },
-    shippingFeePerItem: { type: Number, default: 0 },
-    shippingFeeForAdditionalItem: { type: Number, default: 0 },
-    shippingFeePerKg: { type: Number, default: 0 },
-    shippingFeeFixed: { type: Number, default: 0 }
+    defaultShippingService: { type: String, default: "International Delivery" },
+    defaultShippingFeePerItem: { type: Number, default: 0 },
+    defaultShippingFeeForAdditionalItem: { type: Number, default: 0 },
+    defaultShippingFeePerKg: { type: Number, default: 0 },
+    defaultShippingFeeFixed: { type: Number, default: 0 },
+    defaultDeliveryTimeMin: { type: Number, default: 7 },
+    defaultDeliveryTimeMax: { type: Number, default: 31 }
   },
   {
     timestamps: true
@@ -59,10 +59,15 @@ export type StoreSchema = PrettifyType<
     IStore,
     Partial<
       Pick<
-        IStore, "averageRating"|"returnPolicy"|"shippingService"|"deliveryTimeMin"|"status"|"deliveryTimeMax"|"shippingFeePerItem"|"shippingFeeForAdditionalItem"|"shippingFeePerKg"|"shippingFeeFixed"|"createdAt"|"updatedAt"| "_id"
+        IStore, "averageRating"|"returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"status"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"createdAt"|"updatedAt"| "_id"
       >
     >
   >
+>;
+
+// prettier-ignore
+export type StoreShippingType = PrettifyType<
+  Pick<IStore, "returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"_id">
 >;
 
 const Store = models.Store || model<IStore>("Store", storeSchema);

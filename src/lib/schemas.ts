@@ -325,9 +325,27 @@ export const OfferTagFormSchema = z.object({
   _id: z.string().optional()
 });
 
+export const StoreShippingFormSchema = z.object({
+  defaultShippingService: z
+    .string({
+      error: (issue) =>
+        !issue.input ? "Shipping service name is required." : "Invalid input value"
+    })
+    .min(2, "Shipping service name must be at least 2 characters long.")
+    .max(50, { message: "Shipping service name cannot exceed 50 characters." }),
+  defaultShippingFeePerItem: z.number(),
+  defaultShippingFeeForAdditionalItem: z.number(),
+  defaultShippingFeePerKg: z.number(),
+  defaultShippingFeeFixed: z.number(),
+  defaultDeliveryTimeMin: z.number(),
+  defaultDeliveryTimeMax: z.number(),
+  returnPolicy: z.string()
+});
+
 export type UserFormSchemaType = z.infer<typeof UserFormSchema>;
 export type CategoryFormSchemaType = z.infer<typeof CategoryFormSchema>;
 export type SubcategoryFormSchemaType = z.infer<typeof SubcategoryFormSchema>;
 export type StoreFormSchemaType = z.infer<typeof StoreFormSchema>;
 export type ProductFormSchemaType = z.infer<typeof ProductFormSchema>;
 export type OfferTagFormSchemaType = z.infer<typeof OfferTagFormSchema>;
+export type StoreShippingFormSchemaType = z.infer<typeof StoreShippingFormSchema>;

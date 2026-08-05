@@ -1,4 +1,4 @@
-import { StoreFormSchemaType } from "@/lib/schemas";
+import { StoreFormSchemaType, StoreShippingFormSchemaType } from "@/lib/schemas";
 import { IStore } from "@/models/Store";
 import { Types } from "mongoose";
 import {
@@ -19,6 +19,16 @@ export async function updateStore(
   data: StoreFormSchemaType
 ) {
   return updateDoc<{ store: IStore }>(`/stores/${_id}`, data);
+}
+
+/**
+ * @description Use for updating store shipping details
+ */
+export async function updateStoreShipping(
+  _id: Types.ObjectId | string,
+  data: StoreShippingFormSchemaType
+) {
+  return updateDoc<{ store: IStore }>(`/stores/${_id}/shipping-details`, data);
 }
 
 /**
