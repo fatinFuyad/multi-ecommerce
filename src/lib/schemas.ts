@@ -342,6 +342,31 @@ export const StoreShippingFormSchema = z.object({
   returnPolicy: z.string()
 });
 
+export const ShippingRateFormSchema = z.object({
+  shippingService: z
+    .string({
+      error: (issue) =>
+        !issue.input
+          ? "Shipping service name is required."
+          : "Shipping service name must be a string."
+    })
+    .max(50, { message: "Shipping service name cannot exceed 50 characters." }),
+  countryName: z.string(),
+  shippingFeePerItem: z.number(),
+  shippingFeeForAdditionalItem: z.number(),
+  shippingFeePerKg: z.number(),
+  shippingFeeFixed: z.number(),
+  deliveryTimeMin: z.number(),
+  deliveryTimeMax: z.number(),
+  returnPolicy: z
+    .string({
+      error: (issue) =>
+        !issue.input ? "Return policy is required." : "Return policy must be a string."
+    })
+    .min(4, "Too short policy"),
+  countryId: z.string()
+});
+
 export type UserFormSchemaType = z.infer<typeof UserFormSchema>;
 export type CategoryFormSchemaType = z.infer<typeof CategoryFormSchema>;
 export type SubcategoryFormSchemaType = z.infer<typeof SubcategoryFormSchema>;
@@ -349,3 +374,4 @@ export type StoreFormSchemaType = z.infer<typeof StoreFormSchema>;
 export type ProductFormSchemaType = z.infer<typeof ProductFormSchema>;
 export type OfferTagFormSchemaType = z.infer<typeof OfferTagFormSchema>;
 export type StoreShippingFormSchemaType = z.infer<typeof StoreShippingFormSchema>;
+export type ShippingRateFormSchemaType = z.infer<typeof ShippingRateFormSchema>;

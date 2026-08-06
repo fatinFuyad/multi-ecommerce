@@ -1,5 +1,6 @@
 import { ICategory } from "@/models/Category";
 import { IProduct, IProductVariant } from "@/models/Product";
+import { ICountry, IShippingRate } from "@/models/Shipping-Rate";
 import { IStore } from "@/models/Store";
 import { ISubcategory } from "@/models/Subcategory";
 import { IUser } from "@/models/User";
@@ -56,7 +57,18 @@ export type ProductDetailedType = Omit<
   store: IStore;
 };
 
-//
+export type ShippingRateWithCountry = PrettifyType<
+  Omit<IShippingRate, "country"> & {
+    country: ICountry;
+  }
+>;
+
+export type CountryWithShippingRatesType = {
+  storeId: string;
+  country: ICountry;
+  shippingRate: IShippingRate | null;
+};
+
 export type MergeType<T, U> = Omit<T, keyof U> & U;
 
 export type PrettifyType<T> = {

@@ -1,4 +1,8 @@
-import { StoreFormSchemaType, StoreShippingFormSchemaType } from "@/lib/schemas";
+import {
+  ShippingRateFormSchemaType,
+  StoreFormSchemaType,
+  StoreShippingFormSchemaType
+} from "@/lib/schemas";
 import { IStore } from "@/models/Store";
 import { Types } from "mongoose";
 import {
@@ -10,6 +14,8 @@ import {
   updateDoc,
   upsertDoc
 } from "./api-query";
+import { CountryWithShippingRatesType } from "@/lib/types";
+import { IShippingRate } from "@/models/Shipping-Rate";
 
 /**
  * @description Use for updating store document
@@ -28,7 +34,7 @@ export async function updateStoreShipping(
   _id: Types.ObjectId | string,
   data: StoreShippingFormSchemaType
 ) {
-  return updateDoc<{ store: IStore }>(`/stores/${_id}/shipping-details`, data);
+  return updateDoc<{ store: IStore }>(`/stores/${_id}/store-shipping`, data);
 }
 
 /**
@@ -61,4 +67,25 @@ export async function getStoreById<T = IStore>(
   options?: ApiQueryHeaders
 ) {
   return getDocById<{ store: T }>(`/stores/${_id}` + (query ? `?${query}` : ""), options);
+}
+
+export async function getShippingRates<T = CountryWithShippingRatesType>(
+  storeId: Types.ObjectId | string,
+  query?: string,
+  options?: ApiQueryHeaders
+) {
+  return getDocById<{ shippingRates: T[] }>(
+    `/stores/${storeId}/shipping-rates` + (query ? `?${query}` : ""),
+    options
+  );
+}
+
+export async function upsertShippingRate(
+  storeId: Types.ObjectId | string,
+  data: ShippingRateFormSchemaType
+) {
+  return upsertDoc<{ shippingRate: IShippingRate }>(
+    `/stores/${storeId}/shipping-rates`,
+    data
+  );
 }
