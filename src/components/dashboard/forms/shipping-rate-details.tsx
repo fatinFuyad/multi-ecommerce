@@ -31,13 +31,13 @@ import { Input } from "@/components/ui/input";
 // Utils
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CountryWithShippingRatesType } from "@/lib/types";
+import { CountryWithShippingRates } from "@/lib/types";
 import { NumberInput } from "@tremor/react";
 import { upsertShippingRate } from "@/queries/store";
 import { useRouter } from "next/navigation";
 
 interface PropsType {
-  data: CountryWithShippingRatesType;
+  data: CountryWithShippingRates;
   storeUrl: string;
 }
 
@@ -100,19 +100,6 @@ function ShippingRateDetails({ data }: PropsType) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <div className="space-y-4">
-                <FormField
-                  disabled
-                  control={form.control}
-                  name="countryName"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="shippingService"

@@ -1,8 +1,10 @@
 "use client";
 
-// UI components
-import { AlertDialog } from "@/components/ui/alert-dialog";
+import { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,29 +15,43 @@ import {
 
 import ShippingRateDetails from "@/components/dashboard/forms/shipping-rate-details";
 import CustomModal from "@/components/dashboard/shared/custom-modal";
-
-import { CountryWithShippingRatesType } from "@/lib/types";
+import { DataTableColumnHeader } from "@/components/ui/column-header";
+import { Dialog } from "@/components/ui/dialog";
+import { CountryWithShippingRates } from "@/lib/types";
 import { useModal } from "@/providers/modal-provider";
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Edit, MoreHorizontal } from "lucide-react";
 import { useParams } from "next/navigation";
 
-export const columns: ColumnDef<CountryWithShippingRatesType>[] = [
+export const columns: ColumnDef<CountryWithShippingRates>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false
+  },
   {
     accessorKey: "countryName",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Country
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      // enables sorting asc or desc by countryName
+      <DataTableColumnHeader column={column} title="Country name" />
+    ),
     cell: ({ row }) => {
-      return <span>{row.original.country.name}</span>;
+      return <span>{row.original.countryName}</span>;
     }
   },
   {
@@ -133,22 +149,20 @@ export const columns: ColumnDef<CountryWithShippingRatesType>[] = [
   }
 ];
 
-// Define props interface for CellActions component
-interface CellActionsProps {
-  rowData: CountryWithShippingRatesType;
+interface ActionProps {
+  rowData: CountryWithShippingRates;
 }
 
-// CellActions component definition
-const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
-  // Hooks
+// CELLACTION COMPONENT DEFINATION
+function CellActions({ rowData }: ActionProps) {
   const { setOpen } = useModal();
   const params = useParams<{ storeUrl: string }>();
 
-  // Return null if rowData or rowData.id don't exist
+// return null if no rowData exists
   if (!rowData) return null;
 
   return (
-    <AlertDialog>
+    <Dialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -168,11 +182,10 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
               );
             }}
           >
-            <Edit size={15} />
-            Edit Details
+            Edit Shipping
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </AlertDialog>
+    </Dialog>
   );
-};
+}

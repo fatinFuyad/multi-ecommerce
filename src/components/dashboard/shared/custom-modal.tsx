@@ -25,16 +25,14 @@ const CustomModal = ({ children, defaultOpen, subheading, heading }: Props) => {
   return (
     <Dialog modal open={isOpen || defaultOpen} onOpenChange={setClose}>
       <DialogContent className="overflow-scroll lg:max-w-4xl max-h-[600px] px-10 bg-card">
-        <DialogHeader className="pt-8 text-left">
-          {heading ? (
+        {heading && (
+          <DialogHeader className="pt-8 text-left">
             <DialogTitle className="text-2xl font-bold">{heading}</DialogTitle>
-          ) : (
-            <DialogTitle className="text-2xl font-bold"></DialogTitle>
-          )}
-          {subheading && <DialogDescription>{subheading}</DialogDescription>}
-
-          {children}
-        </DialogHeader>
+            {subheading && <DialogDescription>{subheading}</DialogDescription>}
+          </DialogHeader>
+        )}
+        {/* THE CONTENT PASSED AS DIALOG CHILDREN */}
+        <div className="flex justify-center">{children}</div>
       </DialogContent>
     </Dialog>
   );

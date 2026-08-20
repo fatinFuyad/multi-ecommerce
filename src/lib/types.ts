@@ -63,9 +63,10 @@ export type ShippingRateWithCountry = PrettifyType<
   }
 >;
 
-export type CountryWithShippingRatesType = {
+export type CountryWithShippingRates = {
   storeId: string;
   country: ICountry;
+  countryName: string;
   shippingRate: IShippingRate | null;
 };
 

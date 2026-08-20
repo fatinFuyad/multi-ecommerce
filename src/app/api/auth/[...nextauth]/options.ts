@@ -162,8 +162,15 @@ export const authOptions = {
       // console.log("callback session ==>", { user, token });
       return session;
     },
-    async redirect({ baseUrl }: { url: string; baseUrl: string }) {
-      return baseUrl + "/dashboard";
+    // async redirect({ baseUrl }: { url: string; baseUrl: string }) {
+    //   return baseUrl + "/dashboard";
+    // }
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     }
   },
 

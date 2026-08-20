@@ -14,7 +14,7 @@ import {
   updateDoc,
   upsertDoc
 } from "./api-query";
-import { CountryWithShippingRatesType } from "@/lib/types";
+import { CountryWithShippingRates } from "@/lib/types";
 import { IShippingRate } from "@/models/Shipping-Rate";
 
 /**
@@ -69,7 +69,7 @@ export async function getStoreById<T = IStore>(
   return getDocById<{ store: T }>(`/stores/${_id}` + (query ? `?${query}` : ""), options);
 }
 
-export async function getShippingRates<T = CountryWithShippingRatesType>(
+export async function getShippingRates<T = CountryWithShippingRates>(
   storeId: Types.ObjectId | string,
   query?: string,
   options?: ApiQueryHeaders

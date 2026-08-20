@@ -1,7 +1,7 @@
 import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { ShippingRateFormSchemaType } from "@/lib/schemas";
-import { ApiResponse } from "@/lib/types";
+import { ApiResponse, CountryWithShippingRates } from "@/lib/types";
 import { Country, ICountry, IShippingRate, ShippingRate } from "@/models/Shipping-Rate";
 import { Types } from "mongoose";
 
@@ -29,6 +29,7 @@ export async function GET(req: Request, { params }: { params: { storeId: string 
       return {
         storeId: params.storeId,
         country: country,
+        countryName: country.name,
         shippingRate: rateMap.get(country._id.toString())
       };
     });
@@ -39,13 +40,7 @@ export async function GET(req: Request, { params }: { params: { storeId: string 
         success: true,
         status: 200,
         message: "Get shipping rates for a specific store with country data included."
-      } satisfies ApiResponse<{
-        shippingRates: {
-          storeId: string;
-          country: ICountry;
-          shippingRate: IShippingRate | null;
-        }[];
-      }>,
+      } satisfies ApiResponse<{ shippingRates: CountryWithShippingRates[] }>,
       { status: 200 }
     );
   } catch (error: any) {
