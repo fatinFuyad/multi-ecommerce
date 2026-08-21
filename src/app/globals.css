@@ -16,7 +16,10 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
+    --primary: 200.4 98% 44.4%;
+    --primary-mid: 199.4 95.5% 73.9%;
+    --primary-light: 200.6 94.4% 86.1%;
+    --primary-shade: 204 100% 97.1%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -35,7 +38,6 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --primary-light: 213.3 96.9% 87.3%;
     --shadeSlate: 210 40% 96.1%;
   }
 
@@ -46,7 +48,10 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 198.6 88.7% 48.4%;
+    --primary-mid: 201.3 96.3% 32.2%;
+    --primary-light: 202 80.3% 23.9%;
+    --primary-shade: 217.2 32.6% 17.5%;
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -65,7 +70,6 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --shadeSlate: 222.2 47.4% 11.2%;
-    --primary-light: 225.9 70.7% 40.2%;
   }
 }
 
@@ -119,12 +123,12 @@
 
 /*--- Delete button----*/
 .Btn {
-  z-index: 20;
+  z-index: 99;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 36px;
-  height: 36px;
+  width: 45px;
+  height: 45px;
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -132,8 +136,8 @@
   overflow: hidden;
   transition-duration: 0.3s;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
-  /* background: #2a66f9; */
-  background: linear-gradient(to top, #ef4a44, #991b1b);
+  background: #2a66f9;
+  background: linear-gradient(to top, #2a66f9, #bee3ff);
 }
 
 /* plus sign */
@@ -147,11 +151,10 @@
 
 .sign svg {
   width: 17px;
-  stroke: white;
 }
 
 .sign svg path {
-  fill: crimson;
+  fill: white;
 }
 /* text */
 .text {
@@ -160,6 +163,8 @@
   width: 0%;
   opacity: 0;
   color: white;
+  font-size: 1.2em;
+  font-weight: 600;
   transition-duration: 0.3s;
 }
 /* hover effect on button width */
@@ -183,9 +188,26 @@
 }
 /* button click effect*/
 .Btn:active {
-  transform: translate(0px, 2px);
+  transform: translate(2px, 2px);
 }
 
 .perspective-1000 {
   perspective: 1000px;
+}
+
+/* User Clerk Button */
+.user-avatar .cl-avatarBox {
+  width: 70px !important;
+  height: 70px !important;
+}
+
+/*---Custom scrollbar---*/
+.scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Define the thumb style */
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 5px;
 }

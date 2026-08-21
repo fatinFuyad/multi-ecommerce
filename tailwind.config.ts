@@ -29,8 +29,24 @@ const config: Config = {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
-          light: "hsl(var(--primary-light))"
+          mid: "hsl(var(--primary-mid))",
+          light: "hsl(var(--primary-light))",
+          shade: "hsl(var(--primary-shade))"
         },
+        orange: {
+          background: "#0369a1",
+          hover: "#0284c7",
+          primary: "#0ea5e9",
+          seconadry: "#38bdf8",
+          border: "#bae6fd"
+        },
+        // orange: {
+        //   background: "#FD384F",
+        //   hover: "#e23246",
+        //   primary: "#FA6338",
+        //   seconadry: "#d3031c",
+        //   border: "#ffe6e7"
+        // },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))"
