@@ -59,7 +59,6 @@ export default function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   // Modal state
   const { setOpen } = useModal();
-
   // React table instance
   const table = useReactTable({
     data,

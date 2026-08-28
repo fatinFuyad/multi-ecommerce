@@ -11,11 +11,11 @@ import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 export default async function UserMenu() {
-  // Get the current user
+  // get authenticated user
   const { user } = await auth({ isRedirect: false });
   return (
     <div className="relative group">
-      {/* Trigger */}
+      {/* TRIGGER */}
       <div>
         {user ? (
           <Image
@@ -42,7 +42,7 @@ export default async function UserMenu() {
           </div>
         )}
       </div>
-      {/* Content */}
+      {/* CONTENT */}
       <div
         className={cn("hidden absolute top-0 -left-20 group-hover:block cursor-pointer", {
           "-left-[200px] lg:-left-[140px]": user
@@ -50,14 +50,13 @@ export default async function UserMenu() {
       >
         <div className="relative left-2 mt-10 right-auto bottom-auto pt-2.5 text-card-foreground p-0 text-sm z-40">
           {/* Triangle */}
-          <div className="w-0 h-0 absolute left-[149px] top-1 right-24 !border-l-[10px] !border-l-transparent !border-r-[10px] !border-r-transparent !border-b-[10px] border-b-background"></div>
+          <div className="w-0 h-0 absolute lg:left-[149px] top-1 right-20 border-l-[10px]  border-l-transparent border-r-[10px] border-r-transparent border-b-[10px] border-b-background"></div>
           {/* Menu */}
           <div className="rounded-3xl bg-primary-shade text-sm text-card-foreground shadow-lg">
             <div>
               <div className="pt-5 px-6 pb-0">
                 {user ? (
                   <div className="user-avatar flex flex-col items-center justify-center">
-                    {/* <UserButton /> */}
                     <Image
                       src={user.image!}
                       alt={user.name!}
@@ -105,14 +104,14 @@ export default async function UserMenu() {
                 <ul className="pt-2.5 pr-4 pb-1 pl-4 w-72">
                   {extraLinks.map((item, i) => (
                     <li key={i}>
-                      <Link href={item.link} legacyBehavior>
-                        <Button
-                          variant={"link"}
-                          className="block text-sm text-primary py-1.5 hover:underline"
-                        >
-                          {item.title}
-                        </Button>
-                      </Link>
+                      <Button
+                        variant={"link"}
+                        size={"sm"}
+                        className="text-sm text-primary"
+                        asChild
+                      >
+                        <Link href={item.link}>{item.title}</Link>
+                      </Button>
                     </li>
                   ))}
                 </ul>

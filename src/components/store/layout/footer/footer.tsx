@@ -1,12 +1,12 @@
-import { getSubcategories } from "@/queries/subCategory";
+import { getSubcategories } from "@/queries/subcategory";
 import Contact from "./contact";
 import Links from "./links";
 import Newsletter from "./newsletter";
 
 export default async function Footer() {
-  const subs = await getSubcategories(7, true);
+  const { subcategories: subs } = await getSubcategories("limit=7");
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-background">
       <Newsletter />
       <div className="max-w-[1430px] mx-auto">
         <div className="p-5">
@@ -16,10 +16,10 @@ export default async function Footer() {
           </div>
         </div>
       </div>
-      <div className="bg-gradient-to-r from-slate-500 to-slate-800 px-2 text-white">
-        <div className="max-w-[1430px] mx-auto flex items-center h-7">
+      <div className="bg-gradient-to-r from-primary-light to-primary-shade px-2 text-secondary-foreground">
+        <div className="max-w-[1430px] mx-auto flex items-center h-7 justify-center">
           <span className="text-sm">
-            <b>© GoShop</b> - All Rights Reserved
+            <b>©️GoShop</b> - All Rights Reserved {new Date().getFullYear()}
           </span>
         </div>
       </div>

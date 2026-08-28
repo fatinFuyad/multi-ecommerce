@@ -11,7 +11,7 @@ export default function DownloadApp() {
   return (
     <div className="relative group">
       {/* Trigger */}
-      <div className="flex h-11 items-center px-2 cursor-pointer">
+      <div className="flex h-11 items-center cursor-pointer">
         <span className="text-[32px]">
           <AppIcon />
         </span>
@@ -38,13 +38,13 @@ export default function DownloadApp() {
                 <div className="mt-4 flex items-center gap-x-2">
                   <Link
                     href=""
-                    className="rounded-3xl border border-secondary-foreground grid place-items-center px-4 py-3"
+                    className="rounded-3xl border border-secondary-foreground grid place-items-center px-4 py-3 bg-blue-900"
                   >
                     <Image src={AppStoreImg} alt="App store" />
                   </Link>
                   <Link
                     href=""
-                    className="rounded-3xl border border-secondary-foreground grid place-items-center px-4 py-3"
+                    className="rounded-3xl border border-secondary-foreground grid place-items-center px-4 py-3 bg-blue-900"
                   >
                     <Image src={PlayStoreImg} alt="Play store" />
                   </Link>

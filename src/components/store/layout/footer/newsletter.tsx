@@ -1,14 +1,16 @@
 import { SendIcon } from "@/components/store/icons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Newsletter() {
   return (
-    <div className="bg-gradient-to-r from-slate-500 to-slate-800 p-5">
+    <div className="bg-gradient-to-r from-primary-light to-primary-shade p-5">
       <div className="max-w-[1430px] mx-auto">
-        <div className="flex flex-col gap-y-4 xl:flex-row items-center text-white">
+        <div className="flex flex-col gap-y-4 xl:flex-row items-center text-secondary-foreground">
           {/* Left */}
           <div className="flex items-center xl:w-[58%]">
             <h5 className="flex items-center gap-x-2">
-              <div className="scale-125 mr-2">
+              <div className="scale-125 mr-2 text-primary">
                 <SendIcon />
               </div>
               <span className="md:text-xl">Sign up to Newsletter</span>
@@ -19,15 +21,13 @@ export default function Newsletter() {
             </h5>
           </div>
           {/* Right */}
-          <div className="flex w-full xl:flex-1">
-            <input
+          <div className="flex w-full xl:flex-1 gap-2">
+            <Input
               type="text"
               placeholder="Enter your email address"
-              className="w-full h-10 pl-6 bg-white text-black rounded-l-full outline-none"
+              className="bg-background/50 border-primary"
             />
-            <span className="h-10 w-24 text-sm grid place-content-center rounded-r-full bg-slate-600 text-white cursor-pointer">
-              Sign up
-            </span>
+            <Button variant="default">Sign Up</Button>
           </div>
         </div>
       </div>

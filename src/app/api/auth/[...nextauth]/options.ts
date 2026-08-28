@@ -51,18 +51,15 @@ export const authOptions = {
           // You need to provide your own logic here that takes the credentials
           // submitted and returns either a object representing a user or value
           // that is false/null if the credentials are invalid.
-          // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-          // You can also use the `req` object to obtain additional parameters
-          // (i.e., the request IP address)
+
           const existingUser = await User.findOne<Promise<UserDoc | null>>({
             $or: [{ username: credentials.identifier }, { email: credentials.identifier }]
           }).select("+password");
-          console.log(existingUser);
+
           // Return null or throw error if no existingUser is associated with the credentials
           if (!existingUser) {
             throw new Error("No user is associated with the email or username");
           }
-          // console.log("authorize-->", { user });
           if (!existingUser.isPasswordEnabled) {
             throw new Error(
               `You previously signed in with ${existingUser.signinMethod}. You didn't setup password for credentials sign in`
@@ -99,7 +96,6 @@ export const authOptions = {
       profile?: Profile | undefined;
     }) {
       try {
-        // console.log("signIn callback -->", profile, user, account);
         // when using credentials profile is undefined but in OAuth profile is an object
         if (account?.provider === "credentials") {
           return user ? true : false;
@@ -159,22 +155,20 @@ export const authOptions = {
       } else {
         session.user = user; // as SessionUser;
       }
-      // console.log("callback session ==>", { user, token });
       return session;
     },
-    // async redirect({ baseUrl }: { url: string; baseUrl: string }) {
-    //   return baseUrl + "/dashboard";
-    // }
-    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
-      // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
+    async redirect({ baseUrl }: { url: string; baseUrl: string }) {
+      return baseUrl + "/dashboard";
     }
   },
-
-  session: { strategy: "jwt" as SessionStrategy },
+  session: {
+    strategy: "jwt" as SessionStrategy,
+    jwt: {
+      // The maximum age of the NextAuth.js issued JWT in seconds.
+      // Defaults to `session.maxAge`: 60 * 60 * 24 * 30
+      maxAge: 60 * 60 * 24 * 7
+    }
+  },
   secret: process.env.NEXTAUTH_SECRET,
   theme: {
     colorScheme: "auto", // "auto" | "dark" | "light"

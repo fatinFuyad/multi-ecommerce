@@ -32,9 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body
-        className={`${interFont.className} ${barlowFont.variable} antialiased`}
-      >
+      <body className={`${interFont.className} ${barlowFont.variable} antialiased`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"

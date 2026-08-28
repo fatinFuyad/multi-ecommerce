@@ -1,34 +1,43 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { getUserCountry } from "./lib/utils";
 
-// TODO: Check it later
+// runs for every page that satisfies the matcher
 export { default } from "next-auth/middleware";
 
 export async function middleware(request: NextRequest) {
-  // verify authentication base on tokens with getToken()
-  const token = await getToken({ req: request }); // returns token: null; when user is not signed up or doesn't exist on database but trying to sign in
-  const url = request.nextUrl;
-  // const cookieUser = request.cookies.get("jwt")?.value;
-  // const session = await getServerSession;
-  // console.log(session, "middleware");
+  // verify authentication based on jwt token
+  const token = await getToken({ req: request }); // returns token | null;
+  const { pathname } = request.nextUrl;
+  // const jwtCookie = request.cookies.get("jwt")?.value;
+  const countryCookie = request.cookies.get("userCountry");
 
-  // console.log({ token });
-  // Redirect to dashboard if the user is already authenticated
-  // and trying to access sign-in, sign-up, or home page
-  if (
-    token &&
-    (url.pathname.startsWith("/signin") || url.pathname.startsWith("/signup"))
-    // url.pathname.startsWith("/verify"))
-    //  ||url.pathname === "/"
-  ) {
+  let response = NextResponse.next();
+
+  // if the country user has already selected. otherwise set cookie for userCountry.
+  if (!countryCookie) {
+    // refreshing the req when user changes his country
+    response = NextResponse.redirect(new URL(request.url));
+
+    // set a cookie with the detected country for further requests
+    const userCountry = await getUserCountry();
+    response.cookies.set("userCountry", JSON.stringify(userCountry), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax"
+    });
+  }
+
+  // Redirect to dashboard if the user is already authenticated and trying to access signin, signup
+  if (token && (pathname.startsWith("/signin") || pathname.startsWith("/signup"))) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (!token && url.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/signin", request.url)); // default:/api/auth/signin
+  if (!token && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/signin", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
