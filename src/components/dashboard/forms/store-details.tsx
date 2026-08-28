@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { StoreFormSchema, StoreFormSchemaType } from "@/lib/schemas";
 import { IStore } from "@/models/Store";
 import { createStore, updateStore } from "@/queries/store";
+import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
 interface StoreDetailsProps {
@@ -39,21 +40,21 @@ interface StoreDetailsProps {
 
 export default function StoreDetails({ data }: StoreDetailsProps) {
   const { toast } = useToast(); // Hook for displaying toast messages
-  // const router = useRouter(); // Hook for routing
+  const router = useRouter(); // Hook for routing
 
   // 1. Define your form.
   const form = useForm<StoreFormSchemaType>({
     resolver: zodResolver(StoreFormSchema),
     defaultValues: {
       // Setting default form values from data (if available)
-      name: data?.name || "",
-      description: data?.description || "",
-      email: data?.email || "",
-      phone: data?.phone || "",
+      name: data?.name,
+      description: data?.description,
+      email: data?.email,
+      phone: data?.phone,
       logo: data?.logo ? [{ url: data.logo }] : [],
       cover: data?.cover ? [{ url: data.cover }] : [],
       featured: data?.featured || false,
-      url: data?.url || ""
+      url: data?.url
     }
   });
 
@@ -62,7 +63,6 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
   // ⚠️ Client side can't access backend models
   async function onSubmit(values: StoreFormSchemaType) {
     try {
-      console.log(values);
       const isUpdateSession = !!data?._id;
       let response;
       if (isUpdateSession) {
@@ -77,8 +77,10 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
           ? `Your store ${response.store.name} has been updated successfully`
           : `Your store ${response.store.name} has been created successfully`
       });
+
+      // make sure to update url if the store-url is changed. otherwise there will be error if previous store url is used to visit other sub-routes
+      router.push(`/dashboard/seller/stores/${response.store.url}/settings`);
     } catch (error: any) {
-      console.log(error);
       toast({
         title: "An Error Occurred",
         description:

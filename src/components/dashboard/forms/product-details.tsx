@@ -58,6 +58,7 @@ import "react-datetime-picker/dist/DateTimePicker.css";
 
 import { IOfferTag } from "@/models/OfferTag";
 import JoditEditor from "jodit-react";
+import { useRouter } from "next/navigation";
 import ImagePreviewGrid from "../shared/image-preview-grid";
 import ImageUpload from "../shared/image-upload";
 import AddInput from "./add-input";
@@ -76,22 +77,16 @@ interface Keyword {
 
 const defaultImages = [
   {
-    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
+    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1787804039/zw3q1cebqvnfy0u9yh0d.jpg"
   },
   {
-    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
+    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1787804029/xqvt19qgbg8lhtdjlhjw.jpg"
   },
   {
-    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
+    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1787803986/ayaqqoe6glkxkaedzkam.jpg"
   },
   {
-    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
-  },
-  {
-    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
-  },
-  {
-    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
+    url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1787803526/qdryy1yv0at8eeaweaxf.jpg"
   }
 ];
 
@@ -121,6 +116,24 @@ const defaultColors = [
     color: "#2B467E"
   }
 ];
+const defaultProductSpecs = [
+  { name: "Fabric", value: "Cotton" },
+  { name: "Premimum", value: "Stich" },
+  { name: "Color", value: "Standard" }
+];
+const defaultVariantSpecs = [
+  { name: "Fabric", value: "Cotton" },
+  { name: "Premimum", value: "Stich" },
+  { name: "Color", value: "Standard" }
+];
+const defaultQuestions = [
+  { question: "Is the quality premimum?", answer: "Offcourse" },
+  { question: "Is the product in Stock", answer: "Yes! abundance in stock" },
+  {
+    question: "Is this thep product from original brand",
+    answer: "Yeah! We don&apos;t sell local products"
+  }
+];
 
 export default function ProductDetails({
   data,
@@ -129,16 +142,18 @@ export default function ProductDetails({
   storeUrl
 }: ProductDetailsProps) {
   const { toast } = useToast();
+  const router = useRouter();
+
   const productDescEditor = useRef(null);
   const variantDescEditor = useRef(null);
-  console.log(data);
   const variant = data?.variants && (data.variants[0] as IProductVariant);
-  // Temporary state for preserving previous images
+
+  // state for preserving previous images
   const [images, setImages] = useState<ProductFormSchemaType["images"]>(
-    defaultImages || []
+    variant?.images || defaultImages || []
   );
   const [colors, setColors] = useState<{ color: string }[]>(
-    () => variant?.colors || defaultColors || [{ color: "" }]
+    variant?.colors || defaultColors || [{ color: "" }]
   );
   const [sizes, setSizes] = useState<ProductFormSchemaType["sizes"]>(
     variant?.sizes || defaultSizes || [{ size: "", quantity: 0, price: 0, discount: 0 }]
@@ -148,15 +163,15 @@ export default function ProductDetails({
       name: string;
       value: string;
     }[]
-  >(() => data?.specifications || [{ name: "", value: "" }]);
+  >(() => data?.specifications || defaultProductSpecs || [{ name: "", value: "" }]);
   const [variantSpecs, setVariantSpecs] = useState<
     {
       name: string;
       value: string;
     }[]
-  >(() => variant?.specifications || [{ name: "", value: "" }]);
+  >(() => variant?.specifications || defaultVariantSpecs || [{ name: "", value: "" }]);
   const [questions, setQuestions] = useState<{ question: string; answer: string }[]>(
-    () => data?.questions || [{ question: "", answer: "" }]
+    () => data?.questions || defaultQuestions || [{ question: "", answer: "" }]
   );
   const [keywords, setKeywords] = useState<string[]>(defaultKeywords || []);
   const [subcategories, setSubcategories] = useState<ISubcategory[]>([]);
@@ -164,6 +179,7 @@ export default function ProductDetails({
   // 1. Define your form.
   const form = useForm<ProductFormSchemaType>({
     resolver: zodResolver(ProductFormSchema),
+    reValidateMode: "onBlur",
     defaultValues: {
       name: data?.name,
       description: data?.description,
@@ -183,81 +199,19 @@ export default function ProductDetails({
       variantSpecs: variant?.specifications,
       questions: data?.questions,
       isSale: variant?.isSale || false,
-      saleEndDate: variant?.saleEndDate || format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
+      saleEndDate: variant?.saleEndDate || format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+      offerTagId: data?.offerTag?.toString() || ""
     }
-    // defaultValues: {
-    //   name: "Mens Premium Casual Shirt",
-    //   description:
-    //     "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
-    //   variantName: "Dreamcore",
-    //   variantDescription:
-    //     "The Dreamcore Casual Shirt is crafted for the man who finds beauty in texture, subtlety, and thoughtfully layered style. Built from a premium Grey Y/D Plain Slub fabric with Beige and Tan Dobby contrast detailing, the Dreamcore carries a soft, organic character that feels simultaneously relaxed and refined. Its natural tonal palette and pure cotton construction make it the kind of shirt you reach for again and again — whether it's a relaxed weekend, a smart-casual day out, or any occasion that calls for effortless, considered style.",
-    //   images: [
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868821/ihcat9omf7rmsrlzlv3n.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868764/ymdhb1kivvkjqfnz78ip.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868741/grax8gssgneloi5aprim.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783868733/hqsjma6yndjkabl96zyw.jpg"
-    //     },
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783867318/ovlxxb9ktg4rhhjaikgf.jpg"
-    //     }
-    //   ],
-    //   variantImage: [
-    //     {
-    //       url: "https://res.cloudinary.com/dxgghtydz/image/upload/v1783870574/qyueknavm5uz4cqimiq4.jpg"
-    //     }
-    //   ],
-    //   category: "6a605c3165fc6b0b3f2fdcb7",
-    //   subcategory: "6a605db565fc6b0b3f2fdce0",
-    //   brand: "Dreamcore",
-    //   sku: "dreamcore_1010",
-    //   keywords: ["Dreamcore", "comfortable", "premium", "cotton", "ultra"],
-    //   colors: [
-    //     {
-    //       color: "#ffffff"
-    //     },
-    //     {
-    //       color: "#C9D5F4"
-    //     },
-    //     {
-    //       color: "#2B467E"
-    //     }
-    //   ],
-    //   sizes: [
-    //     {
-    //       size: "xl",
-    //       quantity: 5,
-    //       price: 10,
-    //       discount: 15
-    //     },
-    //     {
-    //       size: "lg",
-    //       quantity: 10,
-    //       price: 8,
-    //       discount: 10
-    //     }
-    //   ],
-    //   questions: [
-    //     { question: "Is good quality?", answer: "Yes! we can assure you." },
-    //     { question: "Is premium product?", answer: "Oviously." }
-    //   ],
-    //   isSale: false,
-    //   storeUrl: storeUrl
-    // }
   });
 
-  const isSubmitting = form.formState.isSubmitting;
-  const errors = form.formState.errors;
+  const { isSubmitting, errors } = form.formState;
+
+  // const { reset } = form;
+  // useEffect(() => {
+  //   if (isSubmitSuccessful) {
+  //     reset();
+  //   }
+  // }, [reset, isSubmitSuccessful]);
 
   // whenever state changes we update the form values
   useEffect(() => {
@@ -295,13 +249,12 @@ export default function ProductDetails({
   // 2. Define a submit handler.
   async function onSubmit(values: ProductFormSchemaType) {
     try {
-      console.log(values);
       const isUpdateSession = !!data?._id;
       const response = await upsertProduct({
         ...values,
-        productId: data?._id?.toString()
+        productId: data?._id!.toString(),
+        variantId: variant?._id?.toString() // variant might not exist on first
       });
-      console.log(response);
 
       toast({
         title: "Congratulations!",
@@ -309,7 +262,8 @@ export default function ProductDetails({
           ? `Your product ${response.product.name} and variant ${response.product.variants[0].variantName} has been updated successfully`
           : `Your product ${response.product.name} and variant ${response.product.variants[0].variantName} has been created successfully`
       });
-      form.reset();
+
+      router.refresh(); // refresh the page otherwise form shows previous data after reset
     } catch (error: any) {
       console.log(error);
       toast({
@@ -321,7 +275,7 @@ export default function ProductDetails({
       });
     }
   }
-  console.log(errors);
+
   return (
     <AlertDialog>
       <Card className="w-full">
@@ -364,7 +318,6 @@ export default function ProductDetails({
                             showPreview={false}
                             type="standard"
                             value={field.value.map((image) => image.url)}
-                            disabled={isSubmitting}
                             onChange={(url) => {
                               // the prev images do not persist in the form state. therefore using a useState hook
                               setImages((prevImages) => {
@@ -529,7 +482,6 @@ export default function ProductDetails({
                         <FormItem className="flex-1">
                           <FormLabel>Select Subcategory</FormLabel>
                           <Select
-                            disabled={isSubmitting}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
@@ -555,14 +507,12 @@ export default function ProductDetails({
               </div>
               {/* OFFER TAG FOR PRODUCT*/}
               <FormField
-                disabled={isSubmitting}
                 control={form.control}
                 name="offerTagId"
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>Product Offer tag</FormLabel>
                     <Select
-                      disabled={isSubmitting || categories.length == 0}
                       onValueChange={field.onChange}
                       value={field.value}
                       defaultValue={field.value}
@@ -632,7 +582,6 @@ export default function ProductDetails({
                         showPreview={false}
                         type="profile"
                         value={field.value.map((image) => image.url)}
-                        disabled={isSubmitting}
                         onChange={(url) => field.onChange([{ url }])}
                         onRemove={(url) =>
                           field.onChange([
@@ -802,17 +751,19 @@ export default function ProductDetails({
                 )}
               </div>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className={cn({ "animate-pulse": isSubmitting })}
-              >
-                {form.formState.isSubmitting
-                  ? "Submitting..."
-                  : data?._id
-                    ? "Save Product"
-                    : "Create Product"}
-              </Button>
+              {
+                <Button
+                  type="submit"
+                  className={cn({ "animate-pulse": isSubmitting })}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting
+                    ? "Submitting..."
+                    : data?._id
+                      ? "Save Product"
+                      : "Create Product"}
+                </Button>
+              }
             </form>
           </Form>
         </CardContent>

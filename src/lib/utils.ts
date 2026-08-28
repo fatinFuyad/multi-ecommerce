@@ -1,6 +1,9 @@
+import countries from "@/data/countries.json";
+import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import ColorThief from "colorthief";
+import { twMerge } from "tailwind-merge";
+import { CountryIPInfo, MergeType, UserCountry } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -50,3 +53,34 @@ export const getDominantColors = (imgUrl: string): Promise<string[]> => {
     };
   });
 };
+
+/**
+ * @description get the country of the user with ip info
+ * @returns userCountry
+ */
+export async function getUserCountry(): Promise<UserCountry> {
+  let userCountry: UserCountry = {
+    name: "Bangladesh",
+    city: "Dhaka",
+    code: "BD",
+    region: "Mirpur"
+  };
+
+  try {
+    const { data } = await axios.get<CountryIPInfo>(
+      `https://ipinfo.io/?token=${process.env.IPINFO_TOKEN}`
+    );
+
+    const countryName = countries.find((cntry) => cntry.code === data.country)!.name;
+    userCountry = {
+      name: countryName,
+      code: data.country,
+      city: data.city,
+      region: data.region
+    };
+  } catch (error) {
+    // Log error if necessary but do not throw
+    console.error("Failed to fetch IP info", error);
+  }
+  return userCountry;
+}

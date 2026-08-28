@@ -57,6 +57,29 @@ export type ProductDetailedType = Omit<
   store: IStore;
 };
 
+export type VariantSimplified = {
+  variantId: string;
+  variantSlug: string;
+  variantName: string;
+  images: IProductVariant["images"];
+  sizes: IProductVariant["sizes"];
+};
+
+export type VariantImageType = {
+  url: string;
+  image: string;
+};
+
+export interface ProductWithFilteredVariants {
+  _id: string;
+  slug: string;
+  name: string;
+  rating: number;
+  sales: number;
+  variants: VariantSimplified[];
+  variantImages: VariantImageType[];
+}
+
 export type ShippingRateWithCountry = PrettifyType<
   Omit<IShippingRate, "country"> & {
     country: ICountry;
@@ -69,6 +92,29 @@ export type CountryWithShippingRates = {
   countryName: string;
   shippingRate: IShippingRate | null;
 };
+
+export type UserCountry = {
+  name: string;
+  code: string;
+  city: string;
+  region: string;
+};
+
+export interface CountryIPInfo {
+  ip: string;
+  country: string; // BD - not actual country name
+  city: string;
+  region: string;
+  loc: string;
+  org: string;
+  postal: string;
+  timezone: string;
+}
+
+export interface CountrySelect {
+  name: string;
+  code: string;
+}
 
 export type MergeType<T, U> = Omit<T, keyof U> & U;
 

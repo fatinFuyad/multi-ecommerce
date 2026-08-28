@@ -180,6 +180,7 @@ export const ProductFormSchema = z.object({
     .array()
     .length(1, "Choose a product variant image."),
   productId: z.string().optional(),
+  variantId: z.string().optional(),
   storeUrl: z.string(),
   category: z.string({
     error: (issue) =>

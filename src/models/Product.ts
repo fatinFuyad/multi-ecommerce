@@ -16,6 +16,7 @@ const productSchema = new Schema(
     slug: { type: String, required: true },
     brand: { type: String, required: true },
     rating: { type: Number, default: 0 },
+    sales: { type: Number, default: 0 },
     store: {
       type: Schema.Types.ObjectId,
       ref: "Store",
@@ -68,6 +69,7 @@ const productVariantSchema = new Schema(
     saleEndDate: { type: String },
     sku: { type: String, required: true },
     keywords: { type: String, required: true },
+    sales: { type: Number, default: 0 },
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
     images: [
       {
@@ -107,28 +109,37 @@ const productVariantSchema = new Schema(
 
 // INDEXING FOR PRODUCT VARIANT
 productVariantSchema.index({ slug: "asc" }, { unique: true });
+productVariantSchema.index({ product: "asc" });
 
+// returned data type from backend
 export type IProduct = InferSchemaType<typeof productSchema> & {
   _id: Types.ObjectId;
 };
-export type ProductDoc = HydratedDocument<IProduct>;
+
+// returned data type from database to backend
+export type ProductDoc = HydratedDocument<MergeType<IProduct, { _id: Types.ObjectId }>>;
 
 // prettier-ignore
+// required data type to create a doc in database
 export type ProductSchema = PrettifyType<
-  MergeType<IProduct, Partial<
-      Pick<IProduct, "rating"|"createdAt"|"updatedAt"|"_id">
-  >>>;
+  MergeType<IProduct,
+    Partial<Pick<IProduct, "rating" | "sales" | "createdAt" | "updatedAt" | "_id">>
+  >
+>;
 
 export type IProductVariant = InferSchemaType<typeof productVariantSchema> & {
   _id: Types.ObjectId;
 };
-export type ProductVariantDoc = HydratedDocument<IProductVariant>;
+export type ProductVariantDoc = HydratedDocument<
+  MergeType<IProductVariant, { _id: Types.ObjectId }>
+>;
 
 // prettier-ignore
 export type ProductVariantSchema = PrettifyType<
-  MergeType<IProductVariant, Partial<
-      Pick<IProductVariant, "isSale" | "createdAt" | "updatedAt" | "_id">
-  >>>;
+  MergeType<IProductVariant,
+    Partial<Pick<IProductVariant, "isSale" | "sales" | "createdAt" | "updatedAt" | "_id">>
+  >
+>;
 
 export const ProductVariant =
   models.ProductVariant<IProductVariant> ||

@@ -13,7 +13,14 @@ async function NewPrductVariantPage({
   const { categories } = await getCategories();
   const { offerTags } = await getOfferTags();
 
-  const fields = ["name", "brand", "description", "subcategory", "category"] as const;
+  const fields = [
+    "name",
+    "brand",
+    "description",
+    "subcategory",
+    "category",
+    "offerTag"
+  ] as const;
   const res = await getProductById<Pick<IProduct, (typeof fields)[number]>>(
     params.productId,
     `fields:${fields.join(",")}`,

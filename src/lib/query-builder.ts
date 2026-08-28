@@ -9,13 +9,10 @@ type PaginationMeta = {
 };
 
 type MetaData = PaginationMeta & {
-  total: number;
+  totalCount: number;
   totalPages: number;
   hasNextPage: boolean;
   hasPrevPage: boolean;
-  author: string;
-  modelName: string;
-  collectionName: string;
 };
 
 /**
@@ -186,27 +183,28 @@ export class QueryBuilder<T extends Document> {
   }
 
   async exec(model: Model<T>) {
-    const collName = model.collection.collectionName;
-    const [data, total] = await Promise.all([
+    // const collName = model.collection.collectionName;
+    const [data, totalCount] = await Promise.all([
       this.query.exec(),
       model.countDocuments(this.filterQuery)
     ]);
+    const totalPages = Math.ceil(totalCount / this.pagination.limit);
+    const hasNextPage =
+      this.pagination.page < Math.ceil(totalCount / this.pagination.limit);
+    const hasPrevPage = this.pagination.page > 1;
 
-    // const total = results[1];
     return {
       metadata: {
         page: this.pagination.page,
         limit: this.pagination.limit,
         skip: this.pagination.skip,
-        total,
-        totalPages: Math.ceil(total / this.pagination.limit),
-        hasNextPage: this.pagination.page < Math.ceil(total / this.pagination.limit),
-        hasPrevPage: this.pagination.page > 1,
-        author: "fuyad",
-        modelName: model.modelName,
-        collectionName: model.collection.collectionName
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPrevPage
       } satisfies MetaData,
-      [`${collName}`]: data
+      // [`${collName}`]: data
+      data
     };
   }
 }

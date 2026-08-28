@@ -44,7 +44,7 @@ function CloudWidget({
               disabled={disabled}
               onClick={() => {
                 document.body.style.pointerEvents = "auto";
-                open();
+                open?.(); // opens the widget. undefined at page load
               }}
             >
               <CloudUpload className="mr-2" />

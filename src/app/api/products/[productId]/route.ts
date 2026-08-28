@@ -1,4 +1,4 @@
-import Product from "@/models/Product";
+import Product, { ProductVariant } from "@/models/Product";
 
 import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
@@ -51,7 +51,11 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     await restrictTo("SELLER");
     await dbConnect();
 
-    await Product.findByIdAndDelete(params.productId);
+    await Promise.all([
+      Product.findByIdAndDelete(params.productId),
+      ProductVariant.deleteMany({ product: params.productId })
+    ]);
+
     return Response.json(
       { success: true, message: "Product has been successfully deleted." },
       { status: 200 }

@@ -24,7 +24,6 @@ export default async function ProductVariantPage({ params }: Params) {
     lean: true,
     limitPopulateDoc: 1
   });
-
   if (!product) return;
   console.log({ product });
 

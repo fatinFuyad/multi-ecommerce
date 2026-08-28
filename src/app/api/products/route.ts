@@ -3,9 +3,10 @@ import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { ProductFormSchemaType } from "@/lib/schemas";
 import { ApiResponse, ProductWithVariant } from "@/lib/types";
-import { Types } from "mongoose";
+import { Model, Types } from "mongoose";
 
 import Product, {
+  ProductDoc,
   ProductSchema,
   ProductVariant,
   ProductVariantSchema
@@ -76,18 +77,22 @@ export async function PUT(req: Request) {
     const productData: ProductFormSchemaType = await req.json();
     const storeUrl: string = productData.storeUrl;
 
+    // Generating _id before store in database for early reference
+    const productId = productData.productId
+      ? (new Types.ObjectId(productData.productId) as Types.ObjectId)
+      : new Types.ObjectId();
+
+    const variantId = productData.variantId
+      ? (new Types.ObjectId(productData.variantId) as Types.ObjectId)
+      : new Types.ObjectId();
+
+    let storeId: Types.ObjectId | undefined;
     // check if product already exists in database. then create a new variant for that product
     let existingProduct;
-    if (productData.productId) {
-      existingProduct = await Product.findById(productData.productId);
+    if (productId) {
+      existingProduct = await Product.findById(productId);
     }
 
-    // Generating _id before store in database for early reference
-    const variantId = new Types.ObjectId();
-    let productId = productData.productId
-      ? (new Types.ObjectId(productData.productId) as Types.ObjectId)
-      : undefined;
-    let storeId: Types.ObjectId | undefined;
     let productSlug;
 
     const variantSlug = await generateSlug(productData.variantName, ProductVariant, {
@@ -97,20 +102,18 @@ export async function PUT(req: Request) {
     if (!existingProduct) {
       const store = await Store.findOne({ url: storeUrl }).select("_id");
       storeId = store._id;
-      productId = new Types.ObjectId();
       productSlug = await generateSlug(productData.name, Product, {
         unique: true
       });
     }
 
     const commonProductData = {
-      _id: productId as Types.ObjectId,
+      // _id: productId,
       name: productData.name,
       description: productData.description,
       slug: productSlug as string,
       brand: productData.brand,
       store: storeId as Types.ObjectId,
-      rating: 0,
       variants: [variantId], // Types.ObjectId[],
       category: new Types.ObjectId(productData.category),
       subcategory: new Types.ObjectId(productData.subcategory),
@@ -126,7 +129,7 @@ export async function PUT(req: Request) {
     } satisfies ProductSchema;
 
     const commonVariantData = {
-      _id: variantId,
+      // _id: variantId,
       variantName: productData.variantName,
       images: productData.images.map((img) => ({
         url: img.url,
@@ -167,19 +170,17 @@ export async function PUT(req: Request) {
         new: true
       });
     } else {
-      // Create only the variant and reference to product
+      // upsert only the variant and reference to product if it's newly created
       newVariant = await ProductVariant.findByIdAndUpdate(variantId, commonVariantData, {
         upsert: true,
         new: true
       });
 
-      // Update the product's variant reference array
+      // Update the product's variant reference array if variants is new one
       newProduct = await Product.findByIdAndUpdate(
-        productData.productId,
+        productId,
         {
-          $push: {
-            variants: variantId
-          }
+          $addToSet: { variants: variantId } // prevents duplicate elements
         },
         { new: true }
       );
@@ -196,7 +197,6 @@ export async function PUT(req: Request) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.log(error.message);
     return Response.json(
       {
         product: null,
@@ -222,16 +222,18 @@ export async function GET(req: Request) {
       .filter()
       .sort()
       .limitFields()
-      .paginate()
+      // .paginate()
       .handleQueryOptions(req.headers)
-      .build();
+      .exec(Product as Model<ProductDoc>);
+    // .build();
 
     // const products = await handleQueryOptions(req.headers, query);
-    const products = await query;
+    const productsData = await query;
+    console.log({ productsData });
     return Response.json(
       {
-        products,
-        total: products.length,
+        products: productsData.data,
+        metadata: productsData.metadata,
         success: true,
         message: "Get all products successfully",
         status: 200
