@@ -4,7 +4,9 @@ import Links from "./links";
 import Newsletter from "./newsletter";
 
 export default async function Footer() {
-  const { subcategories: subs } = await getSubcategories("limit=7");
+  const { subcategories: subs } = await getSubcategories(undefined, {
+    sample: 5
+  });
   return (
     <div className="w-full bg-background">
       <Newsletter />

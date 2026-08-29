@@ -204,14 +204,15 @@ export default function ProductDetails({
     }
   });
 
-  const { isSubmitting, errors } = form.formState;
+  const { isSubmitting, isSubmitSuccessful, errors } = form.formState;
 
-  // const { reset } = form;
-  // useEffect(() => {
-  //   if (isSubmitSuccessful) {
-  //     reset();
-  //   }
-  // }, [reset, isSubmitSuccessful]);
+  const { reset } = form;
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset();
+      router.refresh(); // refresh the page otherwise form shows previous data after reset
+    }
+  }, [reset, isSubmitSuccessful, router]);
 
   // whenever state changes we update the form values
   useEffect(() => {
@@ -262,8 +263,6 @@ export default function ProductDetails({
           ? `Your product ${response.product.name} and variant ${response.product.variants[0].variantName} has been updated successfully`
           : `Your product ${response.product.name} and variant ${response.product.variants[0].variantName} has been created successfully`
       });
-
-      router.refresh(); // refresh the page otherwise form shows previous data after reset
     } catch (error: any) {
       console.log(error);
       toast({

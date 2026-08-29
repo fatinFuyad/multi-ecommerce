@@ -9,7 +9,8 @@ export type ApiQueryHeaders = {
   populate?: string; // fields to populated in a doc. format: "product,store"
   limitPopulateDoc?: number;
   docId?: string; // the document to be populated from the referenced id array
-  fields?: string; // select the fields in the populated doc. format: "product=name,price&store=name,url"
+  fields?: string; // select the fields in the populated doc. format: "product=name,price&store=name,url";
+  sample?: number;
 };
 
 /**

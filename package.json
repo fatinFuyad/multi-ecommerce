@@ -57,6 +57,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.74.0",
     "react-rating-stars-component": "^2.2.0",
+    "react-responsive": "^10.0.1",
     "react-tag-input": "^6.9.0",
     "slugify": "^1.6.9",
     "social-logos": "^3.3.18",

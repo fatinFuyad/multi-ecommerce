@@ -3,7 +3,7 @@ import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { SubcategoryFormSchemaType } from "@/lib/schemas";
 import { ApiResponse, SubcategoryWithCategory } from "@/lib/types";
-import { Types } from "mongoose";
+import { Aggregate, Query, Types } from "mongoose";
 
 import Category from "@/models/Category";
 import Subcategory, {
@@ -107,17 +107,21 @@ export async function GET(req: Request) {
     await dbConnect();
 
     const query = new QueryBuilder(Subcategory.find(), req.url);
-    const dbQuery = query.filter().limitFields().paginate().build();
+    let dbQuery: Aggregate<any[]> | Query<any[], any> = query
+      .filter()
+      .limitFields()
+      .paginate()
+      .handleQueryOptions(req.headers)
+      .build();
 
-    if (req.headers.has("populate")) {
-      dbQuery.populate(req.headers.get("populate")!);
-    }
-    if (req.headers.has("lean")) {
-      dbQuery.lean();
-    }
+    if (req.headers.get("sample"))
+      dbQuery = Subcategory.aggregate([
+        { $sample: { size: Number(req.headers.get("sample")) } },
+        { $project: { name: 1, url: 1, featured: 1 } },
+        { $sort: { featured: -1 } }
+      ]);
 
     const subcategories = await dbQuery;
-
     return Response.json({
       status: 200,
       success: true,
@@ -125,7 +129,6 @@ export async function GET(req: Request) {
       subcategories
     } as ApiResponse<{ subcategories: (ISubcategory | SubcategoryWithCategory)[] }>);
   } catch (error: any) {
-    console.log(error.message);
     return Response.json({ success: false, status: 500, message: "Api response Error" });
   }
 }

@@ -15,7 +15,9 @@ import CountrySelector from "@/components/shared/country-selector";
 
 // countries data
 import countries from "@/data/countries.json";
+import axios from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CountryLanguageCurrencySelector({
   userCountry
@@ -24,6 +26,7 @@ export default function CountryLanguageCurrencySelector({
 }) {
   // Router hook for navigation
   const router = useRouter();
+  const { toast } = useToast();
 
   // State to manage countries dropdown visibility
   const [show, setshow] = useState(false);
@@ -41,18 +44,19 @@ export default function CountryLanguageCurrencySelector({
       };
       try {
         // Send a POST request to your API endpoint to set the cookie
-        const response = await fetch("/api/setUserCountryInCookies", {
-          method: "POST",
-          headers: {
-            "content-type": "application/json"
-          },
-          body: JSON.stringify({ userCountry: data })
+        const response = await axios.post("/user-country-cookies", {
+          userCountry: data
         });
-        if (response.ok) {
+
+        if (response.data) {
           router.refresh();
         }
-      } catch (error) {
-        console.error("Error in handleCountryClick:", error);
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.response?.data.message
+        });
       }
     }
   };
@@ -80,7 +84,7 @@ export default function CountryLanguageCurrencySelector({
         <div className="relative mt-12 -ml-32 w-[300px]  bg-secondary rounded-[24px] text-primary pt-2 px-6 pb-6 z-50 shadow-lg">
           {/* Triangle */}
           <div className="w-0 h-0 absolute -top-1.5 right-24 border-l-[10px] border-l-transparent border-b-[10px] border-secondary border-r-[10px] border-r-transparent" />
-          <div className="mt-4 leading-6 text-[20px] font-bold">Ship to</div>
+          <div className="mt-4 jjtext-xl font-bold">Ship to</div>
           <div className="mt-2">
             <div className="relative text-primary bg-seconborder-secondary rounded-lg">
               <CountrySelector
@@ -95,7 +99,7 @@ export default function CountryLanguageCurrencySelector({
                 }
               />
               <div>
-                <div className="mt-4 leading-6 text-[20px] font-bold">Language</div>
+                <div className="mt-4 text-xl font-bold">Language</div>
                 <div className="relative mt-2.5 h-10 py-0 px-3 border-[1px] border-secondary-foreground/20 rounded-lg  flex items-center cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap">
                   <div className="align-middle">English</div>
                   <span className="absolute right-2">
@@ -104,7 +108,7 @@ export default function CountryLanguageCurrencySelector({
                 </div>
               </div>
               <div>
-                <div className="mt-4 leading-6 text-[20px] font-bold">Currency</div>
+                <div className="mt-4 text-xl font-bold">Currency</div>
                 <div className="relative mt-2 h-10 py-0 px-3 border-[1px] border-secondary-foreground/20 rounded-lg  flex items-center cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap">
                   <div className="align-middle">USD (US Dollar)</div>
                   <span className="absolute right-2">
