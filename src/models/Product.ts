@@ -15,7 +15,7 @@ const productSchema = new Schema(
     description: { type: String, required: true },
     slug: { type: String, required: true },
     brand: { type: String, required: true },
-    rating: { type: Number, default: 0 },
+    rating: { type: Number, default: 0, max: 5, min: 0 },
     sales: { type: Number, default: 0 },
     store: {
       type: Schema.Types.ObjectId,

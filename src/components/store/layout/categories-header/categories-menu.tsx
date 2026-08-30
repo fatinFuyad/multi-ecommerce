@@ -21,9 +21,9 @@ export default function CategoriesMenu({
     setOpen(state);
     // Delay showing the dropdown until the trigger has finished expanding
     if (state) {
-      setTimeout(() => {
-        setDropdownVisible(true);
-      }, 100);
+      // setTimeout(() => {
+      setDropdownVisible(true);
+      // }, 100);
     } else {
       setDropdownVisible(false);
     }
@@ -42,8 +42,7 @@ export default function CategoriesMenu({
           className={cn(
             "w-12 xl:w-64 h-12 rounded-xl -translate-y-1 xl:translate-y-0 xl:h-11 bg-muted text-secondary-foreground text-xl relative flex items-center cursor-pointer transition-all duration-100 ease-in-out",
             {
-              "w-64 bg-secondary/50 text-base rounded-t-lg rounded-b-none scale-100":
-                open,
+              "w-64 text-base rounded-t-lg rounded-b-none scale-100": open,
               "scale-75": !open
             }
           )}

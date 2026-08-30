@@ -229,7 +229,7 @@ export async function GET(req: Request) {
 
     // const products = await handleQueryOptions(req.headers, query);
     const productsData = await query;
-    console.log({ productsData });
+
     return Response.json(
       {
         products: productsData.data,

@@ -56,6 +56,8 @@
     "react-datetime-picker": "^7.0.2",
     "react-dom": "^18",
     "react-hook-form": "^7.74.0",
+    "react-hot-toast": "^2.6.0",
+    "react-image-zooom": "^1.7.0",
     "react-rating-stars-component": "^2.2.0",
     "react-responsive": "^10.0.1",
     "react-tag-input": "^6.9.0",

@@ -3,6 +3,8 @@ import "./Category";
 import "./Product";
 import "./User";
 import "./Subcategory";
+import "./OfferTag";
+import "./Shipping-Rate";
 
 ////////////
 // Prevent schema wasn't registered error for Model

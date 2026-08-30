@@ -1,6 +1,6 @@
 import { ProductFormSchemaType } from "@/lib/schemas";
 import { ProductWithVariant } from "@/lib/types";
-import { IProduct } from "@/models/Product";
+import { IProduct, IProductVariant } from "@/models/Product";
 import { Types } from "mongoose";
 import {
   ApiQueryHeaders,
@@ -56,6 +56,18 @@ export async function getProductById<T = IProduct>(
 ) {
   return getDocById<{ product: T }>(
     `/products/${_id}` + (query ? `?${query}` : ""),
+    options
+  );
+}
+
+// get product variants with query
+
+export async function getProductVariants<T = IProductVariant>(
+  query?: string,
+  options?: ApiQueryHeaders
+) {
+  return getDocs<{ variants: T[] }>(
+    query ? `/products/variants?${query}` : "/products/variants",
     options
   );
 }
