@@ -1,26 +1,41 @@
 "use client";
 
+import ColorWheel from "@/components/shared/color-wheel";
+import { Separator } from "@/components/ui/separator";
 import { ProductDetailedType } from "@/lib/types";
+import { IProductVariant } from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
+import { Dispatch, SetStateAction } from "react";
 import toast from "react-hot-toast";
 import ReactStars from "react-rating-stars-component";
 import CopyIcon from "../../icons/copy";
+import Countdown from "../../shared/countdown";
+import ProductPrice from "./product-price";
+import ProductVariantSelector from "./variant-selector";
 
 interface PropsType {
   productData: ProductDetailedType;
+  variants: IProductVariant[];
   quantity?: number;
   sizeId: string | undefined;
+  // handleChange: (property: keyof CartProductType, value: any) => void;
+  setVariantImages: Dispatch<SetStateAction<IProductVariant["images"]>>;
+  setActiveImage: Dispatch<SetStateAction<IProductVariant["images"][0] | null>>;
 }
 
-function ProductInfo({ productData, quantity, sizeId }: PropsType) {
-  // Check if productData exists, return null if it's missing (prevents rendering when there's no data)
-  if (!productData) return null;
-
+function ProductInfo({
+  productData,
+  variants,
+  quantity,
+  sizeId,
+  setVariantImages,
+  setActiveImage
+}: PropsType) {
   // Destructure necessary properties from the productData object
   const { _id: productId, name, store, rating } = productData;
-  const { sku, colors, sizes, isSale, saleEndDate, variantName } =
-    productData.variants[0];
+  const [variant] = productData.variants; // one [variant] found with the variant slug;
+  const { sku, colors, sizes, isSale, saleEndDate, variantName } = variant;
 
   const { totalReviews } = { totalReviews: 101 };
 
@@ -36,15 +51,16 @@ function ProductInfo({ productData, quantity, sizeId }: PropsType) {
 
   return (
     <div className="relative w-full xl:w-[540px]">
-      {/* Title */}
+      {/* TITLE OF THE PRODUCT */}
       <div>
-        <h1 className="text-main-primary inline font-bold leading-5">
+        <h1 className="text-primary inline font-bold leading-5">
           {name} · {variantName}
         </h1>
       </div>
-      {/* Sku - Rating - Num reviews */}
+
+      {/* SKU - RATINGS - REVIEWS COUNT FOR PRODUCT */}
       <div className="flex items-center text-xs mt-2">
-        {/* Store details */}
+        {/* STORE LINK */}
         <Link
           href={`/store/${store.url}`}
           className="hidden sm:inline-block md:hidden lg:inline-block mr-2 hover:underline"
@@ -59,9 +75,9 @@ function ProductInfo({ productData, quantity, sizeId }: PropsType) {
             />
           </div>
         </Link>
-        {/* Sku - Rating - Num reviews */}
+        {/* PRODUCT SKU */}
         <div className="whitespace-nowrap">
-          <span className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-gray-500">
+          <span className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-muted-foreground">
             SKU: {sku}
           </span>
           <span
@@ -71,6 +87,8 @@ function ProductInfo({ productData, quantity, sizeId }: PropsType) {
             <CopyIcon />
           </span>
         </div>
+
+        {/* RATINGS AND REVIEW */}
         <div className="ml-4 flex items-center gap-x-2 flex-1 whitespace-nowrap">
           <ReactStars
             count={5}
@@ -78,7 +96,7 @@ function ProductInfo({ productData, quantity, sizeId }: PropsType) {
             color="#F5F5F5"
             activeColor="#FFD804"
             value={rating}
-            isHalf
+            isHalf={true}
             edit={false}
           />
           <Link href="#reviews" className="text-[#ffd804] hover:underline">
@@ -92,6 +110,37 @@ function ProductInfo({ productData, quantity, sizeId }: PropsType) {
           </Link>
         </div>
       </div>
+      {/* PRICE AND SALE COUNTDOWN TIMER */}
+      <div className="my-2 relative flex flex-col sm:flex-row justify-between">
+        <ProductPrice sizeId={sizeId} sizes={sizes} />
+        {isSale && saleEndDate && (
+          <div className="mt-4 pb-2">
+            <Countdown targetDate={saleEndDate} />
+          </div>
+        )}
+      </div>
+      <Separator className="mt-2" />
+      {/* COLOR WHEEL AND VARIANT SWITCHER */}
+      <div className="mt-4 space-y-2">
+        <div className="relative flex items-center justify-between text-main-primary font-bold">
+          <span className="flex items-center gap-x-2">
+            {colors.length > 1 ? "Colors" : "Color"}
+            <ColorWheel colors={colors} size={25} />
+          </span>
+        </div>
+        <div className="mt-4">
+          {variants.length > 0 && (
+            <ProductVariantSelector
+              variants={variants}
+              productSlug={productData.slug}
+              variantSlug={productData.variants[0].slug}
+              setVariantImages={setVariantImages}
+              setActiveImage={setActiveImage}
+            />
+          )}
+        </div>
+      </div>
+      {/* SIZE SELECTOR */}
     </div>
   );
 }

@@ -24,7 +24,8 @@ export async function middleware(request: NextRequest) {
     response.cookies.set("userCountry", JSON.stringify(userCountry), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax"
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 30
     });
   }
 

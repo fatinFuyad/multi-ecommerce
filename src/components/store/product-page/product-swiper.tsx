@@ -13,10 +13,8 @@ import { cn } from "@/lib/utils";
 // Types
 import { IProductVariant } from "@/models/Product";
 
-type VariantImage = IProductVariant["images"][0];
-
 interface PropsType {
-  images: VariantImage[];
+  images: IProductVariant["images"];
   // activeImage: VariantImage;
   // setActiveImage: Dispatch<SetStateAction<VariantImage | null>>;
 }
@@ -56,7 +54,7 @@ export default function ProductSwiper({ images }: PropsType) {
           <ImageZoom
             src={activeImage ? activeImage.url : ""}
             zoom={200}
-            className="!w-full xl:!w-[500px] rounded-lg"
+            className="!w-full xl:!w-[500px] aspect-square rounded-lg"
           />
         </div>
       </div>

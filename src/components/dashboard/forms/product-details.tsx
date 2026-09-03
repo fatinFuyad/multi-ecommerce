@@ -638,7 +638,7 @@ export default function ProductDetails({
                   initialInputDetail={{ size: "", quantity: 0, price: 0, discount: 0 }}
                   inputDetails={sizes}
                   setInputDetails={setSizes}
-                  header="Size | Quantity | Price | Discount"
+                  header="VariantSize | Quantity | Price | Discount"
                 />
                 {errors.sizes && (
                   <>

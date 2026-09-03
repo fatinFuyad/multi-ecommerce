@@ -14,12 +14,9 @@ import "swiper/css";
 // Types
 import { IProductVariant } from "@/models/Product";
 import { useEffect, useRef } from "react";
+import { VariantImage } from "@/lib/types";
 
-export default function ProductCardImageSwiper({
-  images
-}: {
-  images: IProductVariant["images"];
-}) {
+export default function ProductCardImageSwiper({ images }: { images: VariantImage[] }) {
   const swiperRef = useRef<any>(null);
   useEffect(() => {
     if (swiperRef.current && swiperRef.current.swiper) {

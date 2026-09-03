@@ -13,7 +13,7 @@ export default async function ProductPage({ params }: PageProps) {
     fields: "name,slug",
     limitPopulateDoc: 1
   });
-  const product = productRes.products[0];
+  const [product] = productRes.products;
 
   // If the product is not found, redirect to the homepage
   if (!product) {
@@ -24,7 +24,7 @@ export default async function ProductPage({ params }: PageProps) {
   if (!product.variants.length) {
     return redirect("/");
   }
-  console.log("product--->", product);
+
   // If the product exists and has variants, redirect to the first variant's page
   return redirect(`/product/${product.slug}/${product.variants[0].slug}`);
 }

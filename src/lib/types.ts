@@ -4,6 +4,7 @@ import { ICountry, IShippingRate } from "@/models/Shipping-Rate";
 import { IStore } from "@/models/Store";
 import { ISubcategory } from "@/models/Subcategory";
 import { IUser } from "@/models/User";
+import { Types } from "mongoose";
 
 export interface DashboardSidebarMenuInterface {
   label: string;
@@ -66,9 +67,32 @@ export type VariantSimplified = {
 };
 
 export type VariantImageType = {
-  url: string;
-  image: string;
+  url: string; // url for the product variant page
+  image: string; // actual img src
 };
+
+export type VariantColor = {
+  _id: Types.ObjectId;
+  color: string;
+};
+
+// VARIANT SIZE TYPE GOT FROM BACKEND
+export type VariantSize = {
+  _id: Types.ObjectId;
+  size: string;
+  quantity: number;
+  price: number;
+  discount: number;
+};
+
+export type VariantImage = {
+  _id: Types.ObjectId;
+  url: string;
+  alt: string;
+  order?: number | undefined;
+};
+
+export type Vimage = IProductVariant["variantImage"];
 
 export interface ProductWithFilteredVariants {
   _id: string;

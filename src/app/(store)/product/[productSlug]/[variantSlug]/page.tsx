@@ -1,6 +1,5 @@
 import ProductPageContainer from "@/components/store/product-page/container";
 import { ProductDetailedType } from "@/lib/types";
-import { IProductVariant, ProductVariant } from "@/models/Product";
 import { getProducts, getProductVariants } from "@/queries/product";
 import { Separator } from "@radix-ui/react-separator";
 import { notFound, redirect } from "next/navigation";
@@ -18,22 +17,23 @@ export default async function ProductVariantPage({
 }: PageProps) {
   // Fetch product data based on the product slug and variant slug
   // ℹ️ Can not directly pass mongoose docs to client components
-  const [productRes, variantRes] = await Promise.all([
-    getProducts<ProductDetailedType>(`slug=${productSlug}`, {
-      lean: true,
-      populate: "category,subcategory,store,offerTag"
-    }),
-    getProductVariants(`slug=${variantSlug}`)
-  ]);
-
-  const productData = productRes.products[0];
-  productData.variants[0] = variantRes.variants[0];
+  const productRes = await getProducts<ProductDetailedType>(`slug=${productSlug}`, {
+    lean: true,
+    populate: "category,subcategory,store,offerTag,variants"
+  });
+  const variantRes = await getProductVariants(`product=${productRes.products[0]._id}`);
 
   // If no product data is found, show the 404 Not Found page
-  if (!productData) {
+  if (!productRes.products.length || !variantRes.variants.length) {
     return notFound();
     //return redirect("/");
   }
+
+  // productData contains the variant matches the variantSlug in an array.
+  const [productData] = productRes.products;
+  productData.variants = variantRes.variants.filter(
+    (variant) => variant.slug === variantSlug
+  );
 
   // Extract the available sizes for the product variant
   const { sizes } = productData.variants[0];
@@ -65,7 +65,11 @@ export default async function ProductVariantPage({
   return (
     <div>
       <div className="max-w-[1650px] mx-auto p-4 overflow-x-hidden">
-        <ProductPageContainer productData={productData} sizeId={sizeId}>
+        <ProductPageContainer
+          productData={productData}
+          variants={variantRes.variants}
+          sizeId={sizeId}
+        >
           {
             <>
               <Separator />

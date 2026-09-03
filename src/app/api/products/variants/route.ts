@@ -1,3 +1,4 @@
+import { metadata } from "@/app/layout";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { ProductVariant, ProductVariantDoc } from "@/models/Product";
@@ -34,6 +35,9 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error: any) {
-    return Response.json({ success: false, message: error.message }, { status: 404 });
+    return Response.json(
+      { success: false, message: error.message, variants: [], metadata: {} },
+      { status: 404 }
+    );
   }
 }
