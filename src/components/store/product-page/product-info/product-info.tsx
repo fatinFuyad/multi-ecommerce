@@ -1,17 +1,20 @@
 "use client";
 
-import ColorWheel from "@/components/shared/color-wheel";
 import { Separator } from "@/components/ui/separator";
 import { ProductDetailedType } from "@/lib/types";
 import { IProductVariant } from "@/models/Product";
+import { Dispatch, SetStateAction } from "react";
+
+import ColorWheel from "@/components/shared/color-wheel";
 import Image from "next/image";
 import Link from "next/link";
-import { Dispatch, SetStateAction } from "react";
 import toast from "react-hot-toast";
 import ReactStars from "react-rating-stars-component";
 import CopyIcon from "../../icons/copy";
 import Countdown from "../../shared/countdown";
+import ProductAssurancePolicy from "./assurance-policy";
 import ProductPrice from "./product-price";
+import SizeSelector from "./size-selector";
 import ProductVariantSelector from "./variant-selector";
 
 interface PropsType {
@@ -112,7 +115,11 @@ function ProductInfo({
       </div>
       {/* PRICE AND SALE COUNTDOWN TIMER */}
       <div className="my-2 relative flex flex-col sm:flex-row justify-between">
-        <ProductPrice sizeId={sizeId} sizes={sizes} />
+        <ProductPrice
+          sizeId={sizeId}
+          sizes={sizes}
+          // handleChange={handleChange}
+        />
         {isSale && saleEndDate && (
           <div className="mt-4 pb-2">
             <Countdown targetDate={saleEndDate} />
@@ -140,7 +147,16 @@ function ProductInfo({
           )}
         </div>
       </div>
-      {/* SIZE SELECTOR */}
+      {/* Size selector */}
+      <div className="space-y-2 pb-2 mt-4">
+        <div>
+          <h1 className="text-main-primary font-bold">Size </h1>
+        </div>
+        <SizeSelector sizes={sizes} sizeId={sizeId} handleChange={() => {}} />
+      </div>
+      {/* Product assurance */}
+      <Separator className="mt-2" />
+      <ProductAssurancePolicy />
     </div>
   );
 }

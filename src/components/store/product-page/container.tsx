@@ -1,22 +1,30 @@
 "use client";
 
-import { ProductDetailedType } from "@/lib/types";
+import { ProductDetailedType, ProductShippingDetailsType } from "@/lib/types";
 import { IProductVariant } from "@/models/Product";
 import { ReactNode, useState } from "react";
 import ProductInfo from "./product-info/product-info";
 import ProductSwiper from "./product-swiper";
-
-// import { CartProductType, ProductPageDataType } from "@/lib/types";
+import ReturnPrivacySecurityCard from "./shipping/returns-security-privacy-card";
+import ShipTo from "./shipping/ship-to";
+import ShippingDetails from "./shipping/shipping-details";
 
 interface Props {
   productData: ProductDetailedType; // ProductPageDataType;
   variants: IProductVariant[];
+  shippingDetails: ProductShippingDetailsType;
   sizeId?: string;
   children: ReactNode;
 }
 
-function ProductPageContainer({ productData, variants, sizeId, children }: Props) {
-  const { images } = productData.variants[0];
+function ProductPageContainer({
+  productData,
+  variants,
+  shippingDetails,
+  sizeId,
+  children
+}: Props) {
+  const [{ images, weight }] = productData.variants; // active variant
   // State for temporary product images
   const [variantImages, setVariantImages] = useState<IProductVariant["images"]>(images);
   // useState hook to manage the active image being displayed, initialized to the first image in the array
@@ -26,7 +34,7 @@ function ProductPageContainer({ productData, variants, sizeId, children }: Props
 
   return (
     <div className="relative">
-      <div className="w-full xl:flex xl:gap-4">
+      <div className="w-full 2xl:flex 2xl:justify-between">
         {/* PRODUCT IMAGE SWIPER */}
         {images && <ProductSwiper images={images} />}
         {/* <ProductSwiper
@@ -34,7 +42,7 @@ function ProductPageContainer({ productData, variants, sizeId, children }: Props
           activeImage={activeImage || images[0]}
           setActiveImage={setActiveImage}
         /> */}
-        <div className="w-full mt-4 md:mt-0 flex flex-col gap-4 md:flex-row">
+        <div className="w-full mt-4 md:mt-0 flex flex-col xl:justify-between xl:p-8 gap-4 md:flex-row">
           {/* PRODUCT MAIN INFO */}
           <ProductInfo
             productData={productData}
@@ -45,7 +53,33 @@ function ProductPageContainer({ productData, variants, sizeId, children }: Props
             setActiveImage={setActiveImage}
           />
 
-          {/* BUY ACTIONS CARD */}
+          {/* SHIPPING DETAILS & BUY ACTION BUTTON */}
+          <div className="w-[390px]">
+            <div className="z-20">
+              <div className="bg-secondary border rounded-md overflow-hidden overflow-y-auto p-4 pb-0">
+                {
+                  <>
+                    <ShipTo
+                      countryCode={shippingDetails.countryCode}
+                      countryName={shippingDetails.countryName}
+                      city={shippingDetails.city}
+                    />
+                    <div className="mt-3 space-y-3">
+                      <ShippingDetails
+                        shippingDetails={shippingDetails}
+                        quantity={5}
+                        weight={weight}
+                      />
+                    </div>
+                    <ReturnPrivacySecurityCard
+                      returnPolicy={shippingDetails.returnPolicy}
+                    />
+                  </>
+                }
+                {/* Action buttons */}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div className="w-[calc(100%-390px)] mt-6 pb-16">{children}</div>

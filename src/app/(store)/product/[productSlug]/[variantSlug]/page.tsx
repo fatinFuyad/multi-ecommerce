@@ -1,7 +1,8 @@
 import ProductPageContainer from "@/components/store/product-page/container";
-import { ProductDetailedType } from "@/lib/types";
-import { getProducts, getProductVariants } from "@/queries/product";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "@/components/ui/separator";
+import { ProductDetailedType, ProductShippingDetailsType } from "@/lib/types";
+import { IProductVariant } from "@/models/Product";
+import { getProductPageData } from "@/services/product";
 import { notFound, redirect } from "next/navigation";
 
 interface PageProps {
@@ -11,32 +12,47 @@ interface PageProps {
   };
 }
 
+interface ProductPageData {
+  product: ProductDetailedType;
+  variants: IProductVariant[];
+  shippingDetails: ProductShippingDetailsType;
+}
+
 export default async function ProductVariantPage({
   params: { productSlug, variantSlug },
   searchParams: { size: sizeId }
 }: PageProps) {
-  // Fetch product data based on the product slug and variant slug
   // ℹ️ Can not directly pass mongoose docs to client components
-  const productRes = await getProducts<ProductDetailedType>(`slug=${productSlug}`, {
-    lean: true,
-    populate: "category,subcategory,store,offerTag,variants"
-  });
-  const variantRes = await getProductVariants(`product=${productRes.products[0]._id}`);
+  // Fetch product data based on the product slug and variant slug
+
+  // HTTP request originating from server does not automatically inherit the browser's cookies from the original request.
+  // // const {}  = await getProductPageData(productSlug,variantSlug)
+  // const cookieStore = cookies();
+  // const data = await axios
+  //   .get(
+  //     `/products/product-page-data?productSlug=${productSlug}&variantSlug=${variantSlug}`,
+  //     {
+  //       headers: {
+  //         Cookie: cookieStore.toString() // Forwarding cookies from original Request
+  //       }
+  //     }
+  //   )
+  //   .then((res) => res.data)
+  //   .catch((err) => console.log(err.response?.data.message));
+
+  // product contains the active variant in variants property
+  // the variants are all of the variants of a product
+  const { product, shippingDetails, variants }: ProductPageData =
+    await getProductPageData(productSlug, variantSlug);
 
   // If no product data is found, show the 404 Not Found page
-  if (!productRes.products.length || !variantRes.variants.length) {
+  if (!product || !variants.length) {
     return notFound();
     //return redirect("/");
   }
 
-  // productData contains the variant matches the variantSlug in an array.
-  const [productData] = productRes.products;
-  productData.variants = variantRes.variants.filter(
-    (variant) => variant.slug === variantSlug
-  );
-
   // Extract the available sizes for the product variant
-  const { sizes } = productData.variants[0];
+  const { sizes } = product.variants[0];
 
   // If the size is provided in the URL
   if (sizeId) {
@@ -54,10 +70,10 @@ export default async function ProductVariantPage({
     );
   }
 
-  const { questions, category } = productData;
+  const { questions } = product;
   const specs = {
-    product: productData.specifications,
-    variant: productData.variants[0].specifications
+    product: product.specifications,
+    variant: product.variants[0].specifications
   };
 
   // const relatedProducts = await getProducts(`category=${category._id}&limit=12`);
@@ -66,8 +82,9 @@ export default async function ProductVariantPage({
     <div>
       <div className="max-w-[1650px] mx-auto p-4 overflow-x-hidden">
         <ProductPageContainer
-          productData={productData}
-          variants={variantRes.variants}
+          productData={product}
+          variants={variants}
+          shippingDetails={shippingDetails}
           sizeId={sizeId}
         >
           {

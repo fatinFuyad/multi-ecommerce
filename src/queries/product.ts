@@ -60,6 +60,12 @@ export async function getProductById<T = IProduct>(
   );
 }
 
+export async function getProductPageData<T = any>(
+  query?: string,
+  options?: ApiQueryHeaders
+) {
+  return getDocs<T>("/products/product-page-data" + (query ? `?${query}` : ""), options);
+}
 // get product variants with query
 
 export async function getProductVariants<T = IProductVariant>(

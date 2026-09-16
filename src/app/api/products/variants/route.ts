@@ -1,4 +1,3 @@
-import { metadata } from "@/app/layout";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { ProductVariant, ProductVariantDoc } from "@/models/Product";
@@ -17,17 +16,15 @@ export async function GET(req: Request) {
       .filter()
       .sort()
       .limitFields()
-      // .paginate()
+      .paginate()
       .handleQueryOptions(req.headers)
-      .exec(ProductVariant as Model<ProductVariantDoc>);
-    // .build();
+      .build();
 
-    const variantsData = await query;
+    const variants = await query;
 
     return Response.json(
       {
-        variants: variantsData.data,
-        metadata: variantsData.metadata,
+        variants,
         success: true,
         message: "Get all product variants successfully",
         status: 200

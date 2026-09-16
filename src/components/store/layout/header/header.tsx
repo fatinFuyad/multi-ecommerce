@@ -5,7 +5,7 @@ import DownloadApp from "./download-app";
 import Search from "./search/search";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import CountryLanguageCurrencySelector from "./country-lang-curr-selector";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { UserCountry } from "@/lib/types";
 
 export default function Header() {

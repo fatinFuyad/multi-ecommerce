@@ -1,12 +1,10 @@
-import { MergeType, PrettifyType } from "@/lib/types";
 import {
-  Types,
-  Schema,
-  models,
-  model,
-  HydratedDocument,
-  InferSchemaType
-} from "mongoose";
+  InferSchemaWithId,
+  InterfaceFromSchema,
+  PartialSchema,
+  PrettifyType
+} from "@/lib/types";
+import { HydratedDocument, Schema, model, models } from "mongoose";
 
 type StoreStatus = "PENDING" | "ACTIVE" | "BANNED" | "DISABLED";
 
@@ -48,28 +46,18 @@ storeSchema.index({ email: "asc" }, { unique: true });
 storeSchema.index({ url: "asc" }, { unique: true });
 storeSchema.index({ user: "asc" });
 
-export type IStore = InferSchemaType<typeof storeSchema> & {
-  _id: Types.ObjectId;
-};
-export type StoreDoc = HydratedDocument<IStore>;
+export type StoreSchema = InferSchemaWithId<typeof storeSchema>;
+export type IStore = InterfaceFromSchema<StoreSchema>;
+export type StoreDoc = HydratedDocument<StoreSchema>;
 
 // prettier-ignore
-export type StoreSchema = PrettifyType<
-  MergeType<
-    IStore,
-    Partial<
-      Pick<
-        IStore, "averageRating"|"returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"status"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"createdAt"|"updatedAt"| "_id"
-      >
-    >
-  >
->;
+export type StoreRawSchema = PartialSchema<StoreSchema, "averageRating"|"returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"status"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"createdAt"|"updatedAt"|"_id">
 
 // prettier-ignore
 export type StoreShippingType = PrettifyType<
-  Pick<IStore, "returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"_id">
+  Pick<StoreSchema, "returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"_id">
 >;
 
-const Store = models.Store || model<IStore>("Store", storeSchema);
+const Store = models.Store || model<StoreSchema>("Store", storeSchema);
 
 export default Store;

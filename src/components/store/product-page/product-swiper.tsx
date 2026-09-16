@@ -50,11 +50,11 @@ export default function ProductSwiper({ images }: PropsType) {
           ))}
         </div>
         {/* MAIN IMAGE VIEW */}
-        <div className="relative rounded-lg overflow-hidden w-full 2xl:h-[600px] 2xl:w-[600px]">
+        <div className="relative rounded-lg overflow-hidden xl:h-[600px] xl:w-[600px]">
           <ImageZoom
             src={activeImage ? activeImage.url : ""}
             zoom={200}
-            className="!w-full xl:!w-[500px] aspect-square rounded-lg"
+            className="!w-full rounded-lg"
           />
         </div>
       </div>

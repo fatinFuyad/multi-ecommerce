@@ -84,3 +84,34 @@ export async function getUserCountry(): Promise<UserCountry> {
   }
   return userCountry;
 }
+
+/**
+ * Function: getShippingDatesRange
+ * Description: Returns the shipping date range by adding the specified min and max days to the current date.
+ * Parameters:
+ *    - minDays: Minimum number of days to add to the current date.
+ *    - maxDays: Maximum number of days to add to the current date.
+ * Returns: Object containing minDate and maxDate.
+ */
+
+export const getShippingDatesRange = (
+  minDays: number,
+  maxDays: number
+): { minDate: string; maxDate: string } => {
+  // Get the current date
+  const currentDate = new Date();
+
+  // Calculate minDate by adding minDays to current date
+  const minDate = new Date(currentDate);
+  minDate.setDate(currentDate.getDate() + minDays);
+
+  // Calculate maxDate by adding maxDays to current date
+  const maxDate = new Date(currentDate);
+  maxDate.setDate(currentDate.getDate() + maxDays);
+
+  // Return an object containing minDate and maxDate
+  return {
+    minDate: minDate.toDateString(),
+    maxDate: maxDate.toDateString()
+  };
+};

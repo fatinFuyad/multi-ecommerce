@@ -7,9 +7,9 @@ import { Model, Types } from "mongoose";
 
 import Product, {
   ProductDoc,
-  ProductSchema,
+  ProductRawSchema,
   ProductVariant,
-  ProductVariantSchema
+  ProductVariantRawSchema
 } from "@/models/Product";
 import Store from "@/models/Store";
 
@@ -126,7 +126,7 @@ export async function PUT(req: Request) {
         answer: string;
       }>,
       offerTag: new Types.ObjectId(productData.offerTagId)
-    } satisfies ProductSchema;
+    } satisfies ProductRawSchema;
 
     const commonVariantData = {
       // _id: variantId,
@@ -153,8 +153,9 @@ export async function PUT(req: Request) {
       }>,
       isSale: productData.isSale,
       slug: variantSlug,
-      product: productId as Types.ObjectId
-    } satisfies ProductVariantSchema;
+      product: productId as Types.ObjectId,
+      weight: productData.weight
+    } satisfies ProductVariantRawSchema;
 
     let newProduct;
     let newVariant;

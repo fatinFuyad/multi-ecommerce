@@ -1,13 +1,10 @@
-import { PrettifyType } from "@/lib/types";
 import {
-  HydratedDocument,
-  InferSchemaType,
+  InferSchemaWithId,
+  InterfaceFromSchema,
   MergeType,
-  model,
-  models,
-  Schema,
-  Types
-} from "mongoose";
+  PartialSchema
+} from "@/lib/types";
+import { HydratedDocument, model, models, Schema } from "mongoose";
 
 const countrySchema = new Schema(
   {
@@ -22,13 +19,13 @@ const countrySchema = new Schema(
 // INDEXING FOR COUNTRY
 countrySchema.index({ name: "asc" }, { unique: true });
 
-export type ICountry = InferSchemaType<typeof countrySchema> & {
-  _id: Types.ObjectId;
-};
-export type CountryDoc = HydratedDocument<ICountry>;
-export type CountrySchema = PrettifyType<
-  MergeType<ICountry, Partial<Pick<ICountry, "createdAt" | "updatedAt" | "_id">>>
+export type CountrySchema = InferSchemaWithId<typeof countrySchema>;
+export type CountryRawSchema = PartialSchema<
+  CountrySchema,
+  "_id" | "createdAt" | "updatedAt"
 >;
+export type CountryDoc = HydratedDocument<CountrySchema>;
+export type ICountry = InterfaceFromSchema<CountrySchema>;
 
 export const Country = models.Country || model("Country", countrySchema);
 
@@ -52,16 +49,56 @@ const shippingRateSchema = new Schema(
 shippingRateSchema.index({ country: "asc" });
 shippingRateSchema.index({ store: "asc" });
 
-export type IShippingRate = InferSchemaType<typeof shippingRateSchema> & {
-  _id: Types.ObjectId;
-};
-export type ShippingRateDoc = HydratedDocument<IShippingRate>;
-export type ShippingRateSchema = PrettifyType<
-  MergeType<
-    IShippingRate,
-    Partial<Pick<IShippingRate, "createdAt" | "updatedAt" | "_id">>
-  >
->;
-
+// MODEL OF SHIPPING RATE
 export const ShippingRate =
   models.ShippingRate || model("ShippingRate", shippingRateSchema);
+
+// TYPES FOR SHIPPING RATE
+export type ShippingRateSchema = InferSchemaWithId<typeof shippingRateSchema>;
+export type ShippingRateRawSchema = PartialSchema<
+  ShippingRateSchema,
+  "_id" | "createdAt" | "updatedAt"
+>;
+export type ShippingRateDoc = HydratedDocument<ShippingRateSchema>;
+export type IShippingRate = InterfaceFromSchema<ShippingRateSchema>;
+
+// FREE SHIPPING SCHEMA DEFINITION
+const freeShippingSchema = new Schema(
+  {
+    product: { type: Schema.ObjectId, ref: "Product", required: true },
+    eligibleCountries: [
+      { type: Schema.ObjectId, ref: "FreeShippingCountry", required: true }
+    ]
+  },
+  { timestamps: true }
+);
+
+// MODEL OF FREE SHIPPING
+export const FreeShipping =
+  models.FreeShipping || model("FreeShipping", freeShippingSchema);
+
+// TYPES OF SHIPPING RATE
+export type FreeShippingSchema = InferSchemaWithId<typeof freeShippingSchema>;
+export type IFreeShipping = InterfaceFromSchema<FreeShippingSchema>;
+export type FreeShippingWithCountries = MergeType<
+  FreeShippingSchema,
+  { eligibleCountries: FreeShippingCountrySchema[] }
+>;
+
+const freeShippingCountrySchema = new Schema(
+  {
+    freeShipping: { type: Schema.ObjectId, ref: "FreeShipping", required: true },
+    country: { type: Schema.Types.ObjectId, ref: "Country", required: true }
+  },
+  { timestamps: true }
+);
+
+// MODEL OF FREE SHIPPING COUNTRY
+export const FreeShippingCountry =
+  models.FreeShippingCountry || model("FreeShippingCountry", freeShippingCountrySchema);
+
+// TYPES OF FREE SHIPPING COUNTRY
+export type FreeShippingCountrySchema = InferSchemaWithId<
+  typeof freeShippingCountrySchema
+>;
+export type IFreeShippingCountry = InterfaceFromSchema<FreeShippingCountrySchema>;

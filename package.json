@@ -41,6 +41,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "colorthief": "^2.7.0",
+    "cookies-next": "^4.3.0",
     "date-fns": "^4.4.0",
     "flag-icons": "^7.5.0",
     "framer-motion": "^13.1.1",

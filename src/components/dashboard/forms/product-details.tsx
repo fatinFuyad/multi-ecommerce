@@ -62,6 +62,7 @@ import { useRouter } from "next/navigation";
 import ImagePreviewGrid from "../shared/image-preview-grid";
 import ImageUpload from "../shared/image-upload";
 import AddInput from "./add-input";
+import { NumberInput } from "@tremor/react";
 
 interface ProductDetailsProps {
   data?: Partial<ProductWithVariant>;
@@ -192,6 +193,7 @@ export default function ProductDetails({
       storeUrl: storeUrl,
       brand: data?.brand,
       sku: variant?.sku,
+      weight: variant?.weight,
       keywords: variant?.keywords ? variant.keywords.split(" ") : [],
       colors: variant?.colors,
       sizes: variant?.sizes,
@@ -540,7 +542,7 @@ export default function ProductDetails({
                   </FormItem>
                 )}
               />
-              {/* BRAND AND SKU OF PRODUCT */}
+              {/* BRAND, SKU & WEIGHT OF PRODUCT */}
               <div className="flex flex-col lg:flex-row gap-6">
                 <FormField
                   control={form.control}
@@ -563,6 +565,27 @@ export default function ProductDetails({
                       <FormLabel>SKU</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter product sku" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  disabled={isSubmitting}
+                  control={form.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Product weight</FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Weight"
+                          min={0.01}
+                          step={0.01}
+                          className="!shadow-none rounded-md !text-sm"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

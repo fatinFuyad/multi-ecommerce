@@ -1,10 +1,15 @@
-import { ICategory } from "@/models/Category";
-import { IProduct, IProductVariant } from "@/models/Product";
+import { CategorySchema, ICategory } from "@/models/Category";
+import {
+  IProduct,
+  IProductVariant,
+  ProductSchema,
+  ProductVariantSchema
+} from "@/models/Product";
 import { ICountry, IShippingRate } from "@/models/Shipping-Rate";
-import { IStore } from "@/models/Store";
-import { ISubcategory } from "@/models/Subcategory";
+import { IStore, StoreSchema } from "@/models/Store";
+import { ISubcategory, SubcategorySchema } from "@/models/Subcategory";
 import { IUser } from "@/models/User";
-import { Types } from "mongoose";
+import { InferSchemaType, Types } from "mongoose";
 
 export interface DashboardSidebarMenuInterface {
   label: string;
@@ -58,6 +63,16 @@ export type ProductDetailedType = Omit<
   store: IStore;
 };
 
+export type ProductDetailedDocType = Omit<
+  ProductSchema,
+  "variants" | "subcategory" | "category" | "store"
+> & {
+  variants: ProductVariantSchema[];
+  subcategory: SubcategorySchema;
+  category: CategorySchema;
+  store: StoreSchema;
+};
+
 export type VariantSimplified = {
   variantId: string;
   variantSlug: string;
@@ -66,33 +81,34 @@ export type VariantSimplified = {
   sizes: IProductVariant["sizes"];
 };
 
+export type CartProductType = {
+  productId: string;
+  variantId: string;
+  productSlug: string;
+  variantSlug: string;
+  name: string;
+  variantName: string;
+  image: string;
+  variantImage: string;
+  sizeId: string;
+  size: string;
+  quantity: number;
+  price: number;
+  stock: number;
+  weight: number;
+  shippingMethod: string;
+  shippingService: string;
+  shippingFee: number;
+  extraShippingFee: number;
+  deliveryTimeMin: number;
+  deliveryTimeMax: number;
+  isFreeShipping: boolean;
+};
+
 export type VariantImageType = {
   url: string; // url for the product variant page
   image: string; // actual img src
 };
-
-export type VariantColor = {
-  _id: Types.ObjectId;
-  color: string;
-};
-
-// VARIANT SIZE TYPE GOT FROM BACKEND
-export type VariantSize = {
-  _id: Types.ObjectId;
-  size: string;
-  quantity: number;
-  price: number;
-  discount: number;
-};
-
-export type VariantImage = {
-  _id: Types.ObjectId;
-  url: string;
-  alt: string;
-  order?: number | undefined;
-};
-
-export type Vimage = IProductVariant["variantImage"];
 
 export interface ProductWithFilteredVariants {
   _id: string;
@@ -115,6 +131,20 @@ export type CountryWithShippingRates = {
   country: ICountry;
   countryName: string;
   shippingRate: IShippingRate | null;
+};
+
+export type ProductShippingDetailsType = {
+  shippingFeeMethod: string;
+  shippingService: string;
+  shippingFee: number;
+  extraShippingFee: number;
+  deliveryTimeMin: number;
+  deliveryTimeMax: number;
+  returnPolicy: string;
+  countryCode: string;
+  countryName: string;
+  city: string;
+  isFreeShipping: boolean;
 };
 
 export type UserCountry = {
@@ -140,8 +170,127 @@ export interface CountrySelect {
   code: string;
 }
 
+// CUSTOM TYPE UTILITY
+
 export type MergeType<T, U> = Omit<T, keyof U> & U;
 
 export type PrettifyType<T> = {
   [K in keyof T]: T[K];
 } & {};
+
+/**
+ * @description Adds _id field to the target Type
+ * @param T - the target Type
+ * @param _ID - optional. Define type of the _id defualt is string;
+ */
+export type Add_id<T, _ID = string> = PrettifyType<{ _id: _ID } & T>;
+
+/**
+ * @description Adds _id: Types.ObjectId field to the target Type
+ * @param T - the target Type
+ */
+export type AddObjectId<T> = PrettifyType<{ _id: Types.ObjectId } & T>;
+
+/**
+ * @description Infers an Schema Defination and merges _id: Types.ObjectId with the SchemaType;
+ * @param T - the target Type
+ */
+export type InferSchemaWithId<T, I = Types.ObjectId> = PrettifyType<
+  { _id: I extends string ? string : Types.ObjectId } & InferSchemaType<T>
+>;
+
+/**
+ * @description Makes the fields of an existing Schema Type `Partial` with the provided keys
+ * @param T - The target Schema
+ */
+export type PartialSchema<T, K extends keyof T> = PrettifyType<
+  MergeType<T, Partial<Pick<T, K>>>
+>;
+
+/**
+ * @description Creates an Interface type for returned data type from API backend
+ * @param
+ * - T - The target Schema
+ * - R - The received type that is to be merged with the Schema type
+ */
+export type IFromSchema<
+  T,
+  R extends Partial<Record<keyof T, any>> = object
+> = PrettifyType<MergeType<Stringify<T>, R>>;
+
+/**
+ * @description Stringifies Types.ObjectId and NativeDate to string type for any field of the target Type. *`Note`: Does not change optional or other types
+ * @param T - The Target Type
+ */
+export type Stringify<T> = {
+  [k in keyof T]: T[k] extends Types.ObjectId | NativeDate
+    ? string
+    : T[k] extends Types.ObjectId[]
+      ? string[]
+      : T[k];
+};
+
+export type ObjFromDocArr<T> = T extends Types.DocumentArray<infer O, any> ? O : never;
+
+export type InterfaceFromSchema<T> = T extends Types.ObjectId
+  ? string
+  : T extends NativeDate | Date
+    ? string
+    : T extends Types.DocumentArray<infer O, any>
+      ? PrettifyType<{ _id: string } & InterfaceFromSchema<O>>[]
+      : T extends readonly (infer U)[]
+        ? InterfaceFromSchema<U>[]
+        : T extends object
+          ? {
+              [K in keyof T]: InterfaceFromSchema<T[K]>;
+            }
+          : T extends null | undefined
+            ? undefined
+            : T;
+
+export type MongooseToPlain<T> =
+  // ─────────────────────────────────────────────
+  // 1. ObjectId → string
+  // ─────────────────────────────────────────────
+  T extends Types.ObjectId
+    ? string
+    : // ─────────────────────────────────────────────
+      // 2. Date / NativeDate → string
+      // ─────────────────────────────────────────────
+      T extends Date
+      ? string
+      : // ─────────────────────────────────────────────
+        // 3. DocumentArray → plain array
+        //
+        // IMPORTANT: this must come BEFORE `object`
+        // because DocumentArray is itself an object.
+        // ─────────────────────────────────────────────
+        T extends Types.DocumentArray<infer U, any>
+        ? MongooseToPlain<U>[]
+        : // ─────────────────────────────────────────────
+          // 4. Subdocument → extract its underlying object
+          // ─────────────────────────────────────────────
+          T extends Types.Subdocument<any, any, infer U>
+          ? MongooseToPlain<U>
+          : // ─────────────────────────────────────────────
+            // 5. Normal arrays / readonly arrays
+            // ─────────────────────────────────────────────
+            T extends readonly (infer U)[]
+            ? MongooseToPlain<U>[]
+            : // ─────────────────────────────────────────────
+              // 6. Map → Record
+              // ─────────────────────────────────────────────
+              T extends Map<string, infer V>
+              ? Record<string, MongooseToPlain<V>>
+              : // ─────────────────────────────────────────────
+                // 7. Objects → recursively transform properties
+                // ─────────────────────────────────────────────
+                T extends object
+                ? {
+                    [K in keyof T]: MongooseToPlain<T[K]>;
+                  }
+                : // ─────────────────────────────────────────────
+                  // 8. string / number / boolean / null / etc.
+                  // remain unchanged
+                  // ─────────────────────────────────────────────
+                  T;
