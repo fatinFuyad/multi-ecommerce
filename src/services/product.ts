@@ -1,11 +1,5 @@
 import { dbConnect } from "@/lib/db-connect";
-import {
-  ProductDetailedDocType,
-  ProductWithVariant,
-  UserCountry,
-  VariantImageType,
-  VariantSimplified
-} from "@/lib/types";
+import { ProductCardType, ProductDetailedDocType, UserCountry } from "@/lib/types";
 
 import Product, { ProductVariant, ProductVariantSchema } from "@/models/Product";
 
@@ -20,6 +14,9 @@ import { StoreSchema } from "@/models/Store";
 import { getCookie } from "cookies-next";
 import { HydratedDocument } from "mongoose";
 import { cookies } from "next/headers";
+
+// Top level await for once per module evaluation/runtime instance
+await dbConnect();
 
 function getUserCountry(): UserCountry {
   let userCountry: UserCountry = {
@@ -162,47 +159,20 @@ export const getShippingDetails = async (
 };
 
 /**
- * get all of the products with variants data populated
- * @returns productsWithFilteredVariants
+ * @description Get products with necessary query and search options - filter, sort, limit fields, paginate
+ * @returns productWithVariants[]
  */
-export async function getFilteredProducts() {
-  const products: ProductWithVariant[] = await Product.find().populate({
-    path: "variants"
-  });
+export async function getProducts() {
+  const productDocs = await Product.find()
+    .select("_id slug name rating sales")
+    .populate({
+      path: "variants",
+      select: "_id slug variantName images sizes variantImage"
+    })
+    .lean();
 
-  // Transform the products with filtered variants into ProductCardType structure
-  const productsWithFilteredVariants = products.map((product) => {
-    // Filter the variants based on the filters
-    const filteredVariants = product.variants;
-
-    // Transform the filtered variants into the VariantSimplified structure
-    const variants: VariantSimplified[] = filteredVariants.map((variant) => ({
-      variantId: variant._id.toString(),
-      variantSlug: variant.slug,
-      variantName: variant.variantName,
-      images: variant.images,
-      sizes: variant.sizes
-    }));
-
-    // Extract variant images for the product
-    const variantImages: VariantImageType[] = filteredVariants.map((variant) => ({
-      url: `/product/${product.slug}/${variant.slug}`,
-      image: variant.variantImage ? variant.variantImage : variant.images[0].url
-    }));
-
-    // Return the product in the ProductCardType structure
-    return {
-      _id: product._id.toString(),
-      slug: product.slug,
-      name: product.name,
-      rating: product.rating,
-      sales: product.sales,
-      variants,
-      variantImages
-    };
-  });
-
-  return productsWithFilteredVariants;
+  const products: ProductCardType[] = JSON.parse(JSON.stringify(productDocs));
+  return products;
 }
 
 /**
@@ -211,50 +181,49 @@ export async function getFilteredProducts() {
  * @returns requested productPageData.
  */
 export async function getProductPageData(productSlug: string, variantSlug: string) {
-  try {
-    await dbConnect();
+  // await dbConnect();
 
-    const product = await Product.findOne<HydratedDocument<ProductDetailedDocType>>({
-      slug: productSlug
+  const product = await Product.findOne<HydratedDocument<ProductDetailedDocType>>({
+    slug: productSlug
+  })
+    .populate({
+      path: "category"
     })
-      .populate({
-        path: "category"
-      })
-      .populate({ path: "subcategory" })
-      .populate({ path: "store" })
-      .populate({ path: "offerTag" })
-      .lean<ProductDetailedDocType>();
-    // .populate({ path: "variants" });
-    // .populate({path:'freeShipping'})
+    .populate({ path: "subcategory" })
+    .populate({ path: "store" })
+    .populate({ path: "offerTag" })
+    .lean<ProductDetailedDocType>();
+  // .populate({ path: "variants" });
+  // .populate({path:'freeShipping'})
 
-    if (!product) throw new Error("No product found with product slug");
+  if (!product) throw new Error("No product found with product slug");
 
-    const variants = await ProductVariant.find<HydratedDocument<ProductVariantSchema>>({
-      product: product._id
+  const variants = await ProductVariant.find<HydratedDocument<ProductVariantSchema>>({
+    product: product._id
+  });
+
+  const activeVariant = variants.find((variant: any) => variant.slug === variantSlug);
+  product.variants = [activeVariant!];
+
+  const userCountry = getUserCountry();
+  let freeShipping;
+  if (product.freeShipping) {
+    freeShipping = await FreeShipping.findOne<
+      HydratedDocument<FreeShippingWithCountries>
+    >({ _id: product.freeShipping }).populate({
+      path: "eligibleCountries"
     });
+  }
 
-    const activeVariant = variants.find((variant: any) => variant.slug === variantSlug);
-    product.variants = [activeVariant!];
+  // Calculate and retrieve the shipping details
+  const shippingDetails = await getShippingDetails(
+    product.shippingFeeMethod,
+    userCountry,
+    product.store,
+    freeShipping
+  );
 
-    const userCountry = getUserCountry();
-    let freeShipping;
-    if (product.freeShipping) {
-      freeShipping = await FreeShipping.findOne<
-        HydratedDocument<FreeShippingWithCountries>
-      >({ _id: product.freeShipping }).populate({
-        path: "eligibleCountries"
-      });
-    }
-
-    // Calculate and retrieve the shipping details
-    const shippingDetails = await getShippingDetails(
-      product.shippingFeeMethod,
-      userCountry,
-      product.store,
-      freeShipping
-    );
-
-    /**
+  /**
        product: ProductPageType, // includes variants (active), variantInfo (all)
        shippingDetails: ProductShippingDetailsType,
        storeFollwersCount: number,
@@ -262,16 +231,13 @@ export async function getProductPageData(productSlug: string, variantSlug: strin
        ratingStatistics: RatingStatisticsType
      */
 
-    return JSON.parse(
-      JSON.stringify({
-        product,
-        variants,
-        userCountry,
-        shippingDetails,
-        freeShipping
-      })
-    );
-  } catch (error: any) {
-    return { message: error.message };
-  }
+  return JSON.parse(
+    JSON.stringify({
+      product,
+      variants,
+      userCountry,
+      shippingDetails,
+      freeShipping
+    })
+  );
 }

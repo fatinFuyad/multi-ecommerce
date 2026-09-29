@@ -1,30 +1,30 @@
-import { VariantImageType, VariantSimplified } from "@/lib/types";
+import { ProductCardType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 
+type HomepageVariant = ProductCardType["variants"][0];
 interface Props {
-  images: VariantImageType[];
-  variants: VariantSimplified[];
-  setVariant: Dispatch<SetStateAction<VariantSimplified>>;
-  selectedVariant: VariantSimplified;
+  productSlug: ProductCardType["slug"];
+  variants: ProductCardType["variants"];
+  setVariant: Dispatch<SetStateAction<HomepageVariant>>;
+  selectedVariant: HomepageVariant;
 }
 
-function VariantSwitcher({ images, variants, setVariant, selectedVariant }: Props) {
+function VariantSwitcher({ productSlug, variants, setVariant, selectedVariant }: Props) {
   return (
     <div>
-      {images.length > 1 && (
+      {variants.length > 1 && (
         <div className="flex flex-wrap gap-1">
-          {images.map((img, index) => {
-            console.log(variants[index].variantId, selectedVariant.variantId);
+          {variants.map((variant, index) => {
+            // console.log(variants[index].variantId, selectedVariant.variantId);
             return (
               <Link
                 key={index}
-                href={img.url}
+                href={`/product/${productSlug}/${variant.slug}`}
                 className={cn("p-0.5 rounded-full border-2 border-transparent", {
-                  "border-purple-500":
-                    variants[index].variantId === selectedVariant.variantId
+                  "border-purple-500": variant._id === selectedVariant._id
                 })}
                 onMouseEnter={() => {
                   const selectVariant = variants[index];
@@ -32,7 +32,7 @@ function VariantSwitcher({ images, variants, setVariant, selectedVariant }: Prop
                 }}
               >
                 <Image
-                  src={img.image}
+                  src={variant.variantImage}
                   alt="variant_img"
                   width={100}
                   height={100}

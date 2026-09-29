@@ -73,12 +73,14 @@ export type ProductDetailedDocType = Omit<
   store: StoreSchema;
 };
 
-export type VariantSimplified = {
-  variantId: string;
-  variantSlug: string;
-  variantName: string;
-  images: IProductVariant["images"];
-  sizes: IProductVariant["sizes"];
+export type ProductCardType = Pick<
+  IProduct,
+  "_id" | "name" | "slug" | "rating" | "sales"
+> & {
+  variants: Pick<
+    IProductVariant,
+    "_id" | "slug" | "variantName" | "images" | "sizes" | "variantImage"
+  >[];
 };
 
 export type CartProductType = {
@@ -104,21 +106,6 @@ export type CartProductType = {
   deliveryTimeMax: number;
   isFreeShipping: boolean;
 };
-
-export type VariantImageType = {
-  url: string; // url for the product variant page
-  image: string; // actual img src
-};
-
-export interface ProductWithFilteredVariants {
-  _id: string;
-  slug: string;
-  name: string;
-  rating: number;
-  sales: number;
-  variants: VariantSimplified[];
-  variantImages: VariantImageType[];
-}
 
 export type ShippingRateWithCountry = PrettifyType<
   Omit<IShippingRate, "country"> & {

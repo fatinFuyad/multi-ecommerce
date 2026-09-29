@@ -1,11 +1,12 @@
-import { ProductWithFilteredVariants } from "@/lib/types";
+import { ProductCardType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import ProductCard from "../cards/product/product-card";
 
 interface Props {
-  products: ProductWithFilteredVariants[];
+  // products: ProductWithFilteredVariants[];
+  products: ProductCardType[];
   title?: string;
   link?: string;
   arrow?: boolean;

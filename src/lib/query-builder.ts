@@ -1,6 +1,7 @@
 import { ApiQueryHeaders } from "@/queries/api-query";
 import { Document, FilterQuery, Model, QueryWithHelpers } from "mongoose";
 
+// type QueryParamKey = "sort" | "fields" | "page" | "limit" | "search" | "populate";
 type QueryParams = Record<string, string | string[] | undefined>;
 type PaginationMeta = {
   page: number;
@@ -15,6 +16,15 @@ type MetaData = PaginationMeta & {
   hasPrevPage: boolean;
 };
 
+export type PopulateQueryOptions = {
+  lean?: boolean; // get plain objects
+  populate?: string; // fields to populated in a doc. format: "product,store"
+  limitPopulateDoc?: number;
+  docId?: string; // the document to be populated from the referenced id array
+  fields?: string; // select the fields in the populated doc. format: "product=name,price&store=name,url";
+  sample?: number;
+};
+
 /**
  * @class QueryBuilder - handles query operation
  * @method build returns the actual query that should be awaited
@@ -22,7 +32,7 @@ type MetaData = PaginationMeta & {
 export class QueryBuilder<T extends Document> {
   public query: QueryWithHelpers<T[], T>;
   public queryParams: QueryParams;
-  public queryUrl: string;
+  // public queryUrl: string;
 
   // private readonly model: Model<T>;
   private filterQuery: FilterQuery<T> = {};
@@ -34,15 +44,18 @@ export class QueryBuilder<T extends Document> {
 
   /**
    * @constructor
-   * @param query - is a mongoose query returned from Model.find() call
-   * @param reqUrl - used for filtering, sorting, limiting fields and other stuffs
+   * @param mongooseQuery - is a mongoose query returned from Model.find() call
+   * @param queryItem - used for filtering, sorting, limiting fields and other stuffs
    */
-  constructor(query: QueryWithHelpers<T[], T>, reqUrl: string) {
-    const { searchParams } = new URL(reqUrl);
+  constructor(mongooseQuery: QueryWithHelpers<T[], T>, queryItem: string | QueryParams) {
+    const getQueryParams = () => {
+      const { searchParams } = new URL(queryItem as string);
+      return Object.fromEntries(searchParams.entries());
+    };
     // this.model = Model;
-    this.query = query;
-    this.queryParams = Object.fromEntries(searchParams.entries());
-    this.queryUrl = reqUrl;
+    this.query = mongooseQuery;
+    this.queryParams = typeof queryItem === "string" ? getQueryParams() : queryItem;
+    // this.queryUrl = reqUrl;
   }
 
   /**
@@ -175,6 +188,32 @@ export class QueryBuilder<T extends Document> {
       });
     }
     if (options.lean) this.query.lean();
+    return this;
+  }
+
+  /**
+   * @description Updates the query by adding populate, lean from the query options if provided.
+   * @param options - PopulateQueryOptions
+   * @returns this
+   */
+  populateDoc(options: PopulateQueryOptions) {
+    if (options.populate) {
+      const fieldsArr = options.fields?.split("&").map((value) => value.split("=")) || [];
+      const populateFields = Object.fromEntries(fieldsArr);
+      const populateFieldsArr = options.populate?.replace(/\s+/g, "").split(",");
+
+      populateFieldsArr.forEach((field) => {
+        this.query.populate({
+          path: field,
+          select: populateFields[field]?.replace(/\W+/g, " "),
+          match: options.docId ? { _id: options.docId } : undefined,
+          perDocumentLimit: options.limitPopulateDoc
+        });
+      });
+    }
+
+    if (options.lean) this.query.lean();
+
     return this;
   }
 

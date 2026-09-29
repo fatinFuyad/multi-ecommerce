@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ProductWithFilteredVariants, VariantSimplified } from "@/lib/types";
+import { ProductCardType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import Link from "next/link";
@@ -13,12 +13,12 @@ import VariantSwitcher from "./variant-switcher";
 export default function ProductCard({
   product
 }: {
-  product: ProductWithFilteredVariants;
+  product: ProductCardType;
+  // product: ProductWithFilteredVariants;
 }) {
-  const { name, rating, sales, variants, slug, variantImages } = product;
-  const [variant, setVariant] = useState<VariantSimplified>(variants[0]);
-  console.log({ variant });
-  const { variantName, images, variantSlug } = variant;
+  const { name, rating, sales, variants, slug } = product;
+  const [variant, setVariant] = useState<ProductCardType["variants"][0]>(variants[0]);
+  const { variantName, images } = variant;
 
   return (
     <div>
@@ -32,7 +32,7 @@ export default function ProductCard({
       >
         <div className="relative w-full h-full">
           <Link
-            href={`/product/${slug}/${variantSlug}`}
+            href={`/product/${slug}/${variant.slug}`}
             className="w-full relative inline-block overflow-hidden"
           >
             {/* IMAGE SWIPER */}
@@ -62,7 +62,8 @@ export default function ProductCard({
         <div className="hidden group-hover:block absolute -left-[1px] bg-muted w-[calc(100%+2px)] border border-primary-mid border-t-0 px-4 pb-4 rounded-xl shadow-xl z-30 space-y-2">
           {/* VARIANT SWITCHER */}
           <VariantSwitcher
-            images={variantImages}
+            // images={variantImages}
+            productSlug={slug}
             variants={variants}
             setVariant={setVariant}
             selectedVariant={variant}
