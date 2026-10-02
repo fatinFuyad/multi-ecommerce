@@ -1,5 +1,5 @@
 import { dbConnect } from "@/lib/db-connect";
-import User, { UserDoc, UserSchema } from "@/models/User";
+import User, { UserDoc, UserRawSchema } from "@/models/User";
 import bcrypt from "bcryptjs";
 import { Types } from "mongoose";
 import NextAuth, {
@@ -112,7 +112,7 @@ export const authOptions = {
         });
 
         if (existingUser) {
-          existingUser.signinMethod = account?.provider as UserSchema["signinMethod"];
+          existingUser.signinMethod = account?.provider as UserRawSchema["signinMethod"];
           existingUser.lastSignin = new Date();
           await existingUser.save();
           return true;
@@ -122,12 +122,12 @@ export const authOptions = {
           name: user.name as string,
           username: user.email.split("@")[0],
           email: user.email,
-          signinMethod: account?.provider as UserSchema["signinMethod"],
+          signinMethod: account?.provider as UserRawSchema["signinMethod"],
           stores: [] as Types.ObjectId[],
           image: user.image as string,
           isPasswordEnabled: false,
           isVerified: true
-        } satisfies UserSchema);
+        } satisfies UserRawSchema);
 
         return true;
       } catch (error) {
@@ -144,16 +144,15 @@ export const authOptions = {
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       await dbConnect();
-      const user = await User.findOne<Promise<UserDoc | null>>({
+      const user = await User.findOne({
         email: token.email
-      });
-      // .select("username email image name role");
+      }).select("_id username email image name role");
 
       if (!user) {
         // no user means user is deleted from db
         session.user = null;
       } else {
-        session.user = user; // as SessionUser;
+        session.user = user.toJSON({ flattenObjectIds: true });
       }
       return session;
     },

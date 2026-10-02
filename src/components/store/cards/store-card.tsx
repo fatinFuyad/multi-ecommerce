@@ -1,32 +1,66 @@
 "use client";
 
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { IStore } from "@/models/Store";
+import { checkUserFollowingStore, followStore } from "@/services/user";
 import { Check, MessageSquareMore, Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface Props {
-  store: Pick<IStore, "_id" | "url" | "name" | "logo"> & {
-    followersCount: number;
-    isUserFollowingStore: boolean;
-  };
+  store: Pick<IStore, "_id" | "url" | "name" | "logo" | "followers">;
 }
 
 const StoreCard: FC<Props> = ({ store }) => {
-  const { name, logo, url, followersCount, isUserFollowingStore } = store;
-  const [following, setFollowing] = useState<boolean>(isUserFollowingStore);
-  const [storeFollowersCount, setStoreFollowersCount] = useState<number>(followersCount);
   const session = useSession();
   const router = useRouter();
+  const { toast } = useToast();
+
+  const { _id, name, logo, url, followers } = store;
+  const [following, setFollowing] = useState<string | null>(null);
+
+  // update the followers count with state instead of refetching or refreshing the page;
+  const [storeFollowersCount, setStoreFollowersCount] = useState<number>(followers);
+
+  useEffect(() => {
+    if (!session || !session.data?.user) return;
+    checkUserFollowingStore(store._id, session.data.user._id).then((followRes) => {
+      setFollowing(followRes._id);
+    });
+  }, [session]);
 
   const handleStoreFollow = async () => {
     if (session.status !== "loading" && session.status === "unauthenticated")
       router.push("/signin");
+    try {
+      const followRes = await followStore(_id, following);
+      setFollowing(followRes._id);
+
+      if (followRes._id) {
+        setStoreFollowersCount((prev) => prev + 1);
+        toast({
+          description: `You are now following ${name}`
+        });
+      }
+      if (!followRes._id) {
+        setStoreFollowersCount((prev) => prev - 1);
+        toast({
+          description: `You unfollowed ${name}`
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message
+      });
+    }
   };
+
   return (
     <div className="w-full">
       <div className="bg-card flex items-center justify-between rounded-xl py-3 px-4">
@@ -42,7 +76,7 @@ const StoreCard: FC<Props> = ({ store }) => {
           </Link>
           <div className="mx-2">
             <div className="text-xl font-bold leading-6">
-              <Link href={`/store/${url}`} className="text-main-primary">
+              <Link href={`/store/${url}`} className="text-primary">
                 {name}
               </Link>
             </div>

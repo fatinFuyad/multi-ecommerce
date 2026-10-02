@@ -151,7 +151,7 @@ export default function ProductDetails({
 
   // state for preserving previous images
   const [images, setImages] = useState<ProductFormSchemaType["images"]>(
-    variant?.images || defaultImages || []
+    variant?.images || []
   );
   const [colors, setColors] = useState<{ color: string }[]>(
     variant?.colors || defaultColors || [{ color: "" }]
@@ -571,7 +571,6 @@ export default function ProductDetails({
                   )}
                 />
                 <FormField
-                  disabled={isSubmitting}
                   control={form.control}
                   name="weight"
                   render={({ field }) => (

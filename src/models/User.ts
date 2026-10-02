@@ -1,12 +1,5 @@
-import { MergeType, PrettifyType } from "@/lib/types";
-import {
-  HydratedDocument,
-  InferSchemaType,
-  Schema,
-  Types,
-  model,
-  models
-} from "mongoose";
+import { InferSchemaWithId, InterfaceFromSchema, PartialSchema } from "@/lib/types";
+import { HydratedDocument, Schema, model, models } from "mongoose";
 
 export type Roles = "ADMIN" | "SELLER" | "USER"; // "admin" | "moderator";
 
@@ -69,16 +62,18 @@ const userSchema = new Schema(
 userSchema.index({ email: "asc" }, { unique: true });
 userSchema.index({ username: "asc" }, { unique: true });
 
-export type IUser = InferSchemaType<typeof userSchema> & {
-  _id: Types.ObjectId;
-};
-export type UserDoc = HydratedDocument<IUser>;
+// DEFAULT SCHEMA TYPE
+export type UserSchema = InferSchemaWithId<typeof userSchema>;
+
+// USE FOR THE RETURNED DATA FROM API RESPONSE
+export type IUser = InterfaceFromSchema<UserSchema>;
+
+// THE MONGOOSE HYDRATED DOCUMENT
+export type UserDoc = HydratedDocument<UserSchema>;
 
 // prettier-ignore
-export type UserSchema = PrettifyType<
-  MergeType< IUser, Partial<
-      Pick<IUser, "isPasswordEnabled"|"isVerified"|"lastSignin"|"role"|"gender"|"createdAt"|"updatedAt"|"_id">
-  >>>;
+export type UserRawSchema = PartialSchema<
+  UserSchema, "isPasswordEnabled"|"isVerified"|"lastSignin"|"role"|"gender"|"createdAt"|"updatedAt"|"_id">;
 
 const User = models.User<IUser> || model<IUser>("User", userSchema);
 

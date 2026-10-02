@@ -5,7 +5,11 @@ import {
   ProductSchema,
   ProductVariantSchema
 } from "@/models/Product";
-import { ICountry, IShippingRate } from "@/models/Shipping-Rate";
+import {
+  FreeShippingWithCountries,
+  ICountry,
+  IShippingRate
+} from "@/models/Shipping-Rate";
 import { IStore, StoreSchema } from "@/models/Store";
 import { ISubcategory, SubcategorySchema } from "@/models/Subcategory";
 import { IUser } from "@/models/User";
@@ -81,6 +85,14 @@ export type ProductCardType = Pick<
     IProductVariant,
     "_id" | "slug" | "variantName" | "images" | "sizes" | "variantImage"
   >[];
+};
+
+export type ProductPageData = {
+  product: ProductDetailedType;
+  variants: IProductVariant[];
+  userCountry: UserCountry;
+  shippingDetails: ProductShippingDetailsType;
+  freeShipping?: FreeShippingWithCountries | null;
 };
 
 export type CartProductType = {

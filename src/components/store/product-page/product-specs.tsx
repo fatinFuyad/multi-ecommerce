@@ -20,7 +20,7 @@ const ProductSpecs: FC<Props> = ({ specs }) => {
     <div className="pt-6">
       {/* Title */}
       <div className="h-12">
-        <h2 className="text-main-primary text-2xl font-bold">Specifications</h2>
+        <h2 className="text-secondary-foreground text-2xl font-bold">Specifications</h2>
       </div>
       {/* Product Specs Table */}
       <SpecTable data={product} />
@@ -46,11 +46,11 @@ const SpecTable = ({ data, noTopBorder }: { data: Spec[]; noTopBorder?: boolean 
             "border-t-0": i === 0
           })}
         >
-          <div className="float-left text-sm leading-7 max-w-[50%] relative w-1/2 flex">
-            <div className="p-4 bg-secondary text-main-primary w-44">
+          <div className="float-left text-sm leading-7 relative  max-w-[50%] flex">
+            <div className="p-4 bg-secondary text-secondary-foreground w-44 flex-1">
               <span className="leading-5">{spec.name}</span>
             </div>
-            <div className="p-4  text-secondary-foreground flex-1 break-words leading-5">
+            <div className="p-4 text-secondary-foreground flex-1 break-words leading-5">
               <span className="leading-5">{spec.value}</span>
             </div>
           </div>

@@ -49,8 +49,8 @@ export class QueryBuilder<T extends Document> {
    */
   constructor(mongooseQuery: QueryWithHelpers<T[], T>, queryItem: string | QueryParams) {
     const getQueryParams = () => {
-      const { searchParams } = new URL(queryItem as string);
-      return Object.fromEntries(searchParams.entries());
+      const { searchParams } = new URL(queryItem as string, "http://localhost:3000"); // fallback base / origin
+      return Object.fromEntries(searchParams.entries()) as QueryParams;
     };
     // this.model = Model;
     this.query = mongooseQuery;
@@ -261,6 +261,7 @@ fields=name,price,rating&
 page=2&
 limit=10
  */
+// '{"category":"phone","price[$gte]":"1000","price[$lte]":"5000","brand":"apple","search":"iphone","sort":"-rating,price","fields":"name,price,rating","page":"2","limit":"10"}'
 
 /*
 

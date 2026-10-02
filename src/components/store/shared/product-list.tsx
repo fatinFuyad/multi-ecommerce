@@ -5,7 +5,6 @@ import Link from "next/link";
 import ProductCard from "../cards/product/product-card";
 
 interface Props {
-  // products: ProductWithFilteredVariants[];
   products: ProductCardType[];
   title?: string;
   link?: string;

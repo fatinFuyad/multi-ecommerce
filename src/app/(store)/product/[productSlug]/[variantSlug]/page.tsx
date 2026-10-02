@@ -1,8 +1,14 @@
+import StoreCard from "@/components/store/cards/store-card";
 import ProductPageContainer from "@/components/store/product-page/container";
+import ProductDescription from "@/components/store/product-page/product-description";
+import ProductQuestions from "@/components/store/product-page/product-questions";
+import ProductSpecs from "@/components/store/product-page/product-specs";
+import RelatedProducts from "@/components/store/product-page/related-product";
+import StoreProducts from "@/components/store/product-page/store-products";
 import { Separator } from "@/components/ui/separator";
 import { ProductDetailedType, ProductShippingDetailsType } from "@/lib/types";
 import { IProductVariant } from "@/models/Product";
-import { getProductPageData } from "@/services/product";
+import { getProductPageData, getProducts } from "@/services/product";
 import { notFound, redirect } from "next/navigation";
 
 interface PageProps {
@@ -24,22 +30,6 @@ export default async function ProductVariantPage({
 }: PageProps) {
   // ℹ️ Can not directly pass mongoose docs to client components
   // Fetch product data based on the product slug and variant slug
-
-  // HTTP request originating from server does not automatically inherit the browser's cookies from the original request.
-  // // const {}  = await getProductPageData(productSlug,variantSlug)
-  // const cookieStore = cookies();
-  // const data = await axios
-  //   .get(
-  //     `/products/product-page-data?productSlug=${productSlug}&variantSlug=${variantSlug}`,
-  //     {
-  //       headers: {
-  //         Cookie: cookieStore.toString() // Forwarding cookies from original Request
-  //       }
-  //     }
-  //   )
-  //   .then((res) => res.data)
-  //   .catch((err) => console.log(err.response?.data.message));
-
   // product contains the active variant in variants property
   // the variants are all of the variants of a product
   const { product, shippingDetails, variants }: ProductPageData =
@@ -52,7 +42,8 @@ export default async function ProductVariantPage({
   }
 
   // Extract the available sizes for the product variant
-  const { sizes } = product.variants[0];
+  const variant = product.variants[0];
+  const { sizes, variantDescription } = variant;
 
   // If the size is provided in the URL
   if (sizeId) {
@@ -73,10 +64,12 @@ export default async function ProductVariantPage({
   const { questions } = product;
   const specs = {
     product: product.specifications,
-    variant: product.variants[0].specifications
+    variant: variant.specifications
   };
 
-  // const relatedProducts = await getProducts(`category=${category._id}&limit=12`);
+  const relatedProducts = await getProducts(
+    `/product/${productSlug}/${variantSlug}?subcategory=${product.subcategory._id}&limit=10&page=1`
+  );
 
   return (
     <div>
@@ -87,32 +80,39 @@ export default async function ProductVariantPage({
           shippingDetails={shippingDetails}
           sizeId={sizeId}
         >
-          {
+          {relatedProducts.length && (
             <>
               <Separator />
-              {/* RELATED PRODUCTS*/}
+              {/* Related products */}
+              <RelatedProducts products={relatedProducts} />
             </>
-          }
+          )}
           <Separator className="mt-6" />
           {/* PRODUCT REVIEWS */}
-          <Separator className="mt-6" />
-          {/* PRODUCT DESCRIPTION */}
-
+          <>
+            <Separator className="mt-6" />
+            {/* Product description */}
+            <ProductDescription text={[product.description, variantDescription || ""]} />
+          </>
           {(specs.product.length > 0 || specs.variant.length > 0) && (
             <>
               <Separator className="mt-6" />
-              {/* SPECIFICATION TABLE */}
+              {/* Specs table */}
+              <ProductSpecs specs={specs} />
             </>
           )}
           {questions.length > 0 && (
             <>
               <Separator className="mt-6" />
-              {/* PRODUCT QUESTIONS */}
+              {/* Product Questions */}
+              <ProductQuestions questions={product.questions} />
             </>
           )}
           <Separator className="my-6" />
-          {/* STORE CARD */}
-          {/* STORE PRODUCTS */}
+          {/* Store card */}
+          <StoreCard store={product.store} />
+          {/* Store products */}
+          <StoreProducts store={product.store} />
         </ProductPageContainer>
       </div>
     </div>

@@ -18,9 +18,9 @@ const SizeSelector: FC<Props> = ({ sizeId, sizes, handleChange }) => {
 
   useEffect(() => {
     if (sizeId) {
-      const searchSize = sizes.find((s) => s._id === sizeId);
-      if (searchSize) {
-        handleCartProductToBeAddedChange(searchSize);
+      const selectedSize = sizes.find((size) => size._id === sizeId);
+      if (selectedSize) {
+        handleCartProductToBeAddedChange(selectedSize);
       }
     }
   }, []);

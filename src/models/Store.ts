@@ -8,6 +8,7 @@ import { HydratedDocument, Schema, model, models } from "mongoose";
 
 type StoreStatus = "PENDING" | "ACTIVE" | "BANNED" | "DISABLED";
 
+// STORE SCHEMA DEFINITION
 const storeSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -26,6 +27,7 @@ const storeSchema = new Schema(
     },
     featured: { type: Boolean, required: true },
     averageRating: { type: Number, required: true, default: 0 },
+    followers: { type: Number, default: 0 },
     returnPolicy: { type: String, default: "Return in 30 days." },
     defaultShippingService: { type: String, default: "International Delivery" },
     defaultShippingFeePerItem: { type: Number, default: 0 },
@@ -61,3 +63,25 @@ export type StoreShippingType = PrettifyType<
 const Store = models.Store || model<StoreSchema>("Store", storeSchema);
 
 export default Store;
+
+// STORE FOLLOWER SCHEMA DEFINITION
+const storeFollowerSchema = new Schema(
+  {
+    user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    store: { type: Schema.Types.ObjectId, required: true, ref: "Store" }
+  },
+  { timestamps: true }
+);
+
+// INDEXING
+storeFollowerSchema.index({ user: "asc" });
+storeFollowerSchema.index({ store: "asc" });
+storeFollowerSchema.index({ user: "asc", store: "asc" }, { unique: true }); // compound indexing for unique follow doc
+
+// types
+export type StoreFollowerSchema = InferSchemaWithId<typeof storeFollowerSchema>;
+export type IStoreFollower = InterfaceFromSchema<StoreFollowerSchema>;
+
+export const StoreFollower =
+  models.StoreFollower ||
+  model<StoreFollowerSchema>("StoreFollower", storeFollowerSchema);

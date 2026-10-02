@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // const jwtCookie = request.cookies.get("jwt")?.value;
   const countryCookie = request.cookies.get("userCountry");
-  console.log("Middleware-->", { countryCookie });
+
   let response = NextResponse.next();
 
   // if the country user has already selected. otherwise set cookie for userCountry.

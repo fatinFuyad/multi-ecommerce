@@ -1,7 +1,7 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-import { ProductDetailedType } from "@/lib/types";
+import { CartProductType, ProductDetailedType } from "@/lib/types";
 import { IProductVariant } from "@/models/Product";
 import { Dispatch, SetStateAction } from "react";
 
@@ -22,7 +22,7 @@ interface PropsType {
   variants: IProductVariant[];
   quantity?: number;
   sizeId: string | undefined;
-  // handleChange: (property: keyof CartProductType, value: any) => void;
+  handleChange: (property: keyof CartProductType, value: any) => void;
   setVariantImages: Dispatch<SetStateAction<IProductVariant["images"]>>;
   setActiveImage: Dispatch<SetStateAction<IProductVariant["images"][0] | null>>;
 }
@@ -32,11 +32,12 @@ function ProductInfo({
   variants,
   quantity,
   sizeId,
+  handleChange,
   setVariantImages,
   setActiveImage
 }: PropsType) {
   // Destructure necessary properties from the productData object
-  const { _id: productId, name, store, rating } = productData;
+  const { name, store, rating } = productData;
   const [variant] = productData.variants; // one [variant] found with the variant slug;
   const { sku, colors, sizes, isSale, saleEndDate, variantName } = variant;
 
@@ -115,11 +116,7 @@ function ProductInfo({
       </div>
       {/* PRICE AND SALE COUNTDOWN TIMER */}
       <div className="my-2 relative flex flex-col sm:flex-row justify-between">
-        <ProductPrice
-          sizeId={sizeId}
-          sizes={sizes}
-          // handleChange={handleChange}
-        />
+        <ProductPrice sizeId={sizeId} sizes={sizes} handleChange={handleChange} />
         {isSale && saleEndDate && (
           <div className="mt-4 pb-2">
             <Countdown targetDate={saleEndDate} />
@@ -152,7 +149,7 @@ function ProductInfo({
         <div>
           <h1 className="text-main-primary font-bold">Size </h1>
         </div>
-        <SizeSelector sizes={sizes} sizeId={sizeId} handleChange={() => {}} />
+        <SizeSelector sizes={sizes} sizeId={sizeId} handleChange={handleChange} />
       </div>
       {/* Product assurance */}
       <Separator className="mt-2" />

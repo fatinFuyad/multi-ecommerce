@@ -1,5 +1,13 @@
+"use server";
+
 import { dbConnect } from "@/lib/db-connect";
-import { ProductCardType, ProductDetailedDocType, UserCountry } from "@/lib/types";
+import { QueryBuilder } from "@/lib/query-builder";
+import {
+  ProductCardType,
+  ProductDetailedDocType,
+  ProductPageData,
+  UserCountry
+} from "@/lib/types";
 
 import Product, { ProductVariant, ProductVariantSchema } from "@/models/Product";
 
@@ -162,14 +170,14 @@ export const getShippingDetails = async (
  * @description Get products with necessary query and search options - filter, sort, limit fields, paginate
  * @returns productWithVariants[]
  */
-export async function getProducts() {
-  const productDocs = await Product.find()
-    .select("_id slug name rating sales")
-    .populate({
-      path: "variants",
-      select: "_id slug variantName images sizes variantImage"
-    })
-    .lean();
+export async function getProducts(queryItem: string | Record<string, string | string[]>) {
+  const productQuery = Product.find().select("_id slug name rating sales").populate({
+    path: "variants",
+    select: "_id slug variantName images sizes variantImage"
+  });
+
+  const query = new QueryBuilder(productQuery, queryItem).filter().paginate().build();
+  const productDocs = await query;
 
   const products: ProductCardType[] = JSON.parse(JSON.stringify(productDocs));
   return products;
@@ -239,5 +247,5 @@ export async function getProductPageData(productSlug: string, variantSlug: strin
       shippingDetails,
       freeShipping
     })
-  );
+  ) as ProductPageData;
 }

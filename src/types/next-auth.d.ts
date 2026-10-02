@@ -1,11 +1,10 @@
-import "next-auth";
-import { Types } from "mongoose";
 import { Roles } from "@/models/User";
+import "next-auth";
 
 declare module "next-auth" {
   interface Session {
     user: {
-      _id: Types.ObjectId;
+      _id: string;
       name: string;
       username: string;
       email: string;
@@ -17,7 +16,7 @@ declare module "next-auth" {
 }
 
 export type SessionUser = {
-  _id: Types.ObjectId;
+  _id: string;
   name: string;
   username: string;
   email: string;
