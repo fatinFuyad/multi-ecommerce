@@ -3,7 +3,8 @@
 import {
   CartProductType,
   ProductDetailedType,
-  ProductShippingDetailsType
+  ProductShippingDetailsType,
+  ReviewStatistics
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { IProductVariant } from "@/models/Product";
@@ -21,6 +22,7 @@ interface Props {
   variants: IProductVariant[];
   shippingDetails: ProductShippingDetailsType;
   sizeId?: string;
+  statistics: ReviewStatistics;
   children: ReactNode;
 }
 
@@ -29,6 +31,7 @@ function ProductPageContainer({
   variants,
   shippingDetails,
   sizeId,
+  statistics,
   children
 }: Props) {
   const [variant] = productData.variants; // active variant
@@ -92,6 +95,7 @@ function ProductPageContainer({
             productData={productData}
             variants={variants}
             sizeId={sizeId}
+            statistics={statistics}
             handleChange={handleChange}
             setVariantImages={setVariantImages}
             setActiveImage={setActiveImage}

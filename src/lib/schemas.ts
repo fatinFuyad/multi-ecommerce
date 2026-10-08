@@ -369,6 +369,16 @@ export const ShippingRateFormSchema = z.object({
   countryId: z.string()
 });
 
+// Add review schema
+export const AddReviewSchema = z.object({
+  variantName: z.string(),
+  rating: z.number({
+    error: "Please add a rating."
+  }),
+  size: z.string(),
+  review: z.string()
+});
+
 export type UserFormSchemaType = z.infer<typeof UserFormSchema>;
 export type CategoryFormSchemaType = z.infer<typeof CategoryFormSchema>;
 export type SubcategoryFormSchemaType = z.infer<typeof SubcategoryFormSchema>;
@@ -377,3 +387,4 @@ export type ProductFormSchemaType = z.infer<typeof ProductFormSchema>;
 export type OfferTagFormSchemaType = z.infer<typeof OfferTagFormSchema>;
 export type StoreShippingFormSchemaType = z.infer<typeof StoreShippingFormSchema>;
 export type ShippingRateFormSchemaType = z.infer<typeof ShippingRateFormSchema>;
+export type AddReviewSchemaType = z.infer<typeof AddReviewSchema>;

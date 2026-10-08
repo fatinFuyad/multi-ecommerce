@@ -4,10 +4,10 @@ import ProductDescription from "@/components/store/product-page/product-descript
 import ProductQuestions from "@/components/store/product-page/product-questions";
 import ProductSpecs from "@/components/store/product-page/product-specs";
 import RelatedProducts from "@/components/store/product-page/related-product";
+import ProductReviews from "@/components/store/product-page/reviews/product-reviews";
 import StoreProducts from "@/components/store/product-page/store-products";
 import { Separator } from "@/components/ui/separator";
-import { ProductDetailedType, ProductShippingDetailsType } from "@/lib/types";
-import { IProductVariant } from "@/models/Product";
+import { ProductPageData } from "@/lib/types";
 import { getProductPageData, getProducts } from "@/services/product";
 import { notFound, redirect } from "next/navigation";
 
@@ -18,12 +18,6 @@ interface PageProps {
   };
 }
 
-interface ProductPageData {
-  product: ProductDetailedType;
-  variants: IProductVariant[];
-  shippingDetails: ProductShippingDetailsType;
-}
-
 export default async function ProductVariantPage({
   params: { productSlug, variantSlug },
   searchParams: { size: sizeId }
@@ -32,8 +26,13 @@ export default async function ProductVariantPage({
   // Fetch product data based on the product slug and variant slug
   // product contains the active variant in variants property
   // the variants are all of the variants of a product
-  const { product, shippingDetails, variants }: ProductPageData =
-    await getProductPageData(productSlug, variantSlug);
+  const {
+    product,
+    shippingDetails,
+    variants,
+    reviewStatistics,
+    reviews
+  }: ProductPageData = await getProductPageData(productSlug, variantSlug);
 
   // If no product data is found, show the 404 Not Found page
   if (!product || !variants.length) {
@@ -78,6 +77,7 @@ export default async function ProductVariantPage({
           productData={product}
           variants={variants}
           shippingDetails={shippingDetails}
+          statistics={reviewStatistics}
           sizeId={sizeId}
         >
           {relatedProducts.length && (
@@ -88,7 +88,16 @@ export default async function ProductVariantPage({
             </>
           )}
           <Separator className="mt-6" />
-          {/* PRODUCT REVIEWS */}
+          {/* Product reviews */}
+          <ProductReviews
+            productId={product._id}
+            ratingAvg={product.rating}
+            statistics={reviewStatistics}
+            reviews={reviews} // user reviews
+          />
+          {/* <div className="mt-3">
+            <AddReviewForm productId={productId} variantsInfo={variantInfo} />
+          </div> */}
           <>
             <Separator className="mt-6" />
             {/* Product description */}

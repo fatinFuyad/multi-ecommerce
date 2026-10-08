@@ -9,6 +9,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * @description Omits the provided keys from the passed object and return new object;
+ */
+export function omit<T extends object, K extends keyof T>(
+  obj: T,
+  keys: readonly K[]
+): Omit<T, K> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !keys.includes(key as K))
+  ) as Omit<T, K>;
+}
+
 // Helper function to grid grid classnames dependng on length
 export const getGridClassName = (length: number) => {
   switch (length) {

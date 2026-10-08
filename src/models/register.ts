@@ -5,6 +5,7 @@ import "./User";
 import "./Subcategory";
 import "./OfferTag";
 import "./Shipping-Rate";
+import "./Review";
 
 ////////////
 // Prevent schema wasn't registered error for Model

@@ -6,10 +6,14 @@ import {
   ProductCardType,
   ProductDetailedDocType,
   ProductPageData,
+  ReviewStatistics,
+  ReviewWithUser,
   UserCountry
 } from "@/lib/types";
+import { omit } from "@/lib/utils";
 
 import Product, { ProductVariant, ProductVariantSchema } from "@/models/Product";
+import Review from "@/models/Review";
 
 import {
   Country,
@@ -20,7 +24,7 @@ import {
 } from "@/models/Shipping-Rate";
 import { StoreSchema } from "@/models/Store";
 import { getCookie } from "cookies-next";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 import { cookies } from "next/headers";
 
 // Top level await for once per module evaluation/runtime instance
@@ -231,12 +235,16 @@ export async function getProductPageData(productSlug: string, variantSlug: strin
     freeShipping
   );
 
+  // Reviews Statistics
+  const reviewStatistics = await getReviewStatistics(product._id.toString());
+  const reviews = await getReviews(product._id.toString());
+
   /**
        product: ProductPageType, // includes variants (active), variantInfo (all)
        shippingDetails: ProductShippingDetailsType,
        storeFollwersCount: number,
        isUserFollowingStore: boolean,
-       ratingStatistics: RatingStatisticsType
+       reviewStatistics: reviewStatisticsType
      */
 
   return JSON.parse(
@@ -245,7 +253,150 @@ export async function getProductPageData(productSlug: string, variantSlug: strin
       variants,
       userCountry,
       shippingDetails,
-      freeShipping
+      freeShipping,
+      reviews,
+      reviewStatistics
     })
   ) as ProductPageData;
 }
+
+export const getReviewStatistics = async (
+  productId: string
+): Promise<ReviewStatistics> => {
+  console.log({ productId });
+  const ratingStats = await Review.aggregate([
+    { $match: { product: new Types.ObjectId(productId) } },
+    {
+      $group: {
+        _id: "$rating",
+        reviewCount: {
+          $sum: 1
+        },
+        reviewWithImageCount: {
+          $sum: {
+            $cond: [{ $gt: [{ $size: "$images" }, 0] }, 1, 0]
+          }
+        },
+        imageCount: {
+          $sum: {
+            $size: "$images"
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        reviewCount: 1,
+        reviewWithImageCount: 1,
+        imageCount: 1,
+        percentage: {
+          $multiply: [{ $divide: ["$reviewWithImageCount", "$reviewCount"] }, 100]
+        },
+        imageReviewPercentage: {
+          $multiply: [
+            {
+              $divide: ["$reviewWithImageCount", "$reviewCount"]
+            },
+            100
+          ]
+        }
+      }
+    },
+    {
+      $sort: {
+        _id: -1
+      }
+    }
+  ]);
+
+  // console.log("Rating Stats--> ", ratingStats);
+  const totalReviews = ratingStats.reduce((sum, stat) => sum + stat.reviewCount, 0);
+  const totalReviewsWithImages = ratingStats.reduce(
+    (sum, stat) => sum + stat.reviewWithImageCount,
+    0
+  );
+  const reviewWithImagesPercentage =
+    totalReviews > 0 ? (totalReviewsWithImages / totalReviews) * 100 : 0;
+  const ratingStatistics = ratingStats.map((stat) => ({
+    rating: stat._id, // rating number
+    numReviews: stat.reviewCount,
+    percentage: totalReviews > 0 ? (stat.reviewCount / totalReviews) * 100 : 0
+  }));
+
+  console.log({
+    ratingStatistics,
+    totalReviewsWithImages,
+    reviewWithImagesPercentage,
+    totalReviews
+  });
+
+  return {
+    ratingStatistics,
+    totalReviewsWithImages,
+    reviewWithImagesPercentage,
+    totalReviews
+  };
+};
+
+export const getReviews = async (productId: string) => {
+  const query = new QueryBuilder(
+    Review.find({ product: productId }).populate({
+      path: "user",
+      select: "_id name image"
+    }),
+    { limit: "4" }
+  )
+    .paginate()
+    .build();
+  const reviews = await query;
+
+  return JSON.parse(JSON.stringify(reviews)) as ProductPageData["reviews"];
+};
+
+/**
+ * @description Retrieves filtered and sorted reviews for a product from the database, based on rating, presence of images, and sorting options.
+ * @access Public
+ * @param productId The ID of the product for which reviews are being fetched.
+ * @param queryOptions An object contains filter, sort, page, limit, fields.
+ * - filter: An object containing the filter options such as rating and whether reviews include images.
+ * - sort: An object defining the sort order, such as latest, oldest, or highest rating.
+ * - page: The page number for pagination (1-based index).
+ * - limit: The number of reviews to retrieve per page.
+ * - fields: The fileds to incldue in a review.
+ * @returns IReview[] A paginated list of reviews that match the filter and sort criteria.
+ */
+
+type QueryOptions = {
+  filter: { rating?: number; hasImages?: boolean };
+  sort?: string; // '-createdAt', '-rating'
+  page?: string; // '2';
+  limit?: string; // '10'
+  fields?: string; // exp: 'name,price,color'
+};
+
+export const getProductFilteredReviews = async (
+  productId: string,
+  queryOptions: QueryOptions
+) => {
+  const reviewFilters: any = {};
+  if (queryOptions.filter.hasImages) reviewFilters["images.0"] = { $exists: true };
+  if (queryOptions.filter.rating) reviewFilters["rating"] = queryOptions.filter.rating;
+  console.log("QueryOptions-->", queryOptions);
+
+  const query = new QueryBuilder(
+    Review.find({ product: productId, ...reviewFilters }),
+    omit(queryOptions, ["filter"])
+  )
+    // .filter()
+    .sort()
+    .paginate()
+    .populateDoc({
+      populate: "user",
+      fields: "user=name,image",
+      lean: true
+    });
+
+  const reviews = await query.build();
+  return JSON.parse(JSON.stringify(reviews)) as ReviewWithUser[];
+};

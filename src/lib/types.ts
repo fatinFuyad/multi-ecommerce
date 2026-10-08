@@ -5,6 +5,7 @@ import {
   ProductSchema,
   ProductVariantSchema
 } from "@/models/Product";
+import { IReview } from "@/models/Review";
 import {
   FreeShippingWithCountries,
   ICountry,
@@ -93,6 +94,8 @@ export type ProductPageData = {
   userCountry: UserCountry;
   shippingDetails: ProductShippingDetailsType;
   freeShipping?: FreeShippingWithCountries | null;
+  reviews: ReviewWithUser[];
+  reviewStatistics: ReviewStatistics;
 };
 
 export type CartProductType = {
@@ -169,6 +172,31 @@ export interface CountrySelect {
   code: string;
 }
 
+export type ReviewStatistics = {
+  ratingStatistics: {
+    rating: number;
+    numReviews: number;
+    percentage: number;
+  }[];
+  totalReviewsWithImages: number;
+  reviewWithImagesPercentage: number;
+  totalReviews: number;
+};
+export type ReviewWithUser = MergeType<
+  IReview,
+  { user: Pick<IUser, "_id" | "name" | "image"> }
+>;
+
+export type ReviewsFiltersType = {
+  rating?: number;
+  hasImages?: boolean;
+};
+
+export type ReviewsOrderType = {
+  orderBy: "latest" | "oldest" | "highest";
+};
+
+////////////////////////
 // CUSTOM TYPE UTILITY
 
 export type MergeType<T, U> = Omit<T, keyof U> & U;

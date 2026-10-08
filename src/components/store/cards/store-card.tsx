@@ -31,7 +31,7 @@ const StoreCard: FC<Props> = ({ store }) => {
     checkUserFollowingStore(store._id, session.data.user._id).then((followRes) => {
       setFollowing(followRes._id);
     });
-  }, [session]);
+  }, [session, store._id]);
 
   const handleStoreFollow = async () => {
     if (session.status !== "loading" && session.status === "unauthenticated")

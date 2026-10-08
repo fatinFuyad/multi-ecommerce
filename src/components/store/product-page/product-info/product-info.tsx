@@ -1,7 +1,7 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-import { CartProductType, ProductDetailedType } from "@/lib/types";
+import { CartProductType, ProductDetailedType, ReviewStatistics } from "@/lib/types";
 import { IProductVariant } from "@/models/Product";
 import { Dispatch, SetStateAction } from "react";
 
@@ -20,6 +20,7 @@ import ProductVariantSelector from "./variant-selector";
 interface PropsType {
   productData: ProductDetailedType;
   variants: IProductVariant[];
+  statistics: ReviewStatistics;
   quantity?: number;
   sizeId: string | undefined;
   handleChange: (property: keyof CartProductType, value: any) => void;
@@ -31,6 +32,7 @@ function ProductInfo({
   productData,
   variants,
   quantity,
+  statistics,
   sizeId,
   handleChange,
   setVariantImages,
@@ -41,8 +43,7 @@ function ProductInfo({
   const [variant] = productData.variants; // one [variant] found with the variant slug;
   const { sku, colors, sizes, isSale, saleEndDate, variantName } = variant;
 
-  const { totalReviews } = { totalReviews: 101 };
-
+  const { totalReviews } = statistics;
   // Function to copy the SKU to the clipboard
   const copySkuToClipboard = async () => {
     try {
