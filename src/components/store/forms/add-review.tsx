@@ -1,16 +1,17 @@
 "use client";
 
 import ColorWheel from "@/components/shared/color-wheel";
+import toast from "react-hot-toast";
+import ReactStars from "react-rating-stars-component";
+import Select from "../ui/select";
+
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { AddReviewSchema } from "@/lib/schemas";
+import { AddReviewSchema, AddReviewSchemaType } from "@/lib/schemas";
 import { IProductVariant } from "@/models/Product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import ReactStars from "react-rating-stars-component";
 import { z } from "zod";
-import Select from "../ui/select";
 import { Button } from "../ui/button";
 
 export default function AddReviewForm({
@@ -27,7 +28,7 @@ export default function AddReviewForm({
   const [sizes, setSizes] = useState<any>([]);
 
   // Form hook for managing form state and validation
-  const form = useForm<z.infer<typeof AddReviewSchema>>({
+  const form = useForm<AddReviewSchemaType>({
     mode: "onChange", // Form validation mode
     resolver: zodResolver(AddReviewSchema), // Resolver for form validation
     defaultValues: {
@@ -40,7 +41,7 @@ export default function AddReviewForm({
   });
 
   // Loading status based on form submission
-  const isLoading = form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting;
 
   // Get product details that are needed to add review info
 

@@ -1,7 +1,8 @@
-import { VariantColor } from "@/lib/types";
-
 type PropsType = {
-  colors: VariantColor[];
+  colors: {
+    _id?: string;
+    color: string;
+  }[];
   size: number; // VariantSize of the circle in pixels
 };
 

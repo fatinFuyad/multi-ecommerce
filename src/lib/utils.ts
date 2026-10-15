@@ -127,3 +127,35 @@ export const getShippingDatesRange = (
     maxDate: maxDate.toDateString()
   };
 };
+
+type CensorReturn = {
+  firstName: string;
+  lastName: string;
+  fullName: string;
+};
+
+/**
+ * @description Function to censor names
+ */
+export function censorName(firstName: string, lastName: string): CensorReturn {
+  const censor = (name: string): string => {
+    if (name.length <= 2) return name; // Return short names as is
+
+    // Get the first and last characters
+    const firstChar = name[0];
+    const lastChar = name[name.length - 1];
+
+    // Calculate how many characters to censor
+    const middleLength = name.length - 2; // Length of middle characters to censor
+
+    // Create censored version
+    return `${firstChar}${"*".repeat(middleLength)}${lastChar}`;
+  };
+
+  const censoredFullName = `${firstName[0]}***${lastName[lastName.length - 1]}`;
+  return {
+    firstName: censor(firstName),
+    lastName: censor(lastName),
+    fullName: censoredFullName
+  };
+}

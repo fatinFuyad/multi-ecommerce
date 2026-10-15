@@ -39,7 +39,7 @@ function ProductInfo({
   setActiveImage
 }: PropsType) {
   // Destructure necessary properties from the productData object
-  const { name, store, rating } = productData;
+  const { name, store, averageRating } = productData;
   const [variant] = productData.variants; // one [variant] found with the variant slug;
   const { sku, colors, sizes, isSale, saleEndDate, variantName } = variant;
 
@@ -100,7 +100,7 @@ function ProductInfo({
             size={24}
             color="#F5F5F5"
             activeColor="#FFD804"
-            value={rating}
+            value={averageRating}
             isHalf={true}
             edit={false}
           />

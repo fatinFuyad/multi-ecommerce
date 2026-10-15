@@ -1,4 +1,4 @@
-import { ReviewsFiltersType, ReviewsOrderType, ReviewStatistics } from "@/lib/types";
+import { ReviewsFiltersType, ReviewsSortType, ReviewStatistics } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Dispatch, FC, SetStateAction } from "react";
 
@@ -6,7 +6,7 @@ interface Props {
   filters: ReviewsFiltersType;
   stats: ReviewStatistics;
   setFilters: Dispatch<SetStateAction<ReviewsFiltersType>>;
-  setSort: Dispatch<SetStateAction<ReviewsOrderType>>;
+  setSort: Dispatch<SetStateAction<ReviewsSortType | null>>;
 }
 
 const ReviewsFilters: FC<Props> = ({ filters, setFilters, setSort, stats }) => {
@@ -18,15 +18,15 @@ const ReviewsFilters: FC<Props> = ({ filters, setFilters, setSort, stats }) => {
         {/* All */}
         <div
           className={cn(
-            "bg-secondary text-main-primary border border-transparent rounded-full cursor-pointer py-1.5 px-4",
+            "bg-secondary text-primary border border-transparent rounded-full cursor-pointer py-1.5 px-4",
             {
-              "bg-primary-light text-primary-mid border-primary-mid":
+              "bg-primary-light text-card-foreground border-primary-mid":
                 !rating && !hasImages
             }
           )}
           onClick={() => {
             setFilters({ rating: undefined, hasImages: undefined });
-            setSort({ orderBy: "latest" });
+            setSort("latest");
           }}
         >
           All ({totalReviews})
@@ -34,9 +34,9 @@ const ReviewsFilters: FC<Props> = ({ filters, setFilters, setSort, stats }) => {
         {/* Include Images */}
         <div
           className={cn(
-            "bg-secondary text-main-primary border border-transparent rounded-full cursor-pointer py-1.5 px-4",
+            "bg-secondary text-primary border border-transparent rounded-full cursor-pointer py-1.5 px-4",
             {
-              "bg-primary-light text-primary-mid border-primary-mid": hasImages
+              "bg-primary-light text-card-foreground border-primary-mid": hasImages
             }
           )}
           onClick={() => setFilters({ ...filters, hasImages: true })}
@@ -48,9 +48,9 @@ const ReviewsFilters: FC<Props> = ({ filters, setFilters, setSort, stats }) => {
           <div
             key={r.rating}
             className={cn(
-              "bg-secondary text-main-primary border border-transparent rounded-full cursor-pointer py-1.5 px-4",
+              "bg-secondary text-primary border border-transparent rounded-full cursor-pointer py-1.5 px-4",
               {
-                "bg-primary-light text-primary-mid border-primary-mid":
+                "bg-primary-light text-card-foreground border-primary-mid":
                   r.rating === rating
               }
             )}

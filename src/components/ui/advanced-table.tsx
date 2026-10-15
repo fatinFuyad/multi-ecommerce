@@ -29,7 +29,7 @@ import Link from "next/link";
 import { ReactNode, useState } from "react";
 import CustomModal from "../dashboard/shared/custom-modal";
 import { DataTableViewOptions } from "./column-toggle";
-import { DataTablePagination } from "./pagination";
+import { DataTablePagination } from "./table-pagination";
 
 interface TableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -96,7 +96,7 @@ export function AdvancedTable<TData, TValue>({
             className="max-w-sm"
           />
         </div>
-        
+
         {/* TOGGLE COLUMN VIEW */}
         <DataTableViewOptions table={table} />
 
@@ -105,12 +105,12 @@ export function AdvancedTable<TData, TValue>({
           {modalChildren && (
             <Button
               className="flex- gap-2"
-              onClick={() => { 
-                  setOpen(
-                    <CustomModal heading={heading} subheading={subheading}>
-                      {modalChildren}
-                    </CustomModal>
-                  );
+              onClick={() => {
+                setOpen(
+                  <CustomModal heading={heading} subheading={subheading}>
+                    {modalChildren}
+                  </CustomModal>
+                );
               }}
             >
               {actionButtonContent}
@@ -168,7 +168,7 @@ export function AdvancedTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      
+
       {/* PAGINATION FOR THE TABLE */}
       <DataTablePagination table={table} />
     </div>

@@ -80,7 +80,7 @@ export type ProductDetailedDocType = Omit<
 
 export type ProductCardType = Pick<
   IProduct,
-  "_id" | "name" | "slug" | "rating" | "sales"
+  "_id" | "name" | "slug" | "sales" | "averageRating"
 > & {
   variants: Pick<
     IProductVariant,
@@ -192,9 +192,7 @@ export type ReviewsFiltersType = {
   hasImages?: boolean;
 };
 
-export type ReviewsOrderType = {
-  orderBy: "latest" | "oldest" | "highest";
-};
+export type ReviewsSortType = "latest" | "oldest" | "highest" | "index";
 
 ////////////////////////
 // CUSTOM TYPE UTILITY

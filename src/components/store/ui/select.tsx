@@ -55,7 +55,8 @@ const Select: React.FC<Props> = ({
               className={cn(
                 "w-full peer z-[21] pr-6 pl-14 py-4 rounded-xl outline-none duration-200 ",
                 {
-                  "ring-2 ring-[transparent] focus:ring-[#11BE86]": !activeVariant?.colors
+                  "ring-2 ring-[transparent] focus:ring-primary-mid":
+                    !activeVariant?.colors
                 }
               )}
               color="white"
@@ -68,13 +69,15 @@ const Select: React.FC<Props> = ({
           </div>
         </div>
         {isOpen && (
-          <div className="absolute top-16 w-full z-[500] left-0 rounded-xl border border-white-222 p-4 bg-white shadow-lg">
-            <p className="font-semibold text-xs text-[#5D5D5F]">{subPlaceholder}</p>
+          <div className="absolute top-16 w-full z-[500] left-0 rounded-xl border border-white-222 p-4 bg-background shadow-lg">
+            <p className="font-semibold text-xs text-muted-foreground">
+              {subPlaceholder}
+            </p>
             <ul className="flex gap-2 flex-col mt-2">
               {options.map((option, index) => (
                 <li
                   key={index}
-                  className="flex items-center gap-x-2 px-2 cursor-pointer text-sm hover:bg-green-100 py-2 rounded-lg"
+                  className="flex items-center gap-x-2 px-2 cursor-pointer text-sm hover:bg-primary-shade py-2 rounded-lg"
                   onMouseDown={() => handleOptionClick(option.value)} // Handle option click without triggering blur
                 >
                   {option.image && (

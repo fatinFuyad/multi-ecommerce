@@ -12,10 +12,10 @@ import { ReactNode, useState } from "react";
 import SocialShare from "../shared/social-share";
 import ProductInfo from "./product-info/product-info";
 import ProductSwiper from "./product-swiper";
+import QuantitySelector from "./quantity-selector";
 import ReturnPrivacySecurityCard from "./shipping/returns-security-privacy-card";
 import ShipTo from "./shipping/ship-to";
 import ShippingDetails from "./shipping/shipping-details";
-import QuantitySelector from "./quantity-selector";
 
 interface Props {
   productData: ProductDetailedType; // ProductPageDataType;

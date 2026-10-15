@@ -91,12 +91,13 @@ export default async function ProductVariantPage({
           {/* Product reviews */}
           <ProductReviews
             productId={product._id}
-            ratingAvg={product.rating}
+            averageRating={product.averageRating}
             statistics={reviewStatistics}
             reviews={reviews} // user reviews
+            variants={variants}
           />
           {/* <div className="mt-3">
-            <AddReviewForm productId={productId} variantsInfo={variantInfo} />
+            <AddReviewForm productId={product._id} variants={variants} />
           </div> */}
           <>
             <Separator className="mt-6" />

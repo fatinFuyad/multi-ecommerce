@@ -9,7 +9,7 @@ type PaginationMeta = {
   skip: number;
 };
 
-type MetaData = PaginationMeta & {
+export type PageMetaData = PaginationMeta & {
   totalCount: number;
   totalPages: number;
   hasNextPage: boolean;
@@ -79,7 +79,7 @@ export class QueryBuilder<T extends Document> {
 
     const parsedQuery: FilterQuery<T> = JSON.parse(queryString);
     this.query = this.query.find(parsedQuery);
-
+    this.filterQuery = parsedQuery; // add filter query for pagination
     return this;
   }
 
@@ -94,9 +94,10 @@ export class QueryBuilder<T extends Document> {
         : this.queryParams.sort.split(",").join(" ");
 
       this.query = this.query.sort(sortBy);
-    } else {
-      this.query = this.query.sort("-createdAt");
     }
+    //  else {
+    //   this.query = this.query.sort("-createdAt");
+    // }
 
     return this;
   }
@@ -221,29 +222,32 @@ export class QueryBuilder<T extends Document> {
     return this.query;
   }
 
-  async exec(model: Model<T>) {
-    // const collName = model.collection.collectionName;
+  async exec<TData>(model: Model<T>, filterQuery?: FilterQuery<T>) {
+    const collName = model.collection.collectionName;
     const [data, totalCount] = await Promise.all([
       this.query.exec(),
-      model.countDocuments(this.filterQuery)
+      model.countDocuments(filterQuery ? filterQuery : this.filterQuery)
+      // model.countDocuments(this.query)
     ]);
     const totalPages = Math.ceil(totalCount / this.pagination.limit);
     const hasNextPage =
       this.pagination.page < Math.ceil(totalCount / this.pagination.limit);
     const hasPrevPage = this.pagination.page > 1;
 
-    return {
-      metadata: {
-        page: this.pagination.page,
-        limit: this.pagination.limit,
-        skip: this.pagination.skip,
-        totalCount,
-        totalPages,
-        hasNextPage,
-        hasPrevPage
-      } satisfies MetaData,
-      // [`${collName}`]: data
-      data
+    // const dataX = { [`${collName}`]: data } as TData;
+    const pageMetadata = {
+      page: this.pagination.page,
+      limit: this.pagination.limit,
+      skip: this.pagination.skip,
+      totalCount,
+      totalPages,
+      hasNextPage,
+      hasPrevPage
+    } satisfies PageMetaData;
+
+    // return {pageMetadata,...dataX};
+    return { [`${collName}`]: data, pageMetadata } as TData & {
+      pageMetadata: PageMetaData;
     };
   }
 }

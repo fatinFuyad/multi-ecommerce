@@ -371,12 +371,21 @@ export const ShippingRateFormSchema = z.object({
 
 // Add review schema
 export const AddReviewSchema = z.object({
-  variantName: z.string(),
-  rating: z.number({
-    error: "Please add a rating."
-  }),
-  size: z.string(),
-  review: z.string()
+  _id: z.string().optional(),
+  variantName: z.string().min(1, "Variant is required."),
+  rating: z.number().min(1, "Please rate this product."),
+  size: z.string().min(1, "Please select a size."), // Ensures size cannot be empty
+  review: z
+    .string()
+    .min(10, "Your feedback matters! Please write a review of minimum 10 characters."), // Ensures review cannot be empty
+  quantity: z.string().default("1").nonoptional(),
+  images: z
+    .object({ url: z.string() })
+    .array()
+    .max(3, "You can upload up to 3 images for the review."),
+  color: z.string({
+    error: (issue) => (!issue.input ? "Color is required" : "Color must be string")
+  })
 });
 
 export type UserFormSchemaType = z.infer<typeof UserFormSchema>;

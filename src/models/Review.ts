@@ -1,4 +1,9 @@
-import { InferSchemaWithId, InterfaceFromSchema, PartialSchema } from "@/lib/types";
+import {
+  InferSchemaWithId,
+  InterfaceFromSchema,
+  MergeType,
+  PartialSchema
+} from "@/lib/types";
 import { model, models, Schema } from "mongoose";
 
 // REVIEW IMAGE SCHEMA DEFINITION
@@ -14,7 +19,7 @@ export type IReviewImage = InterfaceFromSchema<
 // REVIEW SCHEMA DEFINITION
 const reviewSchema = new Schema(
   {
-    variant: { type: String, required: true },
+    variantName: { type: String, required: true },
     review: { type: String, required: true },
     rating: { type: Number, required: true },
     color: { type: String, required: true },
@@ -35,9 +40,14 @@ reviewSchema.index({ product: "asc" });
 // Types
 export type ReviewSchema = InferSchemaWithId<typeof reviewSchema>;
 export type IReview = InterfaceFromSchema<ReviewSchema>;
-export type ReviewRawSchema = PartialSchema<
-  ReviewSchema,
-  "_id" | "createdAt" | "updatedAt" | "likes"
+export type ReviewRawSchema = MergeType<
+  PartialSchema<ReviewSchema, "_id" | "createdAt" | "updatedAt" | "likes">,
+  {
+    images: {
+      url: string;
+      alt?: string;
+    }[];
+  }
 >;
 
 // MODEL

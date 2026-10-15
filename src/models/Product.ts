@@ -57,13 +57,27 @@ const productSchema = new Schema(
     description: { type: String, required: true },
     slug: { type: String, required: true },
     brand: { type: String, required: true },
-    rating: { type: Number, default: 0, max: 5, min: 0 },
+    // rating: { type: Number, default: 0, max: 5, min: 0 },
+    ratingSum: {
+      type: Number,
+      default: 0
+    },
+    ratingCount: {
+      type: Number,
+      default: 0
+    },
+    averageRating: {
+      type: Number,
+      default: 0,
+      max: 5,
+      min: 0
+    },
     sales: { type: Number, default: 0 },
     shippingFeeMethod: {
       type: String,
       enum: {
         values: ["ITEM", "WEIGHT", "FIXED"],
-        essage: "{VALUE} is not acceptable as shipping fee method"
+        message: "{VALUE} is not acceptable as shipping fee method"
       },
       default: "ITEM"
     },
@@ -95,9 +109,9 @@ export type ProductDoc = HydratedDocument<ProductSchema>;
 export type IProduct = InterfaceFromSchema<ProductSchema>;
 
 // USE FOR CREATING NEW DOCUMENTS
+// prettier-ignore
 export type ProductRawSchema = PartialSchema<
-  ProductSchema,
-  "_id" | "createdAt" | "updatedAt" | "sales" | "slug" | "rating" | "shippingFeeMethod"
+  ProductSchema, "_id"|"createdAt"|"updatedAt"|"sales"|"slug"|"ratingSum"|"ratingCount"|"averageRating"|"shippingFeeMethod"
 >;
 
 // PRODUCT VARIANT SCHEMA DEFINITION

@@ -2,12 +2,13 @@
 
 import ReactStars from "react-rating-stars-component";
 
-export default function RatingCard({ ratingAvg }: { ratingAvg: number }) {
-  const fixed_rating = Number(ratingAvg.toFixed(2));
+export default function RatingCard({ averageRating }: { averageRating: number }) {
+  const fixed_rating = Number(averageRating.toFixed(2));
+
   return (
     <div className="h-44 flex-1">
       <div className="p-6 bg-secondary flex flex-col h-full justify-center overflow-hidden rounded-lg">
-        <div className="text-6xl font-bold">{ratingAvg}</div>
+        <p className="text-6xl font-bold text-yellow-500">{fixed_rating}</p>
         <div className="py-1.5">
           <ReactStars
             count={5}
@@ -18,7 +19,7 @@ export default function RatingCard({ ratingAvg }: { ratingAvg: number }) {
             edit={false}
           />
         </div>
-        <div className="text-[#03c97a] leading-5 mt-2">All from verified purchases</div>
+        <div className="text-primary leading-5 mt-2">All from verified purchases</div>
       </div>
     </div>
   );

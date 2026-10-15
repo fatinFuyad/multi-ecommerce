@@ -174,7 +174,9 @@ export const getShippingDetails = async (
  * @description Get products with necessary query and search options - filter, sort, limit fields, paginate
  * @returns productWithVariants[]
  */
-export async function getProducts(queryItem: string | Record<string, string | string[]>) {
+export async function getProducts(
+  queryItem: string | Record<string, string | string[]> = {}
+) {
   const productQuery = Product.find().select("_id slug name rating sales").populate({
     path: "variants",
     select: "_id slug variantName images sizes variantImage"
@@ -239,14 +241,6 @@ export async function getProductPageData(productSlug: string, variantSlug: strin
   const reviewStatistics = await getReviewStatistics(product._id.toString());
   const reviews = await getReviews(product._id.toString());
 
-  /**
-       product: ProductPageType, // includes variants (active), variantInfo (all)
-       shippingDetails: ProductShippingDetailsType,
-       storeFollwersCount: number,
-       isUserFollowingStore: boolean,
-       reviewStatistics: reviewStatisticsType
-     */
-
   return JSON.parse(
     JSON.stringify({
       product,
@@ -268,7 +262,7 @@ export const getReviewStatistics = async (
     { $match: { product: new Types.ObjectId(productId) } },
     {
       $group: {
-        _id: "$rating",
+        _id: { $floor: "$rating" },
         reviewCount: {
           $sum: 1
         },
@@ -354,6 +348,14 @@ export const getReviews = async (productId: string) => {
   return JSON.parse(JSON.stringify(reviews)) as ProductPageData["reviews"];
 };
 
+type QueryOptions = {
+  filter: { rating?: number; hasImages?: boolean };
+  sort?: string; // '-createdAt', '-rating'
+  page?: string; // '2';
+  limit?: string; // '10'
+  fields?: string; // exp: 'name,price,color'
+};
+
 /**
  * @description Retrieves filtered and sorted reviews for a product from the database, based on rating, presence of images, and sorting options.
  * @access Public
@@ -366,37 +368,45 @@ export const getReviews = async (productId: string) => {
  * - fields: The fileds to incldue in a review.
  * @returns IReview[] A paginated list of reviews that match the filter and sort criteria.
  */
-
-type QueryOptions = {
-  filter: { rating?: number; hasImages?: boolean };
-  sort?: string; // '-createdAt', '-rating'
-  page?: string; // '2';
-  limit?: string; // '10'
-  fields?: string; // exp: 'name,price,color'
-};
-
 export const getProductFilteredReviews = async (
   productId: string,
   queryOptions: QueryOptions
 ) => {
   const reviewFilters: any = {};
   if (queryOptions.filter.hasImages) reviewFilters["images.0"] = { $exists: true };
-  if (queryOptions.filter.rating) reviewFilters["rating"] = queryOptions.filter.rating;
-  console.log("QueryOptions-->", queryOptions);
+  if (queryOptions.filter.rating) reviewFilters.rating = queryOptions.filter.rating;
+  // reviewFilters.rating = {
+  //   $in: [queryOptions.filter.rating, queryOptions.filter.rating + 0.5]
+  // };
+
+  console.log("QueryOptions-->", queryOptions, reviewFilters);
 
   const query = new QueryBuilder(
     Review.find({ product: productId, ...reviewFilters }),
     omit(queryOptions, ["filter"])
   )
-    // .filter()
-    .sort()
-    .paginate()
     .populateDoc({
       populate: "user",
       fields: "user=name,image",
       lean: true
-    });
+    })
+    // .filter()
+    .sort()
+    .paginate();
+  const totalCount = await Review.countDocuments(reviewFilters);
+  const totalPages = Math.ceil(totalCount / 10);
 
-  const reviews = await query.build();
-  return JSON.parse(JSON.stringify(reviews)) as ReviewWithUser[];
+  // const dataX = { [`${collName}`]: data } as TData;
+  const pageMetadata = {
+    totalCount,
+    totalPages
+  };
+  console.log("Pagination--> ", pageMetadata);
+
+  // const reviews = await query.build();
+  const reviewsData = await query.exec<{ reviews: ReviewWithUser[] }>(
+    Review,
+    reviewFilters
+  );
+  return JSON.parse(JSON.stringify(reviewsData)) as typeof reviewsData;
 };
