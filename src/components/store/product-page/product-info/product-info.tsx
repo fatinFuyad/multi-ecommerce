@@ -31,7 +31,6 @@ interface PropsType {
 function ProductInfo({
   productData,
   variants,
-  quantity,
   statistics,
   sizeId,
   handleChange,

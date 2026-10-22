@@ -1,5 +1,6 @@
 import ProductDetails from "@/components/dashboard/forms/product-details";
 import { IProduct } from "@/models/Product";
+import { Country, ICountry } from "@/models/Shipping-Rate";
 import { getCategories } from "@/queries/category";
 import { getOfferTags } from "@/queries/offer-tag";
 import { getProductById } from "@/queries/product";
@@ -10,8 +11,12 @@ async function NewPrductVariantPage({
 }: {
   params: { storeUrl: string; productId: Types.ObjectId };
 }) {
-  const { categories } = await getCategories();
-  const { offerTags } = await getOfferTags();
+  const [categoriesRes, offerTagsRes, countriesRes] = await Promise.all([
+    getCategories(),
+    getOfferTags(),
+    Country.find().sort({ name: "asc" }).lean()
+  ]);
+  const countries: ICountry[] = JSON.parse(JSON.stringify(countriesRes));
 
   const fields = [
     "name",
@@ -33,9 +38,10 @@ async function NewPrductVariantPage({
   return (
     <ProductDetails
       data={res.product}
-      categories={categories}
-      offerTags={offerTags}
+      categories={categoriesRes.categories}
+      offerTags={offerTagsRes.offerTags}
       storeUrl={params.storeUrl}
+      countries={countries}
     />
   );
 }

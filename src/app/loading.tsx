@@ -1,5 +1,9 @@
 import FullPageLoader from "@/components/shared/fullpage-loader";
 
 export default function Loading() {
-  return <FullPageLoader />;
+  return (
+    <div className="w-full h-full mx-auto mt-60">
+      <FullPageLoader />
+    </div>
+  );
 }

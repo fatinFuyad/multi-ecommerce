@@ -2,11 +2,10 @@ import { restrictTo } from "@/lib/api-utils";
 import { dbConnect } from "@/lib/db-connect";
 import { QueryBuilder } from "@/lib/query-builder";
 import { ProductFormSchemaType } from "@/lib/schemas";
-import { ApiResponse, ProductWithVariant } from "@/lib/types";
-import { Model, Types } from "mongoose";
+import { ApiResponse, ProductDetailedType, ProductWithVariant } from "@/lib/types";
+import { Types } from "mongoose";
 
 import Product, {
-  ProductDoc,
   ProductRawSchema,
   ProductVariant,
   ProductVariantRawSchema
@@ -225,7 +224,7 @@ export async function GET(req: Request) {
       .limitFields()
       // .paginate()
       .handleQueryOptions(req.headers)
-      .exec(Product as Model<ProductDoc>);
+      .exec<{ products: ProductDetailedType }>(Product);
     // .build();
 
     // const products = await handleQueryOptions(req.headers, query);
@@ -233,8 +232,8 @@ export async function GET(req: Request) {
 
     return Response.json(
       {
-        products: productsData.data,
-        metadata: productsData.metadata,
+        products: productsData.products,
+        metadata: productsData.pageMetadata,
         success: true,
         message: "Get all products successfully",
         status: 200

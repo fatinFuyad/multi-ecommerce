@@ -82,6 +82,7 @@ const productSchema = new Schema(
       default: "ITEM"
     },
     freeShipping: { type: Schema.ObjectId, ref: "FreeShipping" },
+    freeShippingForAllCountries: { type: Boolean, default: false },
     store: { type: Schema.ObjectId, ref: "Store", required: true },
     offerTag: { type: Schema.ObjectId, ref: "OfferTag" },
     category: { type: Schema.ObjectId, ref: "Category", required: true },

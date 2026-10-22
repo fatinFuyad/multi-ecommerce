@@ -1,5 +1,9 @@
 import FullPageLoader from "@/components/shared/fullpage-loader";
 
 export default function Loading() {
-  return <FullPageLoader loadingText="Please wait, Admin" />;
+  return (
+    <div className="w-full h-full mx-auto mt-60">
+      <FullPageLoader loadingText="Please wait, Admin" />
+    </div>
+  );
 }

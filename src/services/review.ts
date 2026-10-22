@@ -1,7 +1,6 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { dbConnect } from "@/lib/db-connect";
 import { AddReviewSchemaType } from "@/lib/schemas";
 import { ReviewWithUser } from "@/lib/types";
 import Product from "@/models/Product";

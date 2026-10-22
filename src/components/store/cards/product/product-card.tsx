@@ -10,24 +10,19 @@ import ReactStars from "react-rating-stars-component";
 import ProductCardImageSwiper from "./swiper";
 import VariantSwitcher from "./variant-switcher";
 
-export default function ProductCard({
-  product
-}: {
-  product: ProductCardType;
-  // product: ProductWithFilteredVariants;
-}) {
-  const { name, rating, sales, variants, slug } = product;
+export default function ProductCard({ product }: { product: ProductCardType }) {
+  const { name, averageRating, sales, variants, slug } = product;
   const [variant, setVariant] = useState<ProductCardType["variants"][0]>(variants[0]);
+  if (!variant) return null;
+
   const { variantName, images } = variant;
+  console.log("Average Rating>>>", product.averageRating);
 
   return (
     <div>
       <div
         className={cn(
-          "group w-48 sm:w-[225px] relative transition-all duration-75 bg-muted ease-in-out p-4 rounded-xl border border-transparent hover:shadow-xl hover:border-primary-mid",
-          {
-            "": true
-          }
+          "group w-48 sm:w-[225px] relative transition-all duration-75 bg-muted ease-in-out p-4 rounded-xl border border-transparent hover:shadow-xl hover:border-primary-mid"
         )}
       >
         <div className="relative w-full h-full">
@@ -42,18 +37,18 @@ export default function ProductCard({
               {name} - {variantName}
             </div>
             {/* RATINGS & SALES */}
-            {product.rating > 0 && product.sales > 0 && (
+            {product.averageRating > 0 && product.sales > 0 && (
               <div className="flex items-center gap-x-1 h-5 mt-2">
                 <ReactStars
                   count={5}
                   size={24}
                   color="#F5F5F5"
                   activeColor="#FFD804"
-                  value={rating}
+                  value={averageRating}
                   isHalf
                   edit={false}
                 />
-                <div className="text-xs text-secondary-foreground">{sales} sold</div>
+                <div className="text-xs text-secondary-foreground">Sold ({sales})</div>
               </div>
             )}
             {/* PRICE */}

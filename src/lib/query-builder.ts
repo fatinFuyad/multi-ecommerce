@@ -2,7 +2,7 @@ import { ApiQueryHeaders } from "@/queries/api-query";
 import { Document, FilterQuery, Model, QueryWithHelpers } from "mongoose";
 
 // type QueryParamKey = "sort" | "fields" | "page" | "limit" | "search" | "populate";
-type QueryParams = Record<string, string | string[] | undefined>;
+export type QueryParams = Record<string, string | string[] | undefined>;
 type PaginationMeta = {
   page: number;
   limit: number;
@@ -176,14 +176,16 @@ export class QueryBuilder<T extends Document> {
     } as ApiQueryHeaders;
     const fieldsArr = options.fields?.split("&").map((value) => value.split("=")) || [];
     const populateFields = Object.fromEntries(fieldsArr);
+    const docIdArr = options.docId ? options.docId.split(",") : [];
 
     if (options.populate) {
       const populateFieldsArr = options.populate?.replace(/\s+/g, "").split(",");
-      populateFieldsArr.forEach((field) => {
+      populateFieldsArr.forEach((field, i) => {
         this.query.populate({
           path: field,
           select: populateFields[field]?.replace(/\W+/g, " "),
-          match: options.docId ? { _id: options.docId } : undefined,
+          // match: options.docId ? { _id: options.docId } : undefined,
+          match: docIdArr[i] ? { _id: docIdArr[i] } : undefined,
           perDocumentLimit: options.limitPopulateDoc
         });
       });
@@ -197,17 +199,18 @@ export class QueryBuilder<T extends Document> {
    * @param options - PopulateQueryOptions
    * @returns this
    */
-  populateDoc(options: PopulateQueryOptions) {
+  populateDoc(options: PopulateQueryOptions = {}) {
     if (options.populate) {
       const fieldsArr = options.fields?.split("&").map((value) => value.split("=")) || [];
       const populateFields = Object.fromEntries(fieldsArr);
       const populateFieldsArr = options.populate?.replace(/\s+/g, "").split(",");
+      const docIdArr = options.docId ? options.docId.split(",") : [];
 
-      populateFieldsArr.forEach((field) => {
+      populateFieldsArr.forEach((field, i) => {
         this.query.populate({
           path: field,
           select: populateFields[field]?.replace(/\W+/g, " "),
-          match: options.docId ? { _id: options.docId } : undefined,
+          match: docIdArr[i] ? { _id: docIdArr[i] } : undefined,
           perDocumentLimit: options.limitPopulateDoc
         });
       });

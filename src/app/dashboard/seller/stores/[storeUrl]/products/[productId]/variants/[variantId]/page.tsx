@@ -1,5 +1,6 @@
 import ProductDetails from "@/components/dashboard/forms/product-details";
 import { ProductWithVariant } from "@/lib/types";
+import { Country, ICountry, IFreeShipping } from "@/models/Shipping-Rate";
 
 // Queries
 import { getCategories } from "@/queries/category";
@@ -16,23 +17,31 @@ interface Params {
 
 export default async function ProductVariantPage({ params }: Params) {
   const { productId, variantId, storeUrl } = params;
-  const { categories } = await getCategories();
-  const { offerTags } = await getOfferTags();
-  const { product } = await getProductById<ProductWithVariant>(productId, undefined, {
-    populate: "variants",
+  const [categoriesRes, offerTagsRes, countriesRes] = await Promise.all([
+    getCategories(),
+    getOfferTags(),
+    Country.find().sort({ name: "asc" }).lean()
+  ]);
+
+  const countries: ICountry[] = JSON.parse(JSON.stringify(countriesRes));
+
+  const { product } = await getProductById<
+    Omit<ProductWithVariant, "freeShipping"> & { freeShipping: IFreeShipping }
+  >(productId, undefined, {
+    populate: "variants,freeShipping",
     docId: variantId,
     lean: true,
     limitPopulateDoc: 1
   });
   if (!product) return;
-  console.log({ product });
 
   return (
     <div>
       <ProductDetails
-        categories={categories}
-        offerTags={offerTags}
+        categories={categoriesRes.categories}
+        offerTags={offerTagsRes.offerTags}
         storeUrl={storeUrl}
+        countries={countries}
         data={product}
       />
     </div>

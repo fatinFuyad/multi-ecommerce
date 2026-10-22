@@ -1,13 +1,5 @@
-import { PrettifyType } from "@/lib/types";
-import {
-  Schema,
-  Types,
-  InferSchemaType,
-  HydratedDocument,
-  models,
-  model,
-  MergeType
-} from "mongoose";
+import { InferSchemaWithId, InterfaceFromSchema, PartialSchema } from "@/lib/types";
+import { HydratedDocument, model, models, Schema } from "mongoose";
 
 const offerTagSchema = new Schema(
   {
@@ -32,16 +24,20 @@ const offerTagSchema = new Schema(
 offerTagSchema.index({ name: "asc" }, { unique: true });
 offerTagSchema.index({ url: "asc" }, { unique: true });
 
-export type IOfferTag = InferSchemaType<typeof offerTagSchema> & {
-  _id: Types.ObjectId;
-};
-export type OfferTagDoc = HydratedDocument<IOfferTag>;
+// DEFAULT SCHEMA TYPE
+export type OfferTagSchema = InferSchemaWithId<typeof offerTagSchema>;
 
-// prettier-ignore
-export type OfferTagSchema = PrettifyType<
-  MergeType<IOfferTag, Partial<
-      Pick<IOfferTag, "createdAt"|"updatedAt"|"_id">
-  >>>;
+// USE FOR THE RETURNED DATA FROM API RESPONSE
+export type IOfferTag = InterfaceFromSchema<OfferTagSchema>;
+
+// THE MONGOOSE HYDRATED DOCUMENT
+export type SubcategoryDoc = HydratedDocument<OfferTagSchema>;
+
+// USE FOR CREATING NEW DOCUMENT
+export type SubcategoryRawSchema = PartialSchema<
+  OfferTagSchema,
+  "createdAt" | "updatedAt" | "_id"
+>;
 
 const OfferTag = models.OfferTag || model<IOfferTag>("OfferTag", offerTagSchema);
 

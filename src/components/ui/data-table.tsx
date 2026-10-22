@@ -109,11 +109,11 @@ export default function DataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <div className=" border bg-background rounded-lg">
-        <Table className="">
+      <div className="bg-background rounded-lg">
+        <Table>
           {/* Table header */}
           {!noHeader && (
-            <TableHeader>
+            <TableHeader className="border border-cyan-500">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
@@ -134,13 +134,16 @@ export default function DataTable<TData, TValue>({
           )}
 
           {/* Table body */}
-          <TableBody>
+          <TableBody className="border">
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => {
                 return (
                   <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="max-w-[400px] break-words">
+                      <TableCell
+                        key={cell.id}
+                        className="max-w-[400px] break-words border border-muted-foreground"
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}

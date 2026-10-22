@@ -12,8 +12,8 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 225.9 100% 98.7%;
+    --card-foreground: 204 80.2% 3.6%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     --primary: 200.4 98% 44.4%;
@@ -44,8 +44,10 @@
   .dark {
     --background: 222 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 204 80.2% 6.6%;
+    --card-foreground: 255.9 100% 98.7%;
+    /* --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%; */
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
     --primary: 198.6 88.7% 48.4%;
@@ -210,4 +212,70 @@
 .scrollbar::-webkit-scrollbar-thumb {
   background: #e0e0e0;
   border-radius: 5px;
+}
+
+/* Date time picker */
+.react-datetime-picker__wrapper {
+  border: none !important;
+}
+.react-datetime-picker__inputGroup__input {
+  padding: 0 3px !important;
+  outline-color: #1087ff !important;
+}
+.react-datetime-picker__inputGroup__divider {
+  margin: 0 3px !important;
+}
+
+/* Jodit editor dark mode */
+.jodit_theme_dark.jodit-container {
+  background-color: #1a1b1f !important;
+  border-color: #eeeeee2e !important;
+}
+
+.jodit_theme_dark .jodit-toolbar__box:not(:empty) {
+  background-color: #1a1b1f !important;
+}
+
+.jodit_theme_dark .jodit-wysiwyg {
+  background-color: #1a1b1f !important;
+}
+
+.jodit_theme_dark .jodit-toolbar-button__button:hover svg {
+  stroke: #575757 !important;
+  fill: #575757 !important;
+}
+
+/* Calendar dark mode  */
+.dark .react-calendar {
+  background: #1a1b1f !important;
+}
+.dark .react-calendar__tile:enabled:hover {
+  color: #000;
+}
+.dark .react-calendar__tile--now {
+  color: #000;
+}
+
+/* Multi selct dark mode */
+.dark .rmsc .dropdown-container {
+  background-color: #1a1b1f !important;
+  border-color: #eeeeee2e !important;
+}
+
+.dark .panel-content {
+  background-color: #1a1b1f !important;
+}
+
+.dark .panel-content input:focus {
+  background-color: #1a1b1f !important;
+}
+
+.dark .select-item:hover {
+  background-color: #303236 !important;
+}
+.dark .select-item.selected {
+  background-color: #1f2a40 !important;
+}
+.select-item.selected {
+  background-color: #e1eafe !important;
 }

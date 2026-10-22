@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { MinusCircle, PaintBucket, PlusCircle } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { SketchPicker } from "react-color";
@@ -23,9 +24,11 @@ export type InputDetail = {
 type PropsType<T extends InputDetail> = {
   inputDetails: T[];
   setInputDetails: Dispatch<SetStateAction<T[]>>; // any is placed as ts warns for setter function is having a property that is missing in InputDetail
-  header: string; // as label for input,
+  header?: string; // as label for input,
   initialInputDetail?: T;
   colorPicker?: boolean; // is color picker needed
+  containerClassName?: string;
+  inputClassName?: string;
 };
 
 // T extending InputDetail to resolve constraint of PropsType param T and making sure T will extend InputDetail from where concrete data will be passed
@@ -34,7 +37,9 @@ export default function AddInput<T extends InputDetail>({
   initialInputDetail = {} as T,
   setInputDetails,
   header,
-  colorPicker
+  colorPicker,
+  containerClassName,
+  inputClassName
 }: PropsType<T>) {
   // State to toggle displaying color picker based on index. if null hide picker
   const [colorPickerIndex, setColorPickerIndex] = useState<number | null>(null);
@@ -79,7 +84,10 @@ export default function AddInput<T extends InputDetail>({
         if (detail._id) delete detail["_id"]; // delete the subdocument _id field so that it doesn't appear as an input field
 
         return (
-          <div key={index} className="flex items-center gap-x-4">
+          <div
+            key={index}
+            className={cn("flex items-center gap-x-4", containerClassName)}
+          >
             {Object.entries(detail).map(([key, value], entryIndex) => {
               return (
                 <div key={entryIndex} className="w-full flex items-center gap-x-4">
@@ -111,7 +119,7 @@ export default function AddInput<T extends InputDetail>({
                   )}
 
                   <Input
-                    className="w-full"
+                    className={cn("w-28 placeholder:capitalize", inputClassName)}
                     type={typeof value === "number" ? "number" : "text"}
                     name={key}
                     placeholder={key}

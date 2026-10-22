@@ -1,22 +1,27 @@
 import ProductDetails from "@/components/dashboard/forms/product-details";
 import DataTable from "@/components/ui/data-table";
+import { ProductDetailedType } from "@/lib/types";
+import { Country, ICountry } from "@/models/Shipping-Rate";
 import { getCategories } from "@/queries/category";
+import { getOfferTags } from "@/queries/offer-tag";
 import { getProducts } from "@/queries/product";
 import { getStores } from "@/queries/store";
 import { Plus } from "lucide-react";
 import { columns } from "./columns";
-import { ProductDetailedType } from "@/lib/types";
-import { getOfferTags } from "@/queries/offer-tag";
 
 export default async function SellerProductsPage({
   params: { storeUrl }
 }: {
   params: { storeUrl: string };
 }) {
-  const { categories } = await getCategories();
-  const { offerTags } = await getOfferTags();
+  const [categoriesRes, offerTagsRes, countriesRes, storeRes] = await Promise.all([
+    getCategories(),
+    getOfferTags(),
+    Country.find().sort({ name: "asc" }).lean(),
+    getStores(`url=${storeUrl}&fields=name,url`)
+  ]);
+  const countries: ICountry[] = JSON.parse(JSON.stringify(countriesRes));
 
-  const storeRes = await getStores(`url=${storeUrl}&fields=name,url`);
   const productRes = await getProducts<ProductDetailedType>(
     `store=${storeRes.stores[0]._id}`,
     {
@@ -35,15 +40,16 @@ export default async function SellerProductsPage({
             Create Product
           </>
         }
-        data={productRes.products}
+        data={productRes.products || []}
         columns={columns}
         filterValue="name"
         searchPlaceholder="Search product name..."
         modalChildren={
           <ProductDetails
-            categories={categories}
-            offerTags={offerTags}
+            categories={categoriesRes.categories}
+            offerTags={offerTagsRes.offerTags}
             storeUrl={storeUrl}
+            countries={countries}
           />
         }
         newTabLink={`/dashboard/seller/stores/${storeUrl}/products/new`}

@@ -1,13 +1,5 @@
-import { PrettifyType } from "@/lib/types";
-import {
-  HydratedDocument,
-  InferSchemaType,
-  MergeType,
-  Schema,
-  Types,
-  model,
-  models
-} from "mongoose";
+import { InferSchemaWithId, InterfaceFromSchema, PartialSchema } from "@/lib/types";
+import { HydratedDocument, Schema, model, models } from "mongoose";
 
 const categorySchema = new Schema(
   {
@@ -43,16 +35,20 @@ const categorySchema = new Schema(
 categorySchema.index({ name: "asc" }, { unique: true });
 categorySchema.index({ url: "asc" }, { unique: true });
 
-export type ICategory = InferSchemaType<typeof categorySchema> & {
-  readonly _id: Types.ObjectId;
-};
-export type CategoryDoc = HydratedDocument<ICategory>;
+// DEFAULT SCHEMA TYPE
+export type CategorySchema = InferSchemaWithId<typeof categorySchema>;
 
-// prettier-ignore
-export type CategorySchema = PrettifyType< MergeType<
-    ICategory, Partial<
-      Pick<ICategory, "featured"|"createdAt"|"updatedAt"|"_id">
-  >>>;
+// USE FOR THE RETURNED DATA FROM API RESPONSE
+export type ICategory = InterfaceFromSchema<CategorySchema>;
+
+// THE MONGOOSE HYDRATED DOCUMENT
+export type CategoryDoc = HydratedDocument<CategorySchema>;
+
+// USE FOR CREATING NEW DOCUMENT
+export type CategoryRawSchema = PartialSchema<
+  CategorySchema,
+  "featured" | "createdAt" | "updatedAt" | "_id"
+>;
 
 // if model is already registered, prevent re-creating new model
 const Category = models.Category || model<ICategory>("Category", categorySchema);

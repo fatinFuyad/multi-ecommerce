@@ -181,6 +181,8 @@ export const ProductFormSchema = z.object({
     .length(1, "Choose a product variant image."),
   productId: z.string().optional(),
   variantId: z.string().optional(),
+  productSlug: z.string().optional(),
+  variantSlug: z.string().optional(),
   storeUrl: z.string(),
   category: z.string({
     error: (issue) =>
@@ -299,7 +301,24 @@ export const ProductFormSchema = z.object({
       }
     ),
   isSale: z.boolean().default(false).nonoptional(),
-  saleEndDate: z.string().optional()
+  saleEndDate: z.string().optional(),
+  freeShippingForAllCountries: z.boolean().default(false).nonoptional(),
+  freeShippingCountriesIds: z
+    .object({
+      _id: z.string().optional(),
+      label: z.string(),
+      value: z.string()
+    })
+    .array()
+    .optional()
+    .refine(
+      (ids) => ids?.every((item) => item.label && item.value),
+      "Each country must have a valid name and ID."
+    )
+    .default([])
+    .nonoptional(),
+  // shippingFeeMethod: z.nativeEnum(ShippingFeeMethod)
+  shippingFeeMethod: z.enum(["ITEM", "WEIGHT", "FIXED"])
 });
 
 export const OfferTagFormSchema = z.object({

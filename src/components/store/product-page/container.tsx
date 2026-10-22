@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { IProductVariant } from "@/models/Product";
 import { ReactNode, useState } from "react";
+
 import SocialShare from "../shared/social-share";
 import ProductInfo from "./product-info/product-info";
 import ProductSwiper from "./product-swiper";
@@ -36,8 +37,10 @@ function ProductPageContainer({
 }: Props) {
   const [variant] = productData.variants; // active variant
   const { images, weight, variantName, sizes } = variant;
+
   // State for temporary product images
   const [variantImages, setVariantImages] = useState<IProductVariant["images"]>(images);
+
   // useState hook to manage the active image being displayed, initialized to the first image in the array
   const [activeImage, setActiveImage] = useState<IProductVariant["images"][0] | null>(
     images[0]
@@ -73,9 +76,6 @@ function ProductPageContainer({
   const [productToBeAddedToCart, setProductToBeAddedToCart] =
     useState<CartProductType>(cartData);
 
-  // Usestate hook to manage product validity to be added to cart
-  // const [isProductValid, setIsProductValid] = useState<boolean>(false);
-
   // Function to handle state changes for the product properties
   const handleChange = (property: keyof CartProductType, value: any) => {
     setProductToBeAddedToCart((prevProduct) => ({
@@ -88,7 +88,11 @@ function ProductPageContainer({
     <div className="relative">
       <div className="w-full 2xl:flex 2xl:justify-between">
         {/* PRODUCT IMAGE SWIPER */}
-        {images && <ProductSwiper images={images} />}
+        <ProductSwiper
+          images={variantImages.length > 0 ? variantImages : images}
+          activeImage={activeImage || images[0]}
+          setActiveImage={setActiveImage}
+        />
         <div className="w-full mt-4 md:mt-0 flex flex-col xl:justify-between xl:p-8 gap-4 md:flex-row">
           {/* PRODUCT MAIN INFO */}
           <ProductInfo

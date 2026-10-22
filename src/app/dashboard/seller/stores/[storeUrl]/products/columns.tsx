@@ -1,9 +1,5 @@
 "use client";
 
-// React, Next.js imports
-
-// Custom components
-
 // UI components
 import {
   AlertDialog,
@@ -47,14 +43,10 @@ import { useState } from "react";
 export const columns: ColumnDef<ProductDetailedType>[] = [
   {
     accessorKey: "image",
-    header: "Product & Image",
+    header: "Product's Image",
     cell: ({ row }) => {
       return (
         <div className="flex flex-col gap-y-3">
-          {/* PRODUCT NAME*/}
-          <h1 className="font-bold truncate pb-3 border-b capitalize">
-            {row.original.name}
-          </h1>
           {/* PRODUCT VARIANT*/}
           <div className="relative flex flex-wrap gap-2">
             {row.original.variants.map((variant) => (
@@ -65,7 +57,7 @@ export const columns: ColumnDef<ProductDetailedType>[] = [
                     alt={`${variant.variantName} image`}
                     width={240}
                     height={240}
-                    className="w-40 h-40 rounded-sm object-contain shadow-2xl"
+                    className="w-28 h-24 rounded-sm object-contain shadow-2xl"
                   />
                   <Link
                     href={`/dashboard/seller/stores/${row.original.store.url}/products/${row.original._id}/variants/${variant._id}`}
@@ -112,15 +104,15 @@ export const columns: ColumnDef<ProductDetailedType>[] = [
       );
     }
   },
-  // {
-  //   accessorKey: "name",
-  //   header: "Name",
-  //   cell: ({ row }) => {
-  //     return (
-  //       <span className="font-extrabold text-lg capitalize">{row.original.name}</span>
-  //     );
-  //   }
-  // },
+  {
+    accessorKey: "name",
+    header: "Product Name",
+    cell: ({ row }) => {
+      return (
+        <span className="font-extrabold capitalize text-wrap">{row.original.name}</span>
+      );
+    }
+  },
 
   {
     accessorKey: "brand",

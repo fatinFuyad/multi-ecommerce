@@ -2,7 +2,7 @@
 
 // React, Next.js
 import Image from "next/image";
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 // Image zoom
 import ImageZoom from "react-image-zooom";
@@ -11,18 +11,19 @@ import ImageZoom from "react-image-zooom";
 import { cn } from "@/lib/utils";
 
 // Types
-import { IProductVariant } from "@/models/Product";
+import { IProductVariant, IVariantImage } from "@/models/Product";
 
 interface PropsType {
   images: IProductVariant["images"];
-  // activeImage: VariantImage;
-  // setActiveImage: Dispatch<SetStateAction<VariantImage | null>>;
+  activeImage: IVariantImage;
+  setActiveImage: Dispatch<SetStateAction<IProductVariant["images"][0] | null>>;
 }
 
-export default function ProductSwiper({ images }: PropsType) {
-  // if no images are provided, exit early and don't render anything
-  const [activeImage, setActiveImage] = useState(images[0]);
-
+export default function ProductSwiper({
+  images,
+  activeImage,
+  setActiveImage
+}: PropsType) {
   return (
     <div className="relative">
       <div className="relative w-full flex flex-col-reverse xl:flex-row gap-2">

@@ -30,10 +30,10 @@ function ProductVariantSelector({
             setVariantImages(variant.images);
             setActiveImage(variant.images[0]);
           }}
-          onMouseLeave={() => {
-            setVariantImages([] as any);
-            setActiveImage(null);
-          }}
+          // onMouseLeave={() => {
+          //   setVariantImages([]);
+          //   setActiveImage(null);
+          // }}
         >
           <div
             className={cn(

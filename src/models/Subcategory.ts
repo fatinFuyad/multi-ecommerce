@@ -1,13 +1,5 @@
-import { PrettifyType } from "@/lib/types";
-import {
-  Types,
-  Schema,
-  models,
-  model,
-  HydratedDocument,
-  InferSchemaType,
-  MergeType
-} from "mongoose";
+import { InferSchemaWithId, InterfaceFromSchema, PartialSchema } from "@/lib/types";
+import { HydratedDocument, Schema, model, models } from "mongoose";
 
 const subcategorySchema = new Schema(
   {
@@ -42,20 +34,21 @@ const subcategorySchema = new Schema(
 subcategorySchema.index({ name: "asc" }, { unique: true });
 subcategorySchema.index({ url: "asc" }, { unique: true });
 
-export type ISubcategory = InferSchemaType<typeof subcategorySchema> & {
-  _id: Types.ObjectId;
-};
+// DEFAULT SCHEMA TYPE
+export type SubcategorySchema = InferSchemaWithId<typeof subcategorySchema>;
 
-export type SubcategoryDoc = HydratedDocument<ISubcategory>;
+// USE FOR THE RETURNED DATA FROM API RESPONSE
+export type ISubcategory = InterfaceFromSchema<SubcategorySchema>;
 
-// prettier-ignore
-export type SubcategorySchema = PrettifyType<
-  MergeType<ISubcategory, Partial<
-      Pick<ISubcategory, "featured"|"createdAt"|"updatedAt"|"_id">
-  >>>;
+// THE MONGOOSE HYDRATED DOCUMENT
+export type SubcategoryDoc = HydratedDocument<SubcategorySchema>;
 
-const Subcategory =
-  models.Subcategory<ISubcategory> ||
-  model<ISubcategory>("Subcategory", subcategorySchema);
+// USE FOR CREATING NEW DOCUMENT
+export type SubcategoryRawSchema = PartialSchema<
+  SubcategorySchema,
+  "featured" | "createdAt" | "updatedAt" | "_id"
+>;
+
+const Subcategory = models.Subcategory || model("Subcategory", subcategorySchema);
 
 export default Subcategory;
