@@ -29,7 +29,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { CategoryFormSchema, CategoryFormSchemaType } from "@/lib/schemas";
 import { ICategory } from "@/models/Category";
-import { createCategory, updateCategory } from "@/queries/category";
+import { upsertCategory } from "@/services/category";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
@@ -53,17 +53,6 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
   });
 
   const isLoading = form.formState.isSubmitting;
-  // Reset form values when data changes
-  // useEffect(() => {
-  //   if (data) {
-  //     form.reset({
-  //       name: data.name,
-  //       image: [{ url: data.image }],
-  //       url: data.url,
-  //       featured: data.featured,
-  //     });
-  //   }
-  // }, [data, form]);
 
   // 2. Define a submit handler.
   // ⚠️ Client side can't access backend models
@@ -71,18 +60,15 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
     try {
       // we can create a new route for updating categories. then we don't need to pass id
       const isUpdateSession = Boolean(data?._id);
-      let response;
-      if (isUpdateSession && data?._id) {
-        response = await updateCategory(data._id, values);
-      } else {
-        response = await createCategory(values);
-      }
+      if (isUpdateSession) values._id = data?._id;
+
+      const categoryRes = await upsertCategory(values);
 
       // Displaying success message
       toast({
         title: isUpdateSession
           ? "Category has been updated."
-          : `Congratulations! ${response?.category.name} has now been created.`
+          : `Congratulations! ${categoryRes.name} has now been created.`
       });
 
       // Redirect or Refresh data
@@ -96,7 +82,7 @@ export default function CategoryDetails({ data }: CategoryDetailsProps) {
       toast({
         title: "An Error Occurred",
         description:
-          error.response?.data.message ||
+          error.message ||
           "An unexpected error occured in the server while creating or updating",
         variant: "destructive"
       });

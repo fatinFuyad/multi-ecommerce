@@ -3,7 +3,7 @@ import { Roles } from "@/models/User";
 import { SessionUser } from "@/types/next-auth";
 import { getServerSession } from "next-auth";
 import { QueryWithHelpers } from "mongoose";
-import { ApiQueryHeaders } from "@/queries/api-query";
+import { ApiQueryHeaders } from "./query-builder";
 
 export async function restrictTo(role: Roles): Promise<SessionUser> {
   const session = await getServerSession(authOptions);

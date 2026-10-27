@@ -1,14 +1,14 @@
 import SubcategoryDetails from "@/components/dashboard/forms/subcategory-details";
 import DataTable from "@/components/ui/data-table";
 import { SubcategoryWithCategory } from "@/lib/types";
-import { getCategories } from "@/queries/category";
-import { getSubcategories } from "@/queries/subcategory";
+import { getCategories } from "@/services/category";
+import { getSubcategories } from "@/services/subcategory";
 import { Plus } from "lucide-react";
 import { columns } from "./columns";
 
 async function AdminSubcategoriesPage() {
-  const { categories } = await getCategories();
-  const { subcategories } = await getSubcategories<SubcategoryWithCategory>(undefined, {
+  const categories = await getCategories();
+  const subcategories = await getSubcategories<SubcategoryWithCategory>("", {
     populate: "category"
   });
 
@@ -28,7 +28,7 @@ async function AdminSubcategoriesPage() {
         modalChildren={<SubcategoryDetails categories={categories} />}
         newTabLink="/dashboard/admin/subcategories/new"
         filterValue="name"
-        searchPlaceholder="Filter subcategories by name"
+        searchPlaceholder="Search subcategory by name"
       />
     </section>
   );

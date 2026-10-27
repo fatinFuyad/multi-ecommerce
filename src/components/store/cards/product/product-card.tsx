@@ -17,6 +17,7 @@ export default function ProductCard({ product }: { product: ProductCardType }) {
 
   const { variantName, images } = variant;
   console.log("Average Rating>>>", product.averageRating);
+  console.log("ProductCard Variants", variants);
 
   return (
     <div>

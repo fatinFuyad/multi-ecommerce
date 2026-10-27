@@ -1,13 +1,18 @@
 import StoreDetails from "@/components/dashboard/forms/store-details";
 import { IStore } from "@/models/Store";
-import { getDocs } from "@/queries/api-query";
+import { getStore } from "@/services/store";
+import { redirect } from "next/navigation";
 
 async function SellerStoreSettingsPage({ params }: { params: { storeUrl: string } }) {
-  const response = await getDocs<{ stores: IStore[] }>(`/stores?url=${params.storeUrl}`);
+  const store = await getStore<IStore>({
+    url: params.storeUrl
+  });
+  if (!store) redirect("/dashboard/seller/stores");
 
   return (
     <div>
-      <StoreDetails data={response.stores[0]} />
+      <h1>{params.storeUrl}</h1>
+      <StoreDetails data={store} />
     </div>
   );
 }

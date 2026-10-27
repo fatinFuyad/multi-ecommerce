@@ -99,6 +99,7 @@ const productSchema = new Schema(
 // INDEXING FOR PRODUCT
 productSchema.index({ slug: "asc" }, { unique: true });
 productSchema.index({ store: "asc" });
+productSchema.index({ oferTag: "asc" });
 
 // DEFAULT SCHEMA TYPE
 export type ProductSchema = InferSchemaWithId<typeof productSchema>;

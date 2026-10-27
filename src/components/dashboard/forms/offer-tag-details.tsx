@@ -1,8 +1,5 @@
 "use client";
 
-// React
-import { useEffect } from "react";
-
 import { IOfferTag } from "@/models/OfferTag";
 
 // Form handling utilities
@@ -32,11 +29,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-// Queries
-import { upsertOfferTag } from "@/queries/offer-tag";
-
 // Utils
 import { useToast } from "@/hooks/use-toast";
+import { upsertOfferTag } from "@/services/offer-tag";
 import { useRouter } from "next/navigation";
 
 interface OfferTagDetailsProps {
@@ -50,44 +45,28 @@ function OfferTagDetails({ data }: OfferTagDetailsProps) {
 
   // Form hook for managing form state and validation
   const form = useForm<OfferTagFormSchemaType>({
-    mode: "onChange", // Form validation mode
     resolver: zodResolver(OfferTagFormSchema), // Resolver for form validation
     defaultValues: {
       // Setting default form values from data (if available)
-      name: data?.name,
-      url: data?.url,
-      _id: data?._id.toString() // for update the _id is needed
+      name: data?.name || "",
+      url: data?.url || ""
     }
   });
 
   // Loading status based on form submission
-  const isSubmitting = form.formState.isSubmitting;
-
-  // Reset form values when data changes
-  useEffect(() => {
-    if (data) {
-      form.reset({
-        name: data?.name,
-        url: data?.url
-      });
-    }
-  }, [data, form]);
+  const { isSubmitting } = form.formState;
 
   // Submit handler for form submission
   const handleSubmit = async (values: OfferTagFormSchemaType) => {
     try {
       // Upserting offerTag data
-      const response = await upsertOfferTag({
-        _id: data?._id,
-        name: values.name,
-        url: values.url
-      });
+      const offerTagRes = await upsertOfferTag({ ...values, _id: data?._id });
 
       // Displaying success message
       toast({
         title: data?._id
           ? "Offer tag has been updated."
-          : `Congratulations! '${response.offerTag.name}' is now created.`
+          : `Congratulations! '${offerTagRes.name}' is now created.`
       });
 
       // Redirect or Refresh data
@@ -101,8 +80,8 @@ function OfferTagDetails({ data }: OfferTagDetailsProps) {
       console.log(error);
       toast({
         variant: "destructive",
-        title: "Oops!",
-        description: error.response?.data.message
+        title: "Oops! An Error",
+        description: error.message
       });
     }
   };
@@ -122,7 +101,6 @@ function OfferTagDetails({ data }: OfferTagDetailsProps) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <FormField
-                disabled={isSubmitting}
                 control={form.control}
                 name="name"
                 render={({ field }) => (
@@ -136,7 +114,6 @@ function OfferTagDetails({ data }: OfferTagDetailsProps) {
                 )}
               />
               <FormField
-                disabled={isSubmitting}
                 control={form.control}
                 name="url"
                 render={({ field }) => (

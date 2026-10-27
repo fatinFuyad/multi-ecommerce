@@ -1,7 +1,5 @@
 "use client";
 
-// React, Next.js
-
 // Form handling utilities
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { useToast } from "@/hooks/use-toast";
 import { StoreShippingType } from "@/models/Store";
-import { updateStoreShipping } from "@/queries/store";
+import { updateStoreShipping } from "@/services/store";
 import { NumberInput } from "@tremor/react";
 
 interface PropsType {

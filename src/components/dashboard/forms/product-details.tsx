@@ -42,7 +42,6 @@ import { cn } from "@/lib/utils";
 import { ICategory } from "@/models/Category";
 import { IProduct, IProductVariant } from "@/models/Product";
 import { ISubcategory } from "@/models/Subcategory";
-import { getSubcategories } from "@/queries/subcategory";
 import { format } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { WithOutContext as ReactTags } from "react-tag-input";
@@ -57,6 +56,7 @@ import "react-datetime-picker/dist/DateTimePicker.css";
 import { IOfferTag } from "@/models/OfferTag";
 import { ICountry, IFreeShipping } from "@/models/Shipping-Rate";
 import { upsertProduct } from "@/services/product";
+import { getSubcategories } from "@/services/subcategory";
 import { NumberInput } from "@tremor/react";
 import JoditEditor from "jodit-react";
 import { ArrowRight, Dot, Info } from "lucide-react";
@@ -313,10 +313,10 @@ export default function ProductDetails({
   const isfreeShippingForAllCountries = form.watch("freeShippingForAllCountries");
   useEffect(() => {
     async function subcategories() {
-      const subResponse = await getSubcategories<ISubcategory>(
+      const subcategories = await getSubcategories<ISubcategory>(
         `category=${categoryField}`
       );
-      setSubcategories(subResponse.subcategories || []);
+      setSubcategories(subcategories);
     }
 
     if (!categoryField) return;

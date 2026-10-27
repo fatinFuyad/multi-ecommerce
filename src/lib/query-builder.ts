@@ -1,4 +1,3 @@
-import { ApiQueryHeaders } from "@/queries/api-query";
 import { Document, FilterQuery, Model, QueryWithHelpers } from "mongoose";
 
 // type QueryParamKey = "sort" | "fields" | "page" | "limit" | "search" | "populate";
@@ -17,6 +16,15 @@ export type PageMetaData = PaginationMeta & {
 };
 
 export type PopulateQueryOptions = {
+  lean?: boolean; // get plain objects
+  populate?: string; // fields to populated in a doc. format: "product,store"
+  limitPopulateDoc?: number;
+  docId?: string; // the document to be populated from the referenced id array
+  fields?: string; // select the fields in the populated doc. format: "product=name,price&store=name,url";
+  sample?: number;
+};
+
+export type ApiQueryHeaders = {
   lean?: boolean; // get plain objects
   populate?: string; // fields to populated in a doc. format: "product,store"
   limitPopulateDoc?: number;
@@ -49,6 +57,7 @@ export class QueryBuilder<T extends Document> {
    */
   constructor(mongooseQuery: QueryWithHelpers<T[], T>, queryItem: string | QueryParams) {
     const getQueryParams = () => {
+      if (!queryItem) return {};
       const { searchParams } = new URL(queryItem as string, "http://localhost:3000"); // fallback base / origin
       return Object.fromEntries(searchParams.entries()) as QueryParams;
     };
@@ -62,6 +71,7 @@ export class QueryBuilder<T extends Document> {
    * Basic & Advanced Filtering
    */
   filter() {
+    if (Object.entries(this.queryParams).length === 0) return this;
     const queryObj = { ...this.queryParams };
 
     const excludedFields = ["sort", "fields", "page", "limit", "search", "populate"];

@@ -8,21 +8,21 @@ import { Swiper, SwiperSlide } from "swiper/react";
 // Import Swiper styles
 // @ts-expect-error: undeclared css module
 import "swiper/css";
-//import "swiper/css/pagination";
-//import "swiper/css/navigation";
+// import "swiper/css/pagination";
+// import "swiper/css/navigation";
 
 // Types
-import { IProductVariant } from "@/models/Product";
 import { useEffect, useRef } from "react";
-import { VariantImage } from "@/lib/types";
+import { IVariantImage } from "@/models/Product";
 
-export default function ProductCardImageSwiper({ images }: { images: VariantImage[] }) {
+export default function ProductCardImageSwiper({ images }: { images: IVariantImage[] }) {
   const swiperRef = useRef<any>(null);
   useEffect(() => {
     if (swiperRef.current && swiperRef.current.swiper) {
       swiperRef.current.swiper.autoplay.stop();
     }
   }, [swiperRef]);
+
   return (
     <div
       className="relative mb-2 w-full h-[200px] bg-background contrast-[90%] rounded-2xl overflow-hidden"
@@ -37,7 +37,7 @@ export default function ProductCardImageSwiper({ images }: { images: VariantImag
           <SwiperSlide key={i}>
             <Image
               src={img.url}
-              alt=""
+              alt={img.alt}
               width={400}
               height={400}
               className="block object-cover h-[200px] w-48 sm:w-52"

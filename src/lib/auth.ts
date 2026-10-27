@@ -43,3 +43,30 @@ export async function authorize(role: Roles): Promise<SessionUser> {
   if (user.role !== role) return redirect("/error/unauthorized");
   return user;
 }
+
+/**
+ * @description Checks the server session and authenticates user. Use this utility function on the server side pages. if no session then throws an error.
+ * @returns Session
+ */
+export async function authenticate() {
+  // Get the current user.
+  // If the user is not authenticated, redirect user to the signin page.
+  const session: Session | null = await getServerSession(authOptions);
+  if (!session?.user) {
+    throw new Error("Please sign in to perform this action");
+  }
+  return session.user;
+}
+
+export async function restrictTo(role: Roles): Promise<SessionUser> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) throw new Error("Unauthenticated. Please sign in to continue.");
+
+  if (session.user.role !== role) {
+    throw new Error(
+      `Unauthorized Access! Your Account Requires ${role} Privileges to Perform this Action.`
+    );
+  }
+
+  return session.user;
+}

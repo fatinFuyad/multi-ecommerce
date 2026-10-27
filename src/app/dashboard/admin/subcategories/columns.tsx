@@ -1,7 +1,5 @@
 "use client";
 
-// React, Next.js imports
-
 // Custom components
 import CustomModal from "@/components/dashboard/shared/custom-modal";
 
@@ -35,6 +33,8 @@ import { useModal } from "@/providers/modal-provider";
 import { BadgeCheck, BadgeMinus, Edit, MoreHorizontal, Trash } from "lucide-react";
 
 // Queries
+import { getCategories } from "@/services/category";
+import { deleteSubcategory, getSubcategoryById } from "@/services/subcategory";
 
 // Tanstack React Table
 import { ColumnDef } from "@tanstack/react-table";
@@ -43,8 +43,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import SubcategoryDetails from "@/components/dashboard/forms/subcategory-details";
 import { SubcategoryWithCategory } from "@/lib/types";
 import { ICategory } from "@/models/Category";
-import { getCategories } from "@/queries/category";
-import { deleteSubcategory, getSubcategoryById } from "@/queries/subcategory";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -133,7 +131,7 @@ export function CellActions({ rowData }: CellActionsProps) {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { categories } = await getCategories();
+      const categories = await getCategories();
       setCategories(categories);
     };
     fetchCategories();

@@ -32,8 +32,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { CountryWithShippingRates } from "@/lib/types";
+import { upsertShippingRate } from "@/services/shipping-rate";
 import { NumberInput } from "@tremor/react";
-import { upsertShippingRate } from "@/queries/store";
 import { useRouter } from "next/navigation";
 
 interface PropsType {
@@ -50,7 +50,7 @@ function ShippingRateDetails({ data }: PropsType) {
     resolver: zodResolver(ShippingRateFormSchema),
     defaultValues: {
       // Setting default form values from data (if available)
-      countryId: data.country._id.toString(),
+      countryId: data.country._id,
       countryName: data.country.name,
       shippingService: data.shippingRate?.shippingService,
       shippingFeePerItem: data.shippingRate?.shippingFeePerItem || 0,
@@ -70,10 +70,9 @@ function ShippingRateDetails({ data }: PropsType) {
   const handleSubmit = async (values: ShippingRateFormSchemaType) => {
     try {
       // Upserting category data
-      const response = await upsertShippingRate(data.storeId, values);
+      await upsertShippingRate(data.storeId, values);
       toast({
-        title: "Shipping rate upserted successfully",
-        description: response.message
+        title: "Shipping rate upserted successfully"
       });
 
       router.refresh();
@@ -81,8 +80,8 @@ function ShippingRateDetails({ data }: PropsType) {
       console.log(error);
       toast({
         variant: "destructive",
-        title: "Oops!",
-        description: error.response?.data.message
+        title: "Oops! Error",
+        description: error.message
       });
     }
   };

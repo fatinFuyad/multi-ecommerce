@@ -28,13 +28,11 @@ import { useModal } from "@/providers/modal-provider";
 // Lucide icons
 import { CopyPlus, FilePenLine, MoreHorizontal, Trash } from "lucide-react";
 
-// Queries
-import { deleteProduct } from "@/queries/product";
-
 // Tanstack React Table
 import { ColumnDef } from "@tanstack/react-table";
 
 import { ProductDetailedType } from "@/lib/types";
+import { deleteProduct } from "@/services/product";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

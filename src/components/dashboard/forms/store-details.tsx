@@ -30,9 +30,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { StoreFormSchema, StoreFormSchemaType } from "@/lib/schemas";
 import { IStore } from "@/models/Store";
-import { createStore, updateStore } from "@/queries/store";
+import { upsertStore } from "@/services/store";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
+import { useEffect } from "react";
 
 interface StoreDetailsProps {
   data?: IStore;
@@ -58,34 +59,44 @@ export default function StoreDetails({ data }: StoreDetailsProps) {
     }
   });
 
-  // const isLoading = form.formState.isSubmitting;
+  // Reset form values when data changes
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        name: data?.name,
+        description: data?.description,
+        email: data?.email,
+        phone: data?.phone,
+        logo: [{ url: data?.logo }],
+        cover: [{ url: data?.cover }],
+        url: data?.url,
+        featured: data?.featured
+      });
+    }
+  }, [data, form]);
+
   // 2. Define a submit handler.
   // ⚠️ Client side can't access backend models
   async function onSubmit(values: StoreFormSchemaType) {
     try {
       const isUpdateSession = !!data?._id;
-      let response;
-      if (isUpdateSession) {
-        response = await updateStore(data._id, values);
-      } else {
-        response = await createStore(values);
-      }
+      if (isUpdateSession) values._id = data._id;
+
+      const storeRes = await upsertStore(values);
 
       toast({
         title: "Congratulations!",
         description: isUpdateSession
-          ? `Your store ${response.store.name} has been updated successfully`
-          : `Your store ${response.store.name} has been created successfully`
+          ? `Your store ${storeRes.name} has been updated successfully`
+          : `Your store ${storeRes.name} has been created successfully`
       });
 
       // make sure to update url if the store-url is changed. otherwise there will be error if previous store url is used to visit other sub-routes
-      router.push(`/dashboard/seller/stores/${response.store.url}/settings`);
+      router.push(`/dashboard/seller/stores/${storeRes.url}/settings`);
     } catch (error: any) {
       toast({
-        title: "An Error Occurred",
-        description:
-          error.response?.data.message ||
-          "An unexpected error occured in the server while creating or updating",
+        title: "Opps! Error",
+        description: error.message,
         variant: "destructive"
       });
     }

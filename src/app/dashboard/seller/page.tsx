@@ -1,17 +1,15 @@
 import { authorize } from "@/lib/auth";
-import { IStore } from "@/models/Store";
-import { getStores } from "@/queries/store";
+import { getStores } from "@/services/store";
 import { redirect } from "next/navigation";
-// import { TableStores } from "./table";
 
 async function SellerDashboardPage() {
   // prevent non-seller users accessing this page & redirect user to unauthorized;
   const user = await authorize("SELLER");
 
-  const { stores } = await getStores<Pick<IStore, "url">>(`user=${user._id}&fields=url`);
+  const stores = await getStores({ user: user._id, fields: "url" });
 
   // if user has no stores & redirect to create new store page
-  if (!stores || !stores.length) {
+  if (!stores.length) {
     return redirect("/dashboard/seller/stores/new");
   }
 

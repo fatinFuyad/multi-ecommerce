@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/select";
 import { SubcategoryWithCategory } from "@/lib/types";
 import { ICategory } from "@/models/Category";
-import { createSubcategory, updateSubcategory } from "@/queries/subcategory";
+import { upsertSubcategory } from "@/services/subcategory";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../shared/image-upload";
 
@@ -62,7 +62,7 @@ export default function SubcategoryDetails({
       image: data?.image ? [{ url: data.image }] : [],
       url: data?.url || "",
       featured: data?.featured || false,
-      category: data?.category._id.toString()
+      category: data?.category._id
     }
   });
 
@@ -73,18 +73,15 @@ export default function SubcategoryDetails({
     try {
       // we can create a new route for updating categories. then we don't need to pass id
       const isUpdateSession = Boolean(data?._id);
-      let response;
-      if (isUpdateSession && data?._id) {
-        response = await updateSubcategory(data._id, values);
-      } else {
-        response = await createSubcategory(values);
-      }
+      if (isUpdateSession) values._id = data?._id;
+
+      const subcategoryRes = await upsertSubcategory(values);
 
       // Displaying success message
       toast({
         title: isUpdateSession
-          ? `Subcategory ${response.subcategory.name} has been updated.`
-          : `Congratulations! ${response.subcategory.name} has now been created.`
+          ? `Subcategory ${subcategoryRes.name} has been updated.`
+          : `Congratulations! ${subcategoryRes.name} has now been created.`
       });
 
       // Redirect or Refresh data
@@ -98,7 +95,7 @@ export default function SubcategoryDetails({
       toast({
         title: "An Error Occurred",
         description:
-          error.response?.data.message ||
+          error.message ||
           "An unexpected error occured in the server while creating or updating",
         variant: "destructive"
       });
@@ -187,7 +184,7 @@ export default function SubcategoryDetails({
                         </FormControl>
                         <SelectContent>
                           {categories.map((category, i) => (
-                            <SelectItem key={i} value={category._id.toString()}>
+                            <SelectItem key={i} value={category._id}>
                               {category.name}
                             </SelectItem>
                           ))}

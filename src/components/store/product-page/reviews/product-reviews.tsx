@@ -7,9 +7,9 @@ import {
   ReviewWithUser
 } from "@/lib/types";
 import { IProductVariant } from "@/models/Product";
-import { getProductFilteredReviews } from "@/services/product";
 import { FC, useEffect, useState } from "react";
 
+import { getProductFilteredReviews } from "@/services/review";
 import RatingCard from "@/store/cards/product-rating";
 import RatingStatisticsCard from "@/store/cards/rating-statistics";
 import ReviewCard from "@/store/cards/review";

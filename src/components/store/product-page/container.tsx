@@ -37,6 +37,8 @@ function ProductPageContainer({
 }: Props) {
   const [variant] = productData.variants; // active variant
   const { images, weight, variantName, sizes } = variant;
+  console.log("active variant", variant);
+  console.log("container variants", variants);
 
   // State for temporary product images
   const [variantImages, setVariantImages] = useState<IProductVariant["images"]>(images);

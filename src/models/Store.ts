@@ -53,11 +53,11 @@ export type IStore = InterfaceFromSchema<StoreSchema>;
 export type StoreDoc = HydratedDocument<StoreSchema>;
 
 // prettier-ignore
-export type StoreRawSchema = PartialSchema<StoreSchema, "averageRating"|"returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"status"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"createdAt"|"updatedAt"|"_id">
+export type StoreRawSchema = PartialSchema<StoreSchema, "averageRating"|"returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"status"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"followers"|"createdAt"|"updatedAt"|"_id">
 
 // prettier-ignore
 export type StoreShippingType = PrettifyType<
-  Pick<StoreSchema, "returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"_id">
+  Pick<IStore, "returnPolicy"|"defaultShippingService"|"defaultDeliveryTimeMin"|"defaultDeliveryTimeMax"|"defaultShippingFeePerItem"|"defaultShippingFeeForAdditionalItem"|"defaultShippingFeePerKg"|"defaultShippingFeeFixed"|"_id">
 >;
 
 const Store = models.Store || model<StoreSchema>("Store", storeSchema);

@@ -69,7 +69,7 @@ const ProductPrice: FC<Props> = ({ sizeId, sizes, isCard, handleChange }) => {
           </span>
         </div>
         {!sizeId && !isCard && (
-          <div className="text-orange-background text-xs leading-4 mt-1">
+          <div className="text-card-foreground/80 text-xs leading-4 mt-1">
             <span>Note : Select a size to see the exact price</span>
           </div>
         )}

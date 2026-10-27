@@ -8,7 +8,7 @@ import ProductReviews from "@/components/store/product-page/reviews/product-revi
 import StoreProducts from "@/components/store/product-page/store-products";
 import { Separator } from "@/components/ui/separator";
 import { ProductPageData } from "@/lib/types";
-import { getProductPageData, getProducts } from "@/services/product";
+import { getCardProducts, getProductPageData } from "@/services/product";
 import { notFound, redirect } from "next/navigation";
 
 interface PageProps {
@@ -65,10 +65,8 @@ export default async function ProductVariantPage({
     product: product.specifications,
     variant: variant.specifications
   };
-
-  const relatedProducts = await getProducts(
-    `/product/${productSlug}/${variantSlug}?subcategory=${product.subcategory._id}&limit=10&page=1`
-  );
+  // UPDATE DELETED SUBCATEGORIES
+  const relatedProducts = await getCardProducts({ subcategory: product.subcategory._id });
 
   return (
     <div>
@@ -84,7 +82,7 @@ export default async function ProductVariantPage({
             <>
               <Separator />
               {/* Related products */}
-              <RelatedProducts products={relatedProducts} />
+              <RelatedProducts products={[]} />
             </>
           )}
           <Separator className="mt-6" />
@@ -96,9 +94,7 @@ export default async function ProductVariantPage({
             reviews={reviews} // user reviews
             variants={variants}
           />
-          {/* <div className="mt-3">
-            <AddReviewForm productId={product._id} variants={variants} />
-          </div> */}
+
           <>
             <Separator className="mt-6" />
             {/* Product description */}

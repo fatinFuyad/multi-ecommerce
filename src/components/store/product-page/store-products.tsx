@@ -2,7 +2,7 @@
 
 import { ProductCardType } from "@/lib/types";
 import { IStore } from "@/models/Store";
-import { getProducts } from "@/services/product";
+import { getCardProducts } from "@/services/product";
 import { FC, useEffect, useState } from "react";
 import ProductList from "../shared/product-list";
 
@@ -18,12 +18,14 @@ const StoreProducts: FC<Props> = ({ store, numProducts = 10 }) => {
 
   useEffect(() => {
     const getStoreProducts = async () => {
-      const products = await getProducts({ store: store._id, limit: `${numProducts}` });
-      console.log("PRODUCTS STORE-->", products);
+      const products = await getCardProducts({
+        store: store._id,
+        limit: `${numProducts}`
+      });
       setProducts(products);
     };
     getStoreProducts();
-  }, []);
+  }, [numProducts, store._id]);
 
   return (
     <div className="relative mt-6">

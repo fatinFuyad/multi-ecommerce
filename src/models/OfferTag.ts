@@ -31,14 +31,14 @@ export type OfferTagSchema = InferSchemaWithId<typeof offerTagSchema>;
 export type IOfferTag = InterfaceFromSchema<OfferTagSchema>;
 
 // THE MONGOOSE HYDRATED DOCUMENT
-export type SubcategoryDoc = HydratedDocument<OfferTagSchema>;
+export type OfferTagDoc = HydratedDocument<OfferTagSchema>;
 
 // USE FOR CREATING NEW DOCUMENT
-export type SubcategoryRawSchema = PartialSchema<
+export type OfferTagRawSchema = PartialSchema<
   OfferTagSchema,
   "createdAt" | "updatedAt" | "_id"
 >;
 
-const OfferTag = models.OfferTag || model<IOfferTag>("OfferTag", offerTagSchema);
+const OfferTag = models.OfferTag || model("OfferTag", offerTagSchema);
 
 export default OfferTag;

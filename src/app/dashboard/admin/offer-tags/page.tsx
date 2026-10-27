@@ -1,5 +1,5 @@
 // Queries
-import { getOfferTags } from "@/queries/offer-tag";
+import { getOfferTags } from "@/services/offer-tag";
 
 // Data table
 import DataTable from "@/components/ui/data-table";
@@ -15,10 +15,10 @@ import { columns } from "./columns";
 
 export default async function AdminOfferTagsPage() {
   // Fetching offer tags data from the database
-  const { offerTags } = await getOfferTags();
+  const offerTags = await getOfferTags();
 
   // if no offer tags are found, then return null;
-  if (!offerTags || offerTags.length === 0) return null;
+  if (offerTags.length === 0) return null;
 
   return (
     <DataTable

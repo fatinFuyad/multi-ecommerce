@@ -1,7 +1,7 @@
 import ProductDetails from "@/components/dashboard/forms/product-details";
 import { Country, ICountry } from "@/models/Shipping-Rate";
-import { getCategories } from "@/queries/category";
-import { getOfferTags } from "@/queries/offer-tag";
+import { getCategories } from "@/services/category";
+import { getOfferTags } from "@/services/offer-tag";
 
 async function NewProductPage({ params }: { params: { storeUrl: string } }) {
   const [categoriesRes, offerTagsRes, countriesRes] = await Promise.all([
@@ -13,8 +13,8 @@ async function NewProductPage({ params }: { params: { storeUrl: string } }) {
 
   return (
     <ProductDetails
-      categories={categoriesRes.categories}
-      offerTags={offerTagsRes.offerTags}
+      categories={categoriesRes}
+      offerTags={offerTagsRes}
       storeUrl={params.storeUrl}
       countries={countries}
     />

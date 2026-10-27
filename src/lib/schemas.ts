@@ -29,6 +29,7 @@ export const UserFormSchema = z.object({
 });
 
 export const CategoryFormSchema = z.object({
+  _id: z.string().optional(),
   name: z
     .string({
       error: "Category name is required."
@@ -59,6 +60,7 @@ export const CategoryFormSchema = z.object({
 });
 
 export const SubcategoryFormSchema = z.object({
+  _id: z.string().optional(),
   name: z
     .string({
       error: "Subcategory name is required."
@@ -88,6 +90,7 @@ export const SubcategoryFormSchema = z.object({
 });
 
 export const StoreFormSchema = z.object({
+  _id: z.string().optional(),
   name: z
     .string({
       error: (iss) =>

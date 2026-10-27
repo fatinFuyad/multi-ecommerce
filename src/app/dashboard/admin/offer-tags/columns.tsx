@@ -36,15 +36,13 @@ import { useModal } from "@/providers/modal-provider";
 // Lucide icons
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 
-// Queries
-import { deleteOfferTag, getOfferTagById } from "@/queries/offer-tag";
-
 // Tanstack React Table
 import { ColumnDef } from "@tanstack/react-table";
 
 // Prisma models
 import OfferTagDetails from "@/components/dashboard/forms/offer-tag-details";
 import { IOfferTag } from "@/models/OfferTag";
+import { deleteOfferTag, getOfferTagById } from "@/services/offer-tag";
 
 export const columns: ColumnDef<IOfferTag>[] = [
   {

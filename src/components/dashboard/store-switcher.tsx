@@ -13,11 +13,7 @@ import {
   CommandList,
   CommandSeparator
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { IStore } from "@/models/Store";
 import { useParams, useRouter } from "next/navigation";
@@ -55,9 +51,7 @@ export default function StoreSwitcher({ stores }: { stores: IStore[] }) {
     value: store.url
   }));
 
-  const activeStore = storeItems.find(
-    (items) => items.value === params.storeUrl
-  );
+  const activeStore = storeItems.find((items) => items.value === params.storeUrl);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -74,9 +68,7 @@ export default function StoreSwitcher({ stores }: { stores: IStore[] }) {
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          {storeItems.length !== 0 && (
-            <CommandInput placeholder="Search store..." />
-          )}
+          {storeItems.length !== 0 && <CommandInput placeholder="Search store..." />}
           <CommandList>
             <CommandEmpty>No store found.</CommandEmpty>
             <CommandGroup>
@@ -93,9 +85,7 @@ export default function StoreSwitcher({ stores }: { stores: IStore[] }) {
                   <Check
                     className={cn(
                       "ml-auto",
-                      activeStore?.value === store.value
-                        ? "opacity-100"
-                        : "opacity-0"
+                      activeStore?.value === store.value ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>

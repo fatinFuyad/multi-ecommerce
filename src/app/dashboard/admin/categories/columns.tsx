@@ -42,7 +42,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 // models
 import { ICategory } from "@/models/Category";
-import { deleteCategory, getCategoryById } from "@/queries/category";
+import { deleteCategory, getCategoryById } from "@/services/category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -140,7 +140,6 @@ export function CellActions({ rowData }: CellActionsProps) {
               setOpen(
                 // Custom modal component
                 <CustomModal>
-                  {/* Store details component */}
                   <CategoryDetails data={rowData} />
                 </CustomModal>,
                 async () => {

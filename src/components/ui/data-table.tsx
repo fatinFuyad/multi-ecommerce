@@ -71,15 +71,18 @@ export default function DataTable<TData, TValue>({
     <>
       {/* Search input and action button */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center py-4 gap-2">
-          <Search />
+        <div className="flex items-center py-4 gap-2 flex-1">
+          <label htmlFor="table-search-box">
+            <Search />
+          </label>
           <Input
+            id="table-search-box"
             placeholder={searchPlaceholder}
             value={(table.getColumn(filterValue)?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn(filterValue)?.setFilterValue(event.target.value)
             }
-            className="h-12"
+            className="h-12 max-w-64"
           />
         </div>
         <div className="flex gap-4">

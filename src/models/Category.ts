@@ -51,6 +51,6 @@ export type CategoryRawSchema = PartialSchema<
 >;
 
 // if model is already registered, prevent re-creating new model
-const Category = models.Category || model<ICategory>("Category", categorySchema);
+const Category = models.Category || model("Category", categorySchema);
 
 export default Category;

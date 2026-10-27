@@ -1,11 +1,11 @@
 import CategoryDetails from "@/components/dashboard/forms/category-details";
 import DataTable from "@/components/ui/data-table";
-import { getCategories } from "@/queries/category";
+import { getCategories } from "@/services/category";
 import { Plus } from "lucide-react";
 import { columns } from "./columns";
 
 export default async function AdminCategoriesPage() {
-  const { categories } = await getCategories();
+  const categories = await getCategories();
 
   return (
     <section className="grid gap-4">
@@ -21,7 +21,7 @@ export default async function AdminCategoriesPage() {
         data={categories}
         columns={columns}
         filterValue="name"
-        searchPlaceholder="Search category name..."
+        searchPlaceholder="Search category by name"
         modalChildren={<CategoryDetails />}
         newTabLink="/dashboard/admin/categories/new"
       />

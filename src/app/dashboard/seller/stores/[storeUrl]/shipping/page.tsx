@@ -1,22 +1,23 @@
 import StoreShippingDetails from "@/components/dashboard/forms/store-shipping-details";
 import { AdvancedTable } from "@/components/ui/advanced-table";
-import { getShippingRates, getStores } from "@/queries/store";
+import { Separator } from "@/components/ui/separator";
+import { getStoreShippingRate } from "@/services/shipping-rate";
+import { getStore } from "@/services/store";
 import { redirect } from "next/navigation";
 import { columns } from "./columns";
-import { Separator } from "@/components/ui/separator";
 
 export default async function StoreShippingPage({
   params
 }: {
   params: { storeUrl: string };
 }) {
-  const { stores } = await getStores(`url=${params.storeUrl}`);
-  const { shippingRates } = await getShippingRates(stores[0]._id);
-  if (!stores?.length || shippingRates.length === 0) return redirect("/error");
+  const store = await getStore({ url: params.storeUrl });
+  const shippingRates = await getStoreShippingRate(store._id);
+  if (!store || shippingRates.length === 0) return redirect("/error");
 
   return (
     <div>
-      <StoreShippingDetails data={stores[0]} />
+      <StoreShippingDetails data={store} />
       <div className="mt-20 mb-20">
         <h3>Shipping rate details across different country</h3>
         <Separator className="mb-10" />

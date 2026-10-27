@@ -1,13 +1,7 @@
 "use client";
 
 // React, Next.js
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState
-} from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 // User model
 import { IUser } from "@/models/User";

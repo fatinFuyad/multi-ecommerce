@@ -1,26 +1,22 @@
 "use server";
 
 import { dbConnect } from "@/lib/db-connect";
-import { QueryBuilder } from "@/lib/query-builder";
+import { PopulateQueryOptions, QueryBuilder, QueryParams } from "@/lib/query-builder";
 import {
   ProductCardType,
   ProductDetailedDocType,
   ProductPageData,
-  ReviewStatistics,
-  ReviewWithUser,
   UserCountry
 } from "@/lib/types";
-import { omit } from "@/lib/utils";
 
 import Product, {
+  IProduct,
   ProductSchema,
   ProductVariant,
   ProductVariantSchema
 } from "@/models/Product";
-import Review from "@/models/Review";
 
 import { ProductFormSchemaType } from "@/lib/schemas";
-import { ProductDetailedType } from "@/lib/types";
 import {
   Country,
   FreeShipping,
@@ -37,9 +33,10 @@ import { cookies } from "next/headers";
 import { restrictTo } from "@/lib/api-utils";
 import { ProductRawSchema, ProductVariantRawSchema } from "@/models/Product";
 import Store from "@/models/Store";
+import { getReviews, getReviewStatistics } from "./review";
 
 // Top level await for once per module evaluation/runtime instance
-await dbConnect();
+// await dbConnect();
 
 /**
  * @description Generates a slug based on the provided string.
@@ -104,6 +101,7 @@ export const upsertProduct = async (
   productFormData: ProductFormSchemaType,
   storeUrl: string
 ) => {
+  await dbConnect(); // connect database
   // Check if user is authenticated & Ensure user has seller privileges
   const user = await restrictTo("SELLER");
 
@@ -295,22 +293,173 @@ const handleUpsertVariant = async (
  * @access Level: Public
  * @returns requested products.
  */
-export async function getAllProducts(req: Request) {
-  await dbConnect();
-
-  const query = new QueryBuilder(Product.find(), req.url)
+export async function getAllProducts<T = IProduct>(
+  queryItem?: QueryParams,
+  queryOptions?: PopulateQueryOptions
+) {
+  await dbConnect(); // connect database
+  const query = new QueryBuilder(Product.find().lean(), queryItem || {})
     .filter()
     .sort()
     .limitFields()
-    // .paginate()
-    .handleQueryOptions(req.headers)
-    .exec<{ products: ProductDetailedType }>(Product);
-  // .build();
+    .populateDoc(queryOptions)
+    .paginate()
+    .exec<{ products: T[] }>(Product);
 
-  // const products = await handleQueryOptions(req.headers, query);
   const productsData = await query;
 
   return JSON.parse(JSON.stringify(productsData)) as typeof productsData;
+}
+
+/**
+ * @description Get products with necessary query and search options - filter, sort, limit fields, paginate
+ * @returns productWithVariants[]
+ */
+export async function getProducts<T = IProduct>(
+  queryItem: QueryParams,
+  queryOptions?: PopulateQueryOptions
+) {
+  await dbConnect(); // connect database
+  const query = new QueryBuilder(Product.find().lean(), queryItem)
+    .filter()
+    .limitFields()
+    .paginate()
+    .populateDoc(queryOptions)
+    .build();
+  const productDocs = await query;
+
+  const products: T[] = JSON.parse(JSON.stringify(productDocs));
+  return products;
+}
+
+export async function getProductById<T = IProduct>(
+  productId: string,
+  queryOptions?: PopulateQueryOptions
+) {
+  await dbConnect(); // connect database
+  const query = new QueryBuilder(Product.find({ _id: productId }).lean(), {})
+    .limitFields()
+    .populateDoc(queryOptions)
+    .build();
+
+  const [product] = await query; // QueryBuilder return product in an array
+
+  if (!product) throw new Error("No product found with the product ID");
+  return JSON.parse(JSON.stringify(product)) as T;
+}
+
+export async function getProduct<T = IProduct>(
+  queryItem: QueryParams = {},
+  queryOptions?: PopulateQueryOptions
+) {
+  await dbConnect(); // connect database
+  const query = new QueryBuilder(Product.find().lean(), queryItem)
+    .filter()
+    .limitFields()
+    .populateDoc(queryOptions)
+    .build();
+
+  const [product] = await query;
+  if (!product) throw new Error("No product found with the query");
+
+  return JSON.parse(JSON.stringify(product)) as T;
+}
+
+export async function getCardProducts(
+  queryItem: QueryParams = {},
+  queryOptions?: PopulateQueryOptions
+) {
+  await dbConnect(); // connect database
+
+  const findQuery = Product.find()
+    .select("_id slug name averageRating sales")
+    .populate({
+      path: "variants",
+      select: "_id slug variantName images sizes variantImage"
+    })
+    .lean();
+
+  const query = new QueryBuilder(findQuery, queryItem)
+    .filter()
+    .limitFields()
+    .paginate()
+    .populateDoc(queryOptions)
+    .build();
+  const productDocs = await query;
+
+  const products: ProductCardType[] = JSON.parse(JSON.stringify(productDocs));
+  return products;
+}
+
+export async function deleteProduct(productId: string) {
+  if (!productId) throw new Error("Product ID is required");
+  await dbConnect(); // connect database
+  await Product.findByIdAndDelete(productId);
+
+  return null;
+}
+
+/**
+ * @description Get products data for product-page from the database.
+ * @access Level: Public
+ * @returns requested productPageData.
+ */
+export async function getProductPageData(productSlug: string, variantSlug: string) {
+  await dbConnect(); // connect database
+
+  const product = await Product.findOne({
+    slug: productSlug
+  })
+    .populate({
+      path: "category"
+    })
+    .populate({ path: "subcategory" })
+    .populate({ path: "store" })
+    .populate({ path: "offerTag" })
+    .lean<ProductDetailedDocType>();
+
+  if (!product) throw new Error("No product found with product slug");
+
+  const variants = await ProductVariant.find({
+    product: product._id
+  }).lean<ProductVariantSchema[]>();
+
+  const activeVariant = variants.find((variant: any) => variant.slug === variantSlug);
+  if (activeVariant) product.variants = [activeVariant];
+
+  const userCountry = getUserCountry();
+  let freeShipping;
+  if (product.freeShipping) {
+    freeShipping = await FreeShipping.findOne<
+      HydratedDocument<FreeShippingWithCountries>
+    >({ _id: product.freeShipping }).populate({
+      path: "eligibleCountries"
+    });
+  }
+
+  // Calculate and retrieve the shipping details
+  const shippingDetails = await getShippingDetails(
+    product.shippingFeeMethod,
+    userCountry,
+    product.store,
+    freeShipping
+  );
+
+  // Reviews Statistics
+  const reviewStatistics = await getReviewStatistics(product._id.toString());
+  const reviews = await getReviews(product._id.toString());
+
+  return JSON.parse(
+    JSON.stringify({
+      product,
+      variants,
+      userCountry,
+      shippingDetails,
+      freeShipping,
+      reviews,
+      reviewStatistics
+    })
+  ) as ProductPageData;
 }
 
 function getUserCountry(): UserCountry {
@@ -356,6 +505,7 @@ export const getShippingDetails = async (
   store: StoreSchema,
   freeShipping?: FreeShippingWithCountries | null
 ) => {
+  await dbConnect(); // connect database
   let shippingDetails = {
     shippingFeeMethod,
     shippingService: "",
@@ -369,6 +519,7 @@ export const getShippingDetails = async (
     city: userCountry.city,
     isFreeShipping: false
   };
+
   const country = await Country.findOne({
     name: userCountry.name
   });
@@ -451,224 +602,4 @@ export const getShippingDetails = async (
   }
 
   return shippingDetails;
-};
-
-/**
- * @description Get products with necessary query and search options - filter, sort, limit fields, paginate
- * @returns productWithVariants[]
- */
-export async function getProducts(
-  queryItem: string | Record<string, string | string[]> = {}
-) {
-  const productQuery = Product.find()
-    .select("_id slug name averageRating sales")
-    .populate({
-      path: "variants",
-      select: "_id slug variantName images sizes variantImage"
-    });
-
-  const query = new QueryBuilder(productQuery, queryItem).filter().paginate().build();
-  const productDocs = await query;
-
-  const products: ProductCardType[] = JSON.parse(JSON.stringify(productDocs));
-  return products;
-}
-
-/**
- * @description Get products data for product-page from the database.
- * @access Level: Public
- * @returns requested productPageData.
- */
-export async function getProductPageData(productSlug: string, variantSlug: string) {
-  // await dbConnect();
-
-  const product = await Product.findOne({
-    slug: productSlug
-  })
-    .populate({
-      path: "category"
-    })
-    .populate({ path: "subcategory" })
-    .populate({ path: "store" })
-    .populate({ path: "offerTag" })
-    .lean<ProductDetailedDocType>();
-
-  if (!product) throw new Error("No product found with product slug");
-
-  const variants = await ProductVariant.find({
-    product: product._id
-  }).lean<ProductVariantSchema[]>();
-
-  const activeVariant = variants.find((variant: any) => variant.slug === variantSlug);
-  product.variants = [activeVariant!];
-
-  const userCountry = getUserCountry();
-  let freeShipping;
-  if (product.freeShipping) {
-    freeShipping = await FreeShipping.findOne<
-      HydratedDocument<FreeShippingWithCountries>
-    >({ _id: product.freeShipping }).populate({
-      path: "eligibleCountries"
-    });
-  }
-
-  // Calculate and retrieve the shipping details
-  const shippingDetails = await getShippingDetails(
-    product.shippingFeeMethod,
-    userCountry,
-    product.store,
-    freeShipping
-  );
-
-  // Reviews Statistics
-  const reviewStatistics = await getReviewStatistics(product._id.toString());
-  const reviews = await getReviews(product._id.toString());
-
-  return JSON.parse(
-    JSON.stringify({
-      product,
-      variants,
-      userCountry,
-      shippingDetails,
-      freeShipping,
-      reviews,
-      reviewStatistics
-    })
-  ) as ProductPageData;
-}
-
-export const getReviewStatistics = async (
-  productId: string
-): Promise<ReviewStatistics> => {
-  const ratingStats = await Review.aggregate([
-    { $match: { product: new Types.ObjectId(productId) } },
-    {
-      $group: {
-        _id: { $floor: "$rating" },
-        reviewCount: {
-          $sum: 1
-        },
-        reviewWithImageCount: {
-          $sum: {
-            $cond: [{ $gt: [{ $size: "$images" }, 0] }, 1, 0]
-          }
-        },
-        imageCount: {
-          $sum: {
-            $size: "$images"
-          }
-        }
-      }
-    },
-    {
-      $project: {
-        _id: 1,
-        reviewCount: 1,
-        reviewWithImageCount: 1,
-        imageCount: 1,
-        percentage: {
-          $multiply: [{ $divide: ["$reviewWithImageCount", "$reviewCount"] }, 100]
-        },
-        imageReviewPercentage: {
-          $multiply: [
-            {
-              $divide: ["$reviewWithImageCount", "$reviewCount"]
-            },
-            100
-          ]
-        }
-      }
-    },
-    {
-      $sort: {
-        _id: -1
-      }
-    }
-  ]);
-
-  const totalReviews = ratingStats.reduce((sum, stat) => sum + stat.reviewCount, 0);
-  const totalReviewsWithImages = ratingStats.reduce(
-    (sum, stat) => sum + stat.reviewWithImageCount,
-    0
-  );
-  const reviewWithImagesPercentage =
-    totalReviews > 0 ? (totalReviewsWithImages / totalReviews) * 100 : 0;
-  const ratingStatistics = ratingStats.map((stat) => ({
-    rating: stat._id, // rating number
-    numReviews: stat.reviewCount,
-    percentage: totalReviews > 0 ? (stat.reviewCount / totalReviews) * 100 : 0
-  }));
-
-  return {
-    ratingStatistics,
-    totalReviewsWithImages,
-    reviewWithImagesPercentage,
-    totalReviews
-  };
-};
-
-export const getReviews = async (productId: string) => {
-  const query = new QueryBuilder(
-    Review.find({ product: productId }).populate({
-      path: "user",
-      select: "_id name image"
-    }),
-    { limit: "4" }
-  )
-    .paginate()
-    .build();
-  const reviews = await query;
-
-  return JSON.parse(JSON.stringify(reviews)) as ProductPageData["reviews"];
-};
-
-type QueryOptions = {
-  filter: { rating?: number; hasImages?: boolean };
-  sort?: string; // '-createdAt', '-rating'
-  page?: string; // '2';
-  limit?: string; // '10'
-  fields?: string; // exp: 'name,price,color'
-};
-
-/**
- * @description Retrieves filtered and sorted reviews for a product from the database, based on rating, presence of images, and sorting options.
- * @access Public
- * @param productId The ID of the product for which reviews are being fetched.
- * @param queryOptions An object contains filter, sort, page, limit, fields.
- * - filter: An object containing the filter options such as rating and whether reviews include images.
- * - sort: An object defining the sort order, such as latest, oldest, or highest rating.
- * - page: The page number for pagination (1-based index).
- * - limit: The number of reviews to retrieve per page.
- * - fields: The fileds to incldue in a review.
- * @returns IReview[] A paginated list of reviews that match the filter and sort criteria.
- */
-export const getProductFilteredReviews = async (
-  productId: string,
-  queryOptions: QueryOptions
-) => {
-  const reviewFilters: any = {};
-  if (queryOptions.filter.hasImages) reviewFilters["images.0"] = { $exists: true };
-  if (queryOptions.filter.rating)
-    reviewFilters.rating = {
-      $in: [queryOptions.filter.rating, queryOptions.filter.rating + 0.5]
-    };
-
-  const query = new QueryBuilder(
-    Review.find({ product: productId, ...reviewFilters }),
-    omit(queryOptions, ["filter"])
-  )
-    .populateDoc({
-      populate: "user",
-      fields: "user=name,image",
-      lean: true
-    })
-    // .filter()
-    .sort()
-    .paginate();
-
-  const reviewsData = await query.exec<{ reviews: ReviewWithUser[] }>(
-    Review,
-    reviewFilters
-  );
-  return JSON.parse(JSON.stringify(reviewsData)) as typeof reviewsData;
 };
