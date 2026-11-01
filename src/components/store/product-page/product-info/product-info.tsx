@@ -23,7 +23,7 @@ interface PropsType {
   statistics: ReviewStatistics;
   quantity?: number;
   sizeId: string | undefined;
-  handleChange: (property: keyof CartProductType, value: any) => void;
+  handleChange: (values: Partial<CartProductType>) => void;
   setVariantImages: Dispatch<SetStateAction<IProductVariant["images"]>>;
   setActiveImage: Dispatch<SetStateAction<IProductVariant["images"][0] | null>>;
 }

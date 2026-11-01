@@ -83,7 +83,7 @@ const ShippingDetails: FC<Props> = ({ shippingDetails, quantity, weight }) => {
             fee={shippingFee}
             extraFee={extraShippingFee}
             method={shippingFeeMethod}
-            quantity={5} // Hardcoded
+            quantity={quantity}
             weight={weight}
           />
         )}

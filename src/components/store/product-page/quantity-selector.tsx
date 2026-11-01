@@ -1,7 +1,9 @@
+import { useCartStore } from "@/hooks/cart-store";
+import useFromStore from "@/hooks/useFromStore";
 import { CartProductType } from "@/lib/types";
 import { IVariantSize } from "@/models/Product";
 import { Minus, Plus } from "lucide-react";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useMemo } from "react";
 
 interface QuantitySelectorProps {
   productId: string;
@@ -9,7 +11,7 @@ interface QuantitySelectorProps {
   sizeId: string | null;
   quantity: number;
   stock: number;
-  handleChange: (property: keyof CartProductType, value: any) => void;
+  handleChange: (values: Partial<CartProductType>) => void;
   sizes: IVariantSize[];
 }
 
@@ -18,37 +20,35 @@ const QuantitySelector: FC<QuantitySelectorProps> = ({
   productId,
   quantity,
   sizeId,
-  sizes,
   variantId,
   stock
 }) => {
   // Get cart product if it exist in cart, the get added quantity
-  // const cart = useFromStore(useCartStore, (state) => state.cart);
+  const cart = useFromStore(useCartStore, (state) => state.cart);
 
   // useEffect hook to handle changes when sizeId updates
   useEffect(() => {
-    handleChange("quantity", 1);
+    handleChange({ quantity: 1 });
   }, [sizeId]);
 
-  const maxQty = stock;
-  // const maxQty = useMemo(() => {
-  //   const search_product = cart?.find(
-  //     (p) => p.productId === productId && p.variantId === variantId && p.sizeId === sizeId
-  //   );
-  //   return search_product ? search_product.stock - search_product.quantity : stock;
-  // }, [cart, productId, variantId, sizeId, stock]);
+  const maxQty = useMemo(() => {
+    const search_product = cart?.find(
+      (p) => p.productId === productId && p.variantId === variantId && p.sizeId === sizeId
+    );
+    return search_product ? search_product.stock - search_product.quantity : stock;
+  }, [cart, productId, variantId, sizeId, stock]);
 
   // Function to handle increasing the quantity of the product
   const handleIncrease = () => {
-    if (quantity < stock) {
-      handleChange("quantity", quantity + 1);
+    if (quantity < maxQty) {
+      handleChange({ quantity: quantity + 1 });
     }
   };
 
   // Function to handle decreasing the quantity of the product
   const handleDecrease = () => {
     if (quantity > 1) {
-      handleChange("quantity", quantity - 1);
+      handleChange({ quantity: quantity - 1 });
     }
   };
 

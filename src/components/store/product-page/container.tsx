@@ -8,8 +8,11 @@ import {
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { IProductVariant } from "@/models/Product";
-import { ReactNode, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 
+import { useCartStore } from "@/hooks/cart-store";
+import { useToast } from "@/hooks/use-toast";
+import useFromStore from "@/hooks/useFromStore";
 import SocialShare from "../shared/social-share";
 import ProductInfo from "./product-info/product-info";
 import ProductSwiper from "./product-swiper";
@@ -36,10 +39,10 @@ function ProductPageContainer({
   children
 }: Props) {
   const [variant] = productData.variants; // active variant
-  const { images, weight, variantName, sizes } = variant;
-  console.log("active variant", variant);
-  console.log("container variants", variants);
+  const { _id: productId } = productData;
+  const { images, weight, variantName, sizes, _id: variantId } = variant;
 
+  const { toast } = useToast();
   // State for temporary product images
   const [variantImages, setVariantImages] = useState<IProductVariant["images"]>(images);
 
@@ -77,14 +80,33 @@ function ProductPageContainer({
   // useState hook to manage the product's state in the cart
   const [productToBeAddedToCart, setProductToBeAddedToCart] =
     useState<CartProductType>(cartData);
+  const { stock } = productToBeAddedToCart;
 
   // Function to handle state changes for the product properties
-  const handleChange = (property: keyof CartProductType, value: any) => {
+  const changeProductValueInCart = (productValues: Partial<CartProductType>) => {
     setProductToBeAddedToCart((prevProduct) => ({
       ...prevProduct,
-      [property]: value
+      ...productValues
     }));
   };
+
+  // Get the store action to add items to cart
+  const addToCart = useCartStore((state) => state.addToCart);
+
+  const cartItems = useFromStore(useCartStore, (state) => state.cart);
+
+  const handleAddToCart = () => {
+    if (maxQty <= 0) return;
+    addToCart(productToBeAddedToCart);
+    toast({ description: "Product added to cart successfully." });
+  };
+
+  const maxQty = useMemo(() => {
+    const searchProduct = cartItems?.find(
+      (p) => p.productId === productId && p.variantId === variantId && p.sizeId === sizeId
+    );
+    return searchProduct ? searchProduct.stock - searchProduct.quantity : stock;
+  }, [cartItems, productId, variantId, sizeId, stock]);
 
   return (
     <div className="relative">
@@ -102,7 +124,7 @@ function ProductPageContainer({
             variants={variants}
             sizeId={sizeId}
             statistics={statistics}
-            handleChange={handleChange}
+            handleChange={changeProductValueInCart}
             setVariantImages={setVariantImages}
             setActiveImage={setActiveImage}
           />
@@ -121,7 +143,7 @@ function ProductPageContainer({
                     <div className="mt-3 space-y-3">
                       <ShippingDetails
                         shippingDetails={shippingDetails}
-                        quantity={5}
+                        quantity={1}
                         weight={weight}
                       />
                     </div>
@@ -141,7 +163,7 @@ function ProductPageContainer({
                         sizeId={productToBeAddedToCart.sizeId}
                         quantity={productToBeAddedToCart.quantity}
                         stock={productToBeAddedToCart.stock}
-                        handleChange={handleChange}
+                        handleChange={changeProductValueInCart}
                         sizes={sizes}
                       />
                     </div>
@@ -158,7 +180,7 @@ function ProductPageContainer({
                         "cursor-not-allowed": false // maxQty <= 0,
                       }
                     )}
-                    // onClick={() => handleAddToCart()}
+                    onClick={() => handleAddToCart()}
                   >
                     <span>Add to cart</span>
                   </button>

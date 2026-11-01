@@ -8,7 +8,7 @@ interface Props {
   sizeId?: string | undefined;
   sizes: IVariantSize[];
   isCard?: boolean;
-  handleChange: (property: keyof CartProductType, value: any) => void;
+  handleChange: (values: Partial<CartProductType>) => void;
 }
 
 const ProductPrice: FC<Props> = ({ sizeId, sizes, isCard, handleChange }) => {
@@ -26,8 +26,7 @@ const ProductPrice: FC<Props> = ({ sizeId, sizes, isCard, handleChange }) => {
     const discountedPrice = selectedSize.price * (1 - selectedSize.discount / 100);
     setDiscountedPrice(discountedPrice);
 
-    handleChange("price", discountedPrice);
-    handleChange("stock", selectedSize.quantity);
+    handleChange({ price: discountedPrice, stock: selectedSize.quantity });
   }, [sizeId]);
 
   // if (!selectedSize) {

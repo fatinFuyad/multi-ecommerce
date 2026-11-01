@@ -81,10 +81,7 @@ export default function SignupForm() {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="jsSmith (username must be unique)"
-                    {...field}
-                  />
+                  <Input placeholder="jsSmith (username must be unique)" {...field} />
                 </FormControl>
                 <FormMessage className="text-destructive" />
               </FormItem>
@@ -98,11 +95,7 @@ export default function SignupForm() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="jssmith@example.com"
-                    {...field}
-                  />
+                  <Input type="email" placeholder="jssmith@example.com" {...field} />
                 </FormControl>
                 <FormMessage className="text-destructive" />
               </FormItem>

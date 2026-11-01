@@ -6,7 +6,7 @@ import { FC, useEffect } from "react";
 interface Props {
   sizes: IVariantSize[];
   sizeId: string | undefined;
-  handleChange: (property: keyof CartProductType, value: any) => void;
+  handleChange: (values: Partial<CartProductType>) => void;
 }
 
 const SizeSelector: FC<Props> = ({ sizeId, sizes, handleChange }) => {
@@ -33,8 +33,7 @@ const SizeSelector: FC<Props> = ({ sizeId, sizes, handleChange }) => {
   };
 
   const handleCartProductToBeAddedChange = (size: IVariantSize) => {
-    handleChange("sizeId", size._id);
-    handleChange("size", size.size);
+    handleChange({ sizeId: size._id, size: size.size });
   };
 
   return (
