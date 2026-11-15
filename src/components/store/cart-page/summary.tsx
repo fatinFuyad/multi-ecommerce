@@ -27,9 +27,9 @@ const CartSummary: FC<Props> = ({ cartItems, shippingFees }) => {
     try {
       setLoading(true);
       const res = await saveUserCart(cartItems);
-      // if (res) router.push("/checkout");
+      if (res) router.push("/checkout");
       toast({
-        title: "SuccessFully checked out. Cart is saved in database",
+        title: "Successfully checked out. Cart is saved in database",
         description: res.createdAt + " " + res.total + " " + res.subTotal
       });
       setLoading(false);

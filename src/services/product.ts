@@ -5,12 +5,14 @@ import { PopulateQueryOptions, QueryBuilder, QueryParams } from "@/lib/query-bui
 import {
   ProductCardType,
   ProductDetailedDocType,
+  ProductDetailedType,
   ProductPageData,
   UserCountry
 } from "@/lib/types";
 
 import Product, {
   IProduct,
+  IProductVariant,
   ProductSchema,
   ProductVariant,
   ProductVariantSchema
@@ -22,10 +24,11 @@ import {
   FreeShipping,
   FreeShippingSchema,
   FreeShippingWithCountries,
+  IShippingRate,
   ShippingRate,
   ShippingRateSchema
 } from "@/models/Shipping-Rate";
-import { StoreSchema } from "@/models/Store";
+import { IStore } from "@/models/Store";
 import { getCookie } from "cookies-next";
 import { HydratedDocument, isValidObjectId, Types } from "mongoose";
 import { cookies } from "next/headers";
@@ -407,7 +410,7 @@ export async function deleteProduct(productId: string) {
 export async function getProductPageData(productSlug: string, variantSlug: string) {
   await dbConnect(); // connect database
 
-  const product = await Product.findOne({
+  const productDoc = await Product.findOne({
     slug: productSlug
   })
     .populate({
@@ -418,12 +421,14 @@ export async function getProductPageData(productSlug: string, variantSlug: strin
     .populate({ path: "offerTag" })
     .lean<ProductDetailedDocType>();
 
+  const product: ProductDetailedType = JSON.parse(JSON.stringify(productDoc));
   if (!product) throw new Error("No product found with product slug");
 
-  const variants = await ProductVariant.find({
+  const variantDocs = await ProductVariant.find({
     product: product._id
   }).lean<ProductVariantSchema[]>();
 
+  const variants: IProductVariant[] = JSON.parse(JSON.stringify(variantDocs));
   const activeVariant = variants.find((variant: any) => variant.slug === variantSlug);
   if (activeVariant) product.variants = [activeVariant];
 
@@ -502,7 +507,7 @@ function getUserCountry(): UserCountry {
 export const getShippingDetails = async (
   shippingFeeMethod: string,
   userCountry: UserCountry,
-  store: StoreSchema,
+  store: IStore,
   freeShipping?: FreeShippingWithCountries | null
 ) => {
   await dbConnect(); // connect database
@@ -602,4 +607,46 @@ export const getShippingDetails = async (
   }
 
   return shippingDetails;
+};
+
+export const getDeliveryDetailsForStoreByCountry = async (
+  storeId: string,
+  countryId: string
+) => {
+  // Get shipping rate
+  const shippingRate: IShippingRate | null = await ShippingRate.findOne({
+    store: storeId,
+    country: countryId
+  });
+
+  let storeDefaultDelivery: Pick<
+    IStore,
+    "defaultShippingService" | "defaultDeliveryTimeMin" | "defaultDeliveryTimeMax"
+  > | null;
+
+  if (!shippingRate) {
+    storeDefaultDelivery = await Store.findOne({
+      _id: storeId
+    })
+      .select({
+        defaultShippingService: 1,
+        defaultDeliveryTimeMin: 1,
+        defaultDeliveryTimeMax: 1
+      })
+      .lean<typeof storeDefaultDelivery>();
+
+    if (!storeDefaultDelivery) throw new Error("Invalid ID or the store doesn't exist!");
+
+    return {
+      shippingService: storeDefaultDelivery.defaultShippingService,
+      deliveryTimeMin: storeDefaultDelivery.defaultDeliveryTimeMin,
+      deliveryTimeMax: storeDefaultDelivery.defaultDeliveryTimeMax
+    };
+  }
+
+  return {
+    shippingService: shippingRate.shippingService,
+    deliveryTimeMin: shippingRate.deliveryTimeMin,
+    deliveryTimeMax: shippingRate.deliveryTimeMax
+  };
 };

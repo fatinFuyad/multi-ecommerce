@@ -40,13 +40,13 @@ const config: Config = {
           seconadry: "#38bdf8",
           border: "#bae6fd"
         },
-        // orange: {
-        //   background: "#FD384F",
-        //   hover: "#e23246",
-        //   primary: "#FA6338",
-        //   seconadry: "#d3031c",
-        //   border: "#ffe6e7"
-        // },
+        brand: {
+          background: "#0369a1",
+          hover: "#0284c7",
+          primary: "#0ea5e9",
+          seconadry: "#38bdf8",
+          border: "#bae6fd"
+        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))"

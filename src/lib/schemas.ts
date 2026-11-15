@@ -410,6 +410,99 @@ export const AddReviewSchema = z.object({
   })
 });
 
+export const ShippingAddressSchema = z.object({
+  _id: z.string().optional(),
+  country: z.string({
+    error: (iss) =>
+      iss.input === undefined
+        ? "Country is mandatory."
+        : "Country must be a valid string."
+  }),
+  firstName: z
+    .string({
+      error: (iss) =>
+        iss.input === undefined
+          ? "First name is mandatory."
+          : "First name must be a valid string."
+    })
+    .min(2, { message: "First name should be at least 2 characters long." })
+    .max(50, { message: "First name cannot exceed 50 characters." })
+    .regex(
+      /^(?:[a-zA-Z]+ |[a-zA-Z]+\.|[a-zA-Z]+\. )*[a-zA-Z]+$/,
+      "Not allowed special characters and spaces at the beginning / end or multiple spaces between words. Only allowed alphabets and (.) as special character."
+    )
+    .trim(),
+
+  lastName: z
+    .string({
+      error: (iss) =>
+        iss.input === undefined
+          ? "Last name is mandatory."
+          : "Last name must be a valid string."
+    })
+    .min(2, { message: "Last name should be at least 2 characters long." })
+    .max(50, { message: "Last name cannot exceed 50 characters." })
+    .regex(
+      /^(?:[a-zA-Z]+ |[a-zA-Z]+\.|[a-zA-Z]+\. )*[a-zA-Z]+$/,
+      "Not allowed special characters and spaces at the beginning / end or multiple spaces between words. Only allowed alphabets and (.) as special character."
+    )
+    .trim(),
+
+  phone: z
+    .string({
+      error: (iss) =>
+        iss.input === undefined
+          ? "Phone number is mandatory."
+          : "Phone number must be a string"
+    })
+    .regex(/^\+?\d+$/, { message: "Invalid phone number format." }),
+
+  address1: z
+    .string({
+      error: (iss) =>
+        iss.input === undefined
+          ? "Address line 1 is mandatory."
+          : "Address line 1 must be a valid string."
+    })
+    .min(5, { message: "Address line 1 should be at least 5 characters long." })
+    .max(100, { message: "Address line 1 cannot exceed 100 characters." }),
+
+  address2: z
+    .string({
+      error: "Address line 2 must be a valid string."
+    })
+    .max(100, { message: "Address line 2 cannot exceed 100 characters." })
+    .optional(),
+
+  state: z
+    .string({
+      error: (iss) =>
+        iss.input === undefined ? "State is mandatory." : "State must be a valid string."
+    })
+    .min(2, { message: "State should be at least 2 characters long." })
+    .max(50, { message: "State cannot exceed 50 characters." }),
+
+  city: z
+    .string({
+      error: (iss) =>
+        iss.input === undefined ? "City is mandatory." : "City must be a valid string."
+    })
+    .min(2, { message: "City should be at least 2 characters long." })
+    .max(50, { message: "City cannot exceed 50 characters." }),
+
+  zipCode: z
+    .string({
+      error: (iss) =>
+        iss.input === undefined
+          ? "Zip code is mandatory."
+          : "Zip code must be a valid string."
+    })
+    .min(2, { message: "Zip code should be at least 2 characters long." })
+    .max(10, { message: "Zip code cannot exceed 10 characters." }),
+
+  default: z.boolean().default(false).nonoptional()
+});
+
 export type UserFormSchemaType = z.infer<typeof UserFormSchema>;
 export type CategoryFormSchemaType = z.infer<typeof CategoryFormSchema>;
 export type SubcategoryFormSchemaType = z.infer<typeof SubcategoryFormSchema>;
@@ -419,3 +512,4 @@ export type OfferTagFormSchemaType = z.infer<typeof OfferTagFormSchema>;
 export type StoreShippingFormSchemaType = z.infer<typeof StoreShippingFormSchema>;
 export type ShippingRateFormSchemaType = z.infer<typeof ShippingRateFormSchema>;
 export type AddReviewSchemaType = z.infer<typeof AddReviewSchema>;
+export type ShippingAddressSchemaType = z.infer<typeof ShippingAddressSchema>;
