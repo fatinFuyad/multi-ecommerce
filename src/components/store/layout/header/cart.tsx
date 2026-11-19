@@ -1,20 +1,24 @@
-import Link from "next/link";
+"use client";
 import { CartIcon } from "@/components/store/icons";
+import { useCartStore } from "@/hooks/cart-store";
+import Link from "next/link";
 
 export default function Cart() {
   // Get total items in the cart
-  const totalItems = 15;
+  const totalItems = useCartStore((state) => state.totalItems);
   return (
-    <div className="mr-3">
-      <Link href="/cart" className="flex gap-1 items-center">
-        {/* <p>Cart</p> */}
-        <div className="relative mt-2">
-          <span className="inline-block text-4xl">
-            <CartIcon />
-          </span>
-          <span className="absolute top-0 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center p-1 text-sm bg-background rounded-full font-bold aspect-square min-h-6">
-            {totalItems}
-          </span>
+    <div className="relative flex h-11 items-center px-2 cursor-pointer">
+      <Link href="/cart" className="flex items-center text-secondary-foreground">
+        <span className="text-[32px] inline-block">
+          <CartIcon />
+        </span>
+        <div className="ml-1">
+          <div className="min-h-3 min-w-6 -mt-1.5">
+            <span className="inline-block text-xs text-main-primary leading-4 bg-background rounded-lg text-center font-bold min-h-3 px-1 min-w-6">
+              {totalItems}
+            </span>
+          </div>
+          <b className="text-xs font-bold text-wrap leading-4">Cart</b>
         </div>
       </Link>
     </div>

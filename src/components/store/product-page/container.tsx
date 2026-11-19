@@ -8,7 +8,7 @@ import {
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { IProductVariant } from "@/models/Product";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 
 import { useCartStore } from "@/hooks/cart-store";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +29,55 @@ interface Props {
   statistics: ReviewStatistics;
   children: ReactNode;
 }
+
+/**@description  Function to validate the product data before adding it to the cart*/
+export const validateCartProduct = (cartProduct: CartProductType): boolean => {
+  // Check that all required fields are filled
+  const {
+    productId,
+    variantId,
+    productSlug,
+    variantSlug,
+    name,
+    variantName,
+    image,
+    quantity,
+    price,
+    sizeId,
+    size,
+    stock,
+    shippingMethod,
+    variantImage,
+    weight,
+    deliveryTimeMin,
+    deliveryTimeMax
+  } = cartProduct;
+
+  // Ensure that all necessary fields have values
+  if (
+    !productId ||
+    !variantId ||
+    !productSlug ||
+    !variantSlug ||
+    !name ||
+    !variantName ||
+    !image ||
+    quantity <= 0 ||
+    price <= 0 ||
+    !sizeId || // Ensure sizeId is not empty
+    !size || // Ensure size is not empty
+    stock <= 0 ||
+    weight <= 0 || // Weight should be <= 0
+    !shippingMethod ||
+    !variantImage ||
+    deliveryTimeMin < 0 ||
+    deliveryTimeMax < deliveryTimeMin // Ensure delivery times are valid
+  ) {
+    return false; // Validation failed
+  }
+
+  return true; // Product is valid
+};
 
 function ProductPageContainer({
   productData,
@@ -80,6 +129,10 @@ function ProductPageContainer({
   // useState hook to manage the product's state in the cart
   const [productToBeAddedToCart, setProductToBeAddedToCart] =
     useState<CartProductType>(cartData);
+
+  // Usestate hook to manage product validity to be added to cart
+  const [isValidProduct, setIsValidProduct] = useState<boolean>(false);
+
   const { stock } = productToBeAddedToCart;
 
   // Function to handle state changes for the product properties
@@ -90,6 +143,11 @@ function ProductPageContainer({
     }));
   };
 
+  useEffect(() => {
+    const check = validateCartProduct(productToBeAddedToCart);
+    setIsValidProduct(check);
+  }, [productToBeAddedToCart]);
+
   // Get the store action to add items to cart
   const addToCart = useCartStore((state) => state.addToCart);
 
@@ -97,15 +155,18 @@ function ProductPageContainer({
 
   const handleAddToCart = () => {
     if (maxQty <= 0) return;
+    if (!productToBeAddedToCart.sizeId)
+      return toast({ title: "Please select a variant/size", variant: "destructive" });
+
     addToCart(productToBeAddedToCart);
     toast({ description: "Product added to cart successfully." });
   };
 
   const maxQty = useMemo(() => {
-    const searchProduct = cartItems?.find(
+    const productInCart = cartItems?.find(
       (p) => p.productId === productId && p.variantId === variantId && p.sizeId === sizeId
     );
-    return searchProduct ? searchProduct.stock - searchProduct.quantity : stock;
+    return productInCart ? productInCart.stock - productInCart.quantity : stock;
   }, [cartItems, productId, variantId, sizeId, stock]);
 
   return (
@@ -173,11 +234,10 @@ function ProductPageContainer({
                     <span>Buy now</span>
                   </button>
                   <button
-                    // disabled={!isProductValid}
                     className={cn(
                       "relative w-full py-2.5 min-w-20 border-primary-light hover:bg-primary/50 text-primary-mid-hover h-11 rounded-3xl leading-6 inline-block font-bold whitespace-nowrap border cursor-pointer transition-all duration-300 ease-bezier-1 select-none",
                       {
-                        "cursor-not-allowed": false // maxQty <= 0,
+                        "cursor-not-allowed": maxQty <= 0
                       }
                     )}
                     onClick={() => handleAddToCart()}

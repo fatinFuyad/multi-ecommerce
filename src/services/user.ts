@@ -9,6 +9,7 @@ import {
   Cart,
   CartItemRawSchema,
   CartRawSchema,
+  CartSchema,
   ICart,
   IShippingAddress,
   Order,
@@ -22,7 +23,9 @@ import {
   OrderSchema,
   ShippingAddress,
   ShippingAddressRawSchema,
-  UserShippingAddressType
+  UserShippingAddressType,
+  Wishlist,
+  WishlistRawSchema
 } from "@/models/Order";
 import Product, { IProduct, IProductVariant } from "@/models/Product";
 import {
@@ -36,6 +39,15 @@ import { getCookie } from "cookies-next";
 import { Types } from "mongoose";
 import { cookies } from "next/headers";
 import { getDeliveryDetailsForStoreByCountry, getShippingDetails } from "./product";
+
+type OrderProduct = MergeType<
+  IProduct,
+  {
+    store: IStore;
+    variants: IProductVariant[];
+    freeShipping: FreeShippingWithCountries;
+  }
+>;
 
 /**
  * @name followStore
@@ -128,92 +140,89 @@ export const saveUserCart = async (cartProducts: CartProductType[]) => {
   }
 
   // Fetch product, variant, and size data from the database for validation
-  const validatedCartItems = await Promise.all(
-    cartProducts.map(async (cartProduct) => {
-      const { productId, variantId, sizeId, quantity } = cartProduct;
-      // console.log("cart products", cartProducts);
-      // Fetch the product, variant, and size from the database
-      const product = await Product.findOne({
-        _id: productId
-      })
-        .populate({ path: "store" })
-        .populate({ path: "variants", match: { _id: variantId } })
-        .populate({ path: "freeShipping" });
-      // console.log("user cart", product);
-
-      if (
-        !product ||
-        product.variants.length === 0 ||
-        product.variants[0].sizes.length === 0
-      ) {
-        throw new Error(
-          `Invalid product, variant, or size combination for productId: ${productId}, variantId: ${variantId}, sizeId: ${sizeId}`
-        );
-      }
-
-      const variant = product.variants[0];
-      const size = variant.sizes[0];
-
-      // Validate stock and price
-      const validQuantity = Math.min(quantity, size.quantity);
-
-      const price = size.discount
-        ? size.price - size.price * (size.discount / 100)
-        : size.price;
-
-      // Calculate Shipping details
-      const countryCookie = getCookie("userCountry", { cookies });
-
-      let details = {
-        shippingFee: 0,
-        extraShippingFee: 0,
-        isFreeShipping: false
-      };
-
-      if (countryCookie) {
-        const country = JSON.parse(countryCookie);
-        const tempDetails = await getShippingDetails(
-          product.shippingFeeMethod,
-          country,
-          product.store,
-          product.freeShipping
-        );
-        if (tempDetails) {
-          details = tempDetails;
-        }
-      }
-      let shippingFee = 0;
-      const { shippingFeeMethod } = product;
-      if (shippingFeeMethod === "ITEM") {
-        shippingFee =
-          quantity === 1
-            ? details.shippingFee
-            : details.shippingFee + details.extraShippingFee * (quantity - 1);
-      } else if (shippingFeeMethod === "WEIGHT") {
-        shippingFee = details.shippingFee * variant.weight * quantity;
-      } else if (shippingFeeMethod === "FIXED") {
-        shippingFee = details.shippingFee;
-      }
-
-      const totalPrice = price * validQuantity + shippingFee;
-      return {
-        productId,
-        variantId,
-        productSlug: product.slug,
-        variantSlug: variant.slug,
-        sizeId,
-        storeId: product.storeId,
-        sku: variant.sku,
-        name: `${product.name} · ${variant.variantName}`,
-        image: variant.images[0].url,
-        size: size.size,
-        quantity: validQuantity,
-        price,
-        shippingFee,
-        totalPrice
-      };
+  const cartItemPromises = cartProducts.map(async (cartProduct) => {
+    const { productId, variantId, sizeId, quantity } = cartProduct;
+    // Fetch the product, variant, and size from the database
+    const product = await Product.findOne({
+      _id: productId
     })
-  );
+      .populate({ path: "store" })
+      .populate({ path: "variants", match: { _id: variantId } })
+      .populate({ path: "freeShipping" });
+
+    if (
+      !product ||
+      product.variants.length === 0 ||
+      product.variants[0].sizes.length === 0
+    ) {
+      throw new Error(
+        `Invalid product, variant, or size combination for productId: ${productId}, variantId: ${variantId}, sizeId: ${sizeId}`
+      );
+    }
+
+    const variant = product.variants[0];
+    const size = variant.sizes[0];
+
+    // Validate stock and price
+    const validQuantity = Math.min(quantity, size.quantity);
+
+    const price = size.discount
+      ? size.price - size.price * (size.discount / 100)
+      : size.price;
+
+    // Calculate Shipping details
+    const countryCookie = getCookie("userCountry", { cookies });
+
+    let details = {
+      shippingFee: 0,
+      extraShippingFee: 0,
+      isFreeShipping: false
+    };
+
+    if (countryCookie) {
+      const country = JSON.parse(countryCookie);
+      const tempDetails = await getShippingDetails(
+        product.shippingFeeMethod,
+        country,
+        product.store,
+        product.freeShipping
+      );
+      if (tempDetails) {
+        details = tempDetails;
+      }
+    }
+    let shippingFee = 0;
+    const { shippingFeeMethod } = product;
+    if (shippingFeeMethod === "ITEM") {
+      shippingFee =
+        quantity === 1
+          ? details.shippingFee
+          : details.shippingFee + details.extraShippingFee * (quantity - 1);
+    } else if (shippingFeeMethod === "WEIGHT") {
+      shippingFee = details.shippingFee * variant.weight * quantity;
+    } else if (shippingFeeMethod === "FIXED") {
+      shippingFee = details.shippingFee;
+    }
+
+    const totalPrice = price * validQuantity + shippingFee;
+    return {
+      productId,
+      variantId,
+      productSlug: product.slug,
+      variantSlug: variant.slug,
+      sizeId,
+      storeId: product.storeId,
+      sku: variant.sku,
+      name: `${product.name} · ${variant.variantName}`,
+      image: variant.images[0].url,
+      size: size.size,
+      quantity: validQuantity,
+      price,
+      shippingFee,
+      totalPrice
+    };
+  });
+  const validatedCartItems = await Promise.all(cartItemPromises);
 
   // Recalculate the cart's total price and shipping fees
   const subTotal = validatedCartItems.reduce(
@@ -227,7 +236,6 @@ export const saveUserCart = async (cartProducts: CartProductType[]) => {
   );
 
   const total = subTotal + shippingFees;
-  // console.log({ shippingFees, subTotal, total });
 
   // Save the validated items to the cart in the database
   const cartItems = validatedCartItems.map((item) => {
@@ -361,125 +369,117 @@ export const placeOrder = async (
   // Fetch user's cart with all items
   const cart = await Cart.findOne({
     _id: cartId
-  }).lean<ICart>();
+  }).lean<CartSchema>();
 
   if (!cart) throw new Error("Cart not found.");
 
   const cartItems = cart.cartItems;
 
   // Fetch product, variant, and size data from the database for validation
-  const validatedCartItems = await Promise.all(
-    cartItems.map(async (cartProduct) => {
-      const {
-        product: productId,
-        variant: variantId,
-        size: sizeId,
-        quantity
-      } = cartProduct;
+  const cartItemPromises = cartItems.map(async (cartProduct) => {
+    const {
+      product: productId,
+      variant: variantId,
+      size: sizeId,
+      quantity
+    } = cartProduct;
 
-      // Fetch the product, variant, and size from the database
-      const productTemp = await Product.findOne({
-        _id: productId
-      })
-        .populate({ path: "store" })
-        .populate({ path: "freeShipping", populate: "eligibleCountries" })
-        .populate({ path: "variants", match: { _id: variantId } });
-
-      type OrderProduct = MergeType<
-        IProduct,
-        {
-          store: IStore;
-          variants: IProductVariant[];
-          freeShipping: FreeShippingWithCountries;
-        }
-      >;
-      const product: OrderProduct = JSON.parse(JSON.stringify(productTemp));
-
-      if (!product || product.variants.length === 0) {
-        throw new Error(
-          `Invalid product, variant, or size combination for productId ${productId}, variantId ${variantId}, sizeId ${sizeId}`
-        );
-      }
-
-      const variant = product.variants[0];
-      const size = variant.sizes.find((size) => size._id.toString() === sizeId);
-      if (!size) throw new Error("Invalid size or doesn't belong to the product variant");
-
-      // Validate stock and price
-      const validQuantity = Math.min(quantity, size.quantity);
-
-      const price = size.discount
-        ? size.price - size.price * (size.discount / 100)
-        : size.price;
-
-      // Calculate Shipping details
-      const countryId = shippingAddress.country;
-
-      const temp_country = await Country.findOne({
-        _id: countryId
-      }).lean<CountrySchema>();
-
-      if (!temp_country) throw new Error("Failed to get Shipping details for order.");
-
-      const country = {
-        name: temp_country.name,
-        code: temp_country.code,
-        city: "",
-        region: ""
-      };
-
-      let details = {
-        shippingFee: 0,
-        extraShippingFee: 0,
-        isFreeShipping: false
-      };
-
-      if (country) {
-        const temp_details = await getShippingDetails(
-          product.shippingFeeMethod,
-          country,
-          product.store,
-          product.freeShipping
-        );
-        if (temp_details) {
-          details = temp_details;
-        }
-      }
-
-      let shippingFee = 0;
-      const { shippingFeeMethod } = product;
-
-      if (shippingFeeMethod === "ITEM") {
-        shippingFee =
-          quantity === 1
-            ? details.shippingFee
-            : details.shippingFee + details.extraShippingFee * (quantity - 1);
-      } else if (shippingFeeMethod === "WEIGHT") {
-        shippingFee = details.shippingFee * variant.weight * quantity;
-      } else if (shippingFeeMethod === "FIXED") {
-        shippingFee = details.shippingFee;
-      }
-
-      const totalPrice = price * validQuantity + shippingFee;
-
-      return {
-        productId,
-        variantId,
-        productSlug: product.slug,
-        variantSlug: variant.slug,
-        sizeId,
-        storeId: product.store._id,
-        sku: variant.sku,
-        name: `${product.name} · ${variant.variantName}`,
-        image: variant.images[0].url,
-        size: size.size,
-        quantity: validQuantity,
-        price,
-        shippingFee,
-        totalPrice
-      };
+    // Fetch the product, variant, and size from the database
+    const productDoc = await Product.findOne({
+      _id: productId
     })
-  );
+      .populate({ path: "store" })
+      .populate({ path: "freeShipping", populate: "eligibleCountries" })
+      .populate({ path: "variants", match: { _id: variantId } })
+      .lean<any>();
+
+    if (!productDoc || productDoc.variants.length === 0) {
+      throw new Error(
+        `Invalid product, variant, or size combination for productId ${productId}, variantId ${variantId}, sizeId ${sizeId}`
+      );
+    }
+    const product: OrderProduct = JSON.parse(JSON.stringify(productDoc));
+
+    const variant = product.variants[0];
+    const size = variant.sizes.find((size) => size._id === sizeId.toString());
+
+    if (!size) throw new Error("Invalid size or doesn't belong to the product variant");
+
+    // Validate stock and price
+    const validQuantity = Math.min(quantity, size.quantity);
+
+    const price = size.discount
+      ? size.price - size.price * (size.discount / 100)
+      : size.price;
+
+    // Calculate Shipping details
+    const countryId = shippingAddress.country;
+
+    const temp_country = await Country.findOne({
+      _id: countryId
+    }).lean<CountrySchema>();
+
+    if (!temp_country) throw new Error("Failed to get Shipping details for order.");
+
+    const country = {
+      name: temp_country.name,
+      code: temp_country.code,
+      city: "",
+      region: ""
+    };
+
+    let details = {
+      shippingFee: 0,
+      extraShippingFee: 0,
+      isFreeShipping: false
+    };
+
+    if (country) {
+      const tempDetails = await getShippingDetails(
+        product.shippingFeeMethod,
+        country,
+        product.store,
+        product.freeShipping
+      );
+      if (tempDetails) {
+        details = tempDetails;
+      }
+    }
+
+    let shippingFee = 0;
+    const { shippingFeeMethod } = product;
+
+    if (shippingFeeMethod === "ITEM") {
+      shippingFee =
+        quantity === 1
+          ? details.shippingFee
+          : details.shippingFee + details.extraShippingFee * (quantity - 1);
+    } else if (shippingFeeMethod === "WEIGHT") {
+      shippingFee = details.shippingFee * variant.weight * quantity;
+    } else if (shippingFeeMethod === "FIXED") {
+      shippingFee = details.shippingFee;
+    }
+
+    const totalPrice = price * validQuantity + shippingFee;
+
+    return {
+      productId,
+      variantId,
+      productSlug: product.slug,
+      variantSlug: variant.slug,
+      sizeId,
+      storeId: product.store._id,
+      sku: variant.sku,
+      name: `${product.name} · ${variant.variantName}`,
+      image: variant.images[0].url,
+      size: size.size,
+      quantity: validQuantity,
+      price,
+      shippingFee,
+      totalPrice
+    };
+  });
+  const validatedCartItems = await Promise.all(cartItemPromises);
 
   // Define the type for grouped items by store
   type GroupedItems = { [storeId: string]: typeof validatedCartItems };
@@ -581,7 +581,7 @@ export const placeOrder = async (
 
   // Delete cart
   /*
-  await db.cart.delete({
+  await cart.delete({
     where: {
       _id: cartId,
     },
@@ -605,4 +605,138 @@ export const emptyUserCart = async () => {
   if (!res) throw new Error("An error occured while deleting the cart!");
 
   return null;
+};
+
+/**
+ * @description Keeps the cart updated with latest info (price,qty,shipping fee...).
+ * @access Permission Level Public
+ * @param cartProducts An array of product objects from the frontend cart.
+ * @returns Object - Containing the updated cart with recalculated total price and validated product data.
+ */
+export const updateCartWithLatest = async (
+  cartProducts: CartProductType[]
+): Promise<CartProductType[]> => {
+  // Fetch product, variant, and size data from the database for validation
+
+  const cartPromises = cartProducts.map(async (cartProduct) => {
+    const { productId, variantId, sizeId, quantity } = cartProduct;
+
+    // Fetch the product, variant, and size from the database
+    const productDoc = await Product.findOne({
+      _id: productId
+    })
+      .populate({ path: "store" })
+      .populate({ path: "freeShipping", populate: "eligibleCountries" })
+      .populate({ path: "variants", match: { _id: variantId } })
+      .lean<any>();
+
+    if (!productDoc || productDoc.variants.length === 0) {
+      throw new Error(
+        `Invalid product, variant, or size combination for productId ${productId}, variantId ${variantId}, sizeId ${sizeId}`
+      );
+    }
+    const product: OrderProduct = JSON.parse(JSON.stringify(productDoc));
+
+    const variant = product.variants[0];
+    const size = variant.sizes.find((size) => size._id.toString() === sizeId);
+    if (!size) throw new Error("Invalid size or doesn't belong to the product variant");
+
+    // Calculate Shipping details
+    const countryCookie = getCookie("userCountry", { cookies });
+
+    let details = {
+      shippingService: product.store.defaultShippingService,
+      shippingFee: 0,
+      extraShippingFee: 0,
+      isFreeShipping: false,
+      deliveryTimeMin: 0,
+      deliveryTimeMax: 0
+    };
+
+    if (countryCookie) {
+      const country = JSON.parse(countryCookie);
+      const tempDetails = await getShippingDetails(
+        product.shippingFeeMethod,
+        country,
+        product.store,
+        product.freeShipping
+      );
+
+      if (tempDetails) {
+        details = tempDetails;
+      }
+    }
+
+    const price = size.discount
+      ? size.price - (size.price * size.discount) / 100
+      : size.price;
+
+    const validated_qty = Math.min(quantity, size.quantity);
+
+    return {
+      productId,
+      variantId,
+      productSlug: product.slug,
+      variantSlug: variant.slug,
+      sizeId,
+      sku: variant.sku,
+      name: product.name,
+      variantName: variant.variantName,
+      image: variant.images[0].url,
+      variantImage: variant.variantImage,
+      stock: size.quantity,
+      weight: variant.weight,
+      shippingMethod: product.shippingFeeMethod,
+      size: size.size,
+      quantity: validated_qty,
+      price,
+      shippingService: details.shippingService,
+      shippingFee: details.shippingFee,
+      extraShippingFee: details.extraShippingFee,
+      deliveryTimeMin: details.deliveryTimeMin,
+      deliveryTimeMax: details.deliveryTimeMax,
+      isFreeShipping: details.isFreeShipping
+    };
+  });
+
+  const validatedCartItems = await Promise.all(cartPromises);
+  return validatedCartItems;
+};
+
+/**
+ * @description Add a product to the user's wishlist.
+ * @param productId - The ID of the product to add to the wishlist.
+ * @param variantId - The ID of the product variant.
+ * @param sizeId - Optional size ID if applicable.
+ * @returns The created wishlist item.
+ */
+export const addToWishlist = async (
+  productId: string,
+  variantId: string,
+  sizeId?: string
+) => {
+  // Ensure the user is authenticated
+  const user = await authenticate();
+
+  const userId = user._id;
+
+  const existingWIshlistItem = await Wishlist.exists({
+    user: userId,
+    product: productId,
+    variant: variantId
+  });
+
+  if (existingWIshlistItem) {
+    throw new Error("Product is already in the wishlist");
+  }
+
+  const newWishlist = await Wishlist.create({
+    user: new Types.ObjectId(userId),
+    product: new Types.ObjectId(productId),
+    variant: new Types.ObjectId(variantId),
+    size: new Types.ObjectId(sizeId)
+  } satisfies WishlistRawSchema);
+
+  if (!newWishlist) throw new Error("Failed to create wishlist for the product!");
+  return JSON.parse(JSON.stringify(newWishlist));
 };

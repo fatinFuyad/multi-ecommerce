@@ -10,7 +10,7 @@
 /coverage
 /src/dev-data
 /src/dev
-
+/dev
 # next.js
 /.next/
 /out/

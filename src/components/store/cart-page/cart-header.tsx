@@ -70,7 +70,7 @@ const CartHeader: FC<Props> = ({ cartItems, selectedItems, setSelectedItems }) =
                   )}
                 >
                   {cartLength > 0 && selectedLength === cartLength && (
-                    <span className="bg-orange-background text-secondary w-5 h-5 rounded-full flex items-center justify-center">
+                    <span className="bg-orange-background dark:text-white w-5 h-5 rounded-full flex items-center justify-center">
                       <Check className="w-3.5mt-0.5" />
                     </span>
                   )}

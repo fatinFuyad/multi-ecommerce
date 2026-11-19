@@ -9,15 +9,26 @@ import { useState } from "react";
 import ReactStars from "react-rating-stars-component";
 import ProductCardImageSwiper from "./swiper";
 import VariantSwitcher from "./variant-switcher";
+import { addToWishlist } from "@/services/user";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProductCard({ product }: { product: ProductCardType }) {
-  const { name, averageRating, sales, variants, slug } = product;
+  const { toast } = useToast();
+
+  const { name, averageRating, sales, variants, slug, _id } = product;
   const [variant, setVariant] = useState<ProductCardType["variants"][0]>(variants[0]);
   if (!variant) return null;
 
   const { variantName, images } = variant;
-  console.log("Average Rating>>>", product.averageRating);
-  console.log("ProductCard Variants", variants);
+
+  const handleaddToWishlist = async () => {
+    try {
+      const res = await addToWishlist(_id, variant._id);
+      if (res) toast({ description: "Product successfully added to wishlist." });
+    } catch (error: any) {
+      toast({ description: error.toString(), variant: "destructive" });
+    }
+  };
 
   return (
     <div>
@@ -67,7 +78,11 @@ export default function ProductCard({ product }: { product: ProductCardType }) {
           {/* ACTION BUTTONS*/}
           <div className="flex flex-items gap-x-1">
             <Button className="w-full rounded-xl">Add To Cart</Button>
-            <Button variant={"outline"} className="rounded-full hover:bg-primary-mid">
+            <Button
+              variant={"outline"}
+              className="rounded-full hover:bg-primary-mid"
+              onClick={() => handleaddToWishlist()}
+            >
               <Heart className="w-5" />
             </Button>
           </div>

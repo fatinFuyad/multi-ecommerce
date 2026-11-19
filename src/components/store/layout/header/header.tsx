@@ -1,12 +1,12 @@
+import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { UserCountry } from "@/lib/types";
+import { cookies } from "next/headers";
 import Link from "next/link";
-import UserMenu from "./user-menu/user-menu";
 import Cart from "./cart";
+import CountryLanguageCurrencySelector from "./country-lang-curr-selector";
 import DownloadApp from "./download-app";
 import Search from "./search/search";
-import { ThemeToggle } from "@/components/shared/theme-toggle";
-import CountryLanguageCurrencySelector from "./country-lang-curr-selector";
-import { cookies, headers } from "next/headers";
-import { UserCountry } from "@/lib/types";
+import UserMenu from "./user-menu/user-menu";
 
 export default function Header() {
   // Get the user's country cookie. if missing set default country

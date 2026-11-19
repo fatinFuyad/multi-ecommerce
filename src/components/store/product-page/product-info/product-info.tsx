@@ -126,7 +126,7 @@ function ProductInfo({
       <Separator className="mt-2" />
       {/* COLOR WHEEL AND VARIANT SWITCHER */}
       <div className="mt-4 space-y-2">
-        <div className="relative flex items-center justify-between text-main-primary font-bold">
+        <div className="relative flex items-center justify-between text-primary font-bold">
           <span className="flex items-center gap-x-2">
             {colors.length > 1 ? "Colors" : "Color"}
             <ColorWheel colors={colors} size={25} />
@@ -147,7 +147,7 @@ function ProductInfo({
       {/* Size selector */}
       <div className="space-y-2 pb-2 mt-4">
         <div>
-          <h1 className="text-main-primary font-bold">Size </h1>
+          <h1 className="text-primary font-bold">Size </h1>
         </div>
         <SizeSelector sizes={sizes} sizeId={sizeId} handleChange={handleChange} />
       </div>

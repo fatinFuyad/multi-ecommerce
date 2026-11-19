@@ -229,3 +229,28 @@ export type OrderItemRawSchema = PartialSchema<
  * @description OrderItem contains the details of ordered products from a store. It holds the reference of OrderGroups which it belongs to.
  */
 export const OrderItem = models.OrderItem || model("OrderItem", orderItemSchema);
+
+const wishlistSchema = new Schema(
+  {
+    user: { type: Schema.ObjectId, ref: "User", required: true },
+    product: { type: Schema.ObjectId, ref: "Product", required: true },
+    variant: { type: Schema.ObjectId, ref: "ProductVariant", required: true },
+    size: { type: Schema.ObjectId, required: true }
+  },
+  { timestamps: true }
+);
+
+// INDEXING
+wishlistSchema.index({ user: "asc" });
+wishlistSchema.index({ product: "asc" });
+wishlistSchema.index({ variant: "asc" });
+
+// TYPES
+export type WishlistSchema = InferSchemaWithId<typeof wishlistSchema>;
+export type IWishlist = InterfaceFromSchema<WishlistSchema>;
+export type WishlistRawSchema = PartialSchema<
+  WishlistSchema,
+  "createdAt" | "updatedAt" | "_id"
+>;
+
+export const Wishlist = models.Wishlist || model("Wishlist", wishlistSchema);

@@ -1,6 +1,6 @@
 import { useCartStore } from "@/hooks/cart-store";
 import { IShippingAddress } from "@/models/Order";
-import { placeOrder } from "@/services/user";
+import { emptyUserCart, placeOrder } from "@/services/user";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
 import toast from "react-hot-toast";
@@ -23,17 +23,17 @@ const PlaceOrderCard: FC<Props> = ({
   subTotal,
   total
 }) => {
-  // const { push } = useRouter();
-  // const emptyCart = useCartStore((state) => state.emptyCart);
+  const { push } = useRouter();
+  const emptyCart = useCartStore((state) => state.emptyCart);
   const handlePlaceOrder = async () => {
     if (!shippingAddress) {
       toast.error("Select a shipping address first !");
     } else {
       const order = await placeOrder(shippingAddress, cartId);
       if (order) {
-        // emptyCart();
-        // await emptyUserCart();
-        // push(`/order/${order.orderId}`);
+        emptyCart();
+        await emptyUserCart();
+        push(`/order/${order.orderId}`);
         toast.success("Order was successful");
       }
     }

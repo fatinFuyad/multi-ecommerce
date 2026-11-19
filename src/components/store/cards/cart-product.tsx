@@ -1,23 +1,29 @@
 import { useCartStore } from "@/hooks/cart-store";
-import { CartProductType } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
+import { CartProductType, UserCountry } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { addToWishlist } from "@/services/user";
 import { Check, ChevronRight, Heart, Minus, Plus, Trash, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useRef, useState } from "react";
 
 interface Props {
   product: CartProductType;
   selectedItems: CartProductType[];
   setSelectedItems: Dispatch<SetStateAction<CartProductType[]>>;
   setTotalShipping: Dispatch<SetStateAction<number>>;
+  totalShippingFee: number;
+  userCountry: UserCountry;
 }
 
 const CartProduct: FC<Props> = ({
   product,
   selectedItems,
   setSelectedItems,
-  setTotalShipping
+  setTotalShipping,
+  totalShippingFee,
+  userCountry
 }) => {
   const {
     productId,
@@ -38,6 +44,12 @@ const CartProduct: FC<Props> = ({
     shippingFee,
     extraShippingFee
   } = product;
+
+  const { toast } = useToast();
+  // Store previous values to avoid unnecessary re-renders
+  const prevShippingFeeRef = useRef(shippingFee);
+  const prevUserCountryRef = useRef(userCountry);
+
   const unique_id = `${productId}-${variantId}-${sizeId}`;
 
   const totalPrice = price * quantity;
@@ -67,8 +79,12 @@ const CartProduct: FC<Props> = ({
       totalFee = shippingFee;
     }
 
-    // Subtract the previous shipping total for this product before updating
-    setTotalShipping((prevTotal) => prevTotal - shippingInfo.totalFee + totalFee);
+    /*
+     * Subtract the previous shipping total for this product before updating
+     * example: 100 (prevTotal) + 10(shippingFee) = 110;
+     * 110(prevTotal) -10(prevShippingFee) + 20(newShippingFee) = 120
+     */
+    setTotalShipping(totalShippingFee - shippingInfo.totalFee + totalFee);
 
     // Update state
     setShippingInfo({
@@ -81,10 +97,24 @@ const CartProduct: FC<Props> = ({
     });
   };
 
-  // Recalculate shipping fees whenever quantity changes
+  // Recalculate shipping fees whenever quantity, country or fees changes
   useEffect(() => {
-    calculateShipping();
-  }, [quantity]);
+    if (
+      shippingFee !== prevShippingFeeRef.current ||
+      userCountry !== prevUserCountryRef.current
+    ) {
+      calculateShipping();
+    }
+
+    // Update refs after calculating shipping
+    prevShippingFeeRef.current = shippingFee;
+    prevUserCountryRef.current = userCountry;
+
+    // Add a check to recalculate shipping fee on component load (after a refresh)
+    if (!shippingInfo.totalFee) {
+      calculateShipping();
+    }
+  }, [quantity, shippingFee, userCountry, shippingInfo.totalFee, stock]);
 
   const selected = selectedItems.find(
     (p) => unique_id === `${p.productId}-${p.variantId}-${p.sizeId}`
@@ -116,41 +146,57 @@ const CartProduct: FC<Props> = ({
     }
   };
 
+  // Handle add product to wishlist
+  const handleaddToWishlist = async () => {
+    try {
+      const res = await addToWishlist(productId, variantId, sizeId);
+      if (res) toast({ description: "Product successfully added to wishlist." });
+    } catch (error: any) {
+      toast({ description: error.toString(), variant: "destructive" });
+    }
+  };
+
   return (
-    <div className="bg-background px-6 border-t bordet-t-secondary select-none">
+    <div
+      className={cn("bg-background px-6 border-t border-t-teal-50 select-none", {
+        "bg-destructive/50": stock === 0
+      })}
+    >
       <div className="py-4">
         <div className="relative flex self-start">
           {/* Image */}
           <div className="flex items-center">
-            <label
-              htmlFor={unique_id}
-              className="p-0 text-secondary-foreground text-sm leading-6 inline-flex items-center mr-2 cursor-pointer align-middle"
-            >
-              <span className="leading-8 inline-flex p-0.5 cursor-pointer ">
-                <span
-                  className={cn(
-                    "leading-8 w-5 h-5 rounded-full bg-background border border-muted-foreground flex items-center justify-center hover:border-orange-background",
-                    {
-                      "border-orange-background": selected
-                    }
-                  )}
-                >
-                  {selected && (
-                    <span className="bg-orange-background text-secondary w-5 h-5 rounded-full flex items-center justify-center">
-                      <Check className="w-3.5 mt-0.5" />
-                    </span>
-                  )}
+            {stock > 0 && (
+              <label
+                htmlFor={unique_id}
+                className="p-0 text-card-foreground text-sm leading-6 inline-flex items-center mr-2 cursor-pointer align-middle"
+              >
+                <span className="leading-8 inline-flex p-0.5 cursor-pointer ">
+                  <span
+                    className={cn(
+                      "leading-8 w-5 h-5 rounded-full bg-background border border-gray-300 flex items-center justify-center hover:border-orange-background",
+                      {
+                        "border-orange-background": selected
+                      }
+                    )}
+                  >
+                    {selected && (
+                      <span className="bg-orange-background w-5 h-5 rounded-full flex items-center justify-center">
+                        <Check className="w-3.5 mt-0.5 text-white" />
+                      </span>
+                    )}
+                  </span>
                 </span>
-              </span>
-              <input
-                type="checkbox"
-                id={unique_id}
-                hidden
-                onChange={() => handleSelectProduct()}
-              />
-            </label>
+                <input
+                  type="checkbox"
+                  id={unique_id}
+                  hidden
+                  onChange={() => handleSelectProduct()}
+                />
+              </label>
+            )}
             <Link href={`/product/${productSlug}/${variantSlug}?size=${sizeId}`}>
-              <div className="m-0 mr-4 ml-2 w-28 h-28 bg-card relative rounded-lg">
+              <div className="m-0 mr-4 ml-2 w-28 h-28 bg-muted/80 relative rounded-lg">
                 <Image
                   src={image}
                   alt={name}
@@ -169,23 +215,26 @@ const CartProduct: FC<Props> = ({
                 href={`/product/${productSlug}/${variantSlug}?size=${sizeId}`}
                 className="inline-block overflow-hidden text-sm whitespace-nowrap overflow-ellipsis"
               >
-                {name} · {variantName}
+                {name} &mdash; {variantName}
               </Link>
               <div className="absolute top-0 right-0">
-                <span className="mr-2.5 cursor-pointer inline-block">
-                  <Heart className="w-4 hover:stroke-orange-seconadry" />
+                <span
+                  className="mr-2.5 cursor-pointer inline-block"
+                  onClick={() => handleaddToWishlist()}
+                >
+                  <Heart className="w-5 hover:stroke-primary hover:fill-primary-mid" />
                 </span>
                 <span
                   className="cursor-pointer inline-block"
                   onClick={() => removeFromCart(product)}
                 >
-                  <Trash className="w-4 hover:stroke-orange-seconadry" />
+                  <Trash className="w-5 hover:stroke-orange-700 hover:fill-orange-500" />
                 </span>
               </div>
             </div>
             {/* Style - size */}
             <div className="my-1">
-              <button className="text-primary relative h-[24px] bg-card whitespace-normal px-2.5 py-0 max-w-full text-xs leading-4 rounded-xl font-bold cursor-pointer  outline-0">
+              <button className="text-primary relative h-[24px] bg-muted/60 whitespace-normal px-2.5 py-0 max-w-full text-xs leading-4 rounded-xl font-bold cursor-pointer  outline-0">
                 <span className="flex items-center justify-between flex-wrap">
                   <div className="text-left inline-block overflow-hidden text-ellipsis whitespace-nowrap max-w-[95%]">
                     {size}
@@ -198,66 +247,80 @@ const CartProduct: FC<Props> = ({
             </div>
             {/* Price - Delivery */}
             <div className="flex items-center justify-between mt-2 relative">
-              <div>
-                <span className="inline-block break-all">
-                  ${price.toFixed(2)} x {quantity} = ${totalPrice.toFixed(2)}
-                </span>
-              </div>
+              {stock > 0 ? (
+                <div>
+                  <span className="inline-block break-all">
+                    ${price.toFixed(2)} x {quantity} = ${totalPrice.toFixed(2)}
+                  </span>
+                </div>
+              ) : (
+                <div>
+                  <span className="inline-block break-all text-sm text-destructive-foreground">
+                    Out of stock
+                  </span>
+                </div>
+              )}
               {/* Quantity changer */}
               <div className="text-xs">
-                <div className="text-card-foreground text-sm leading-6 list-none inline-flex items-center">
+                <div className="text-card-foreground leading-6 list-none inline-flex items-center">
                   <div
-                    className="w-6 h-6 text-xs bg-card/80 hover:bg-card leading-6 grid place-items-center rounded-full cursor-pointer"
+                    className="size-6 bg-muted hover:bg-primary-mid leading-6 grid place-items-center rounded-sm cursor-pointer"
                     onClick={() => updateProductQuantityHandler("remove")}
                   >
-                    <Minus className="w-3 stroke-muted-foreground" />
+                    <Minus className="w-4 dark:stroke-teal-400" />
                   </div>
                   <input
                     type="text"
                     value={quantity}
-                    readOnly // as it's not state mutable
+                    readOnly
                     min={1}
                     max={stock}
-                    className="m-1 h-6 w-[32px] bg-background border-none leading-6 tracking-normal text-center outline-none text-card-foreground font-bold"
+                    className="m-1 h-6 text-lg font-light w-[32px] bg-transparent border-none leading-6 tracking-normal text-center outline-none text-card-foreground"
                   />
                   <div
-                    className="w-6 h-6 text-xs bg-card/80 hover:bg-card leading-6 grid place-items-center rounded-full cursor-pointer"
+                    className="size-6 bg-muted hover:bg-primary-mid leading-6 grid place-items-center rounded-sm cursor-pointer"
                     onClick={() => updateProductQuantityHandler("add")}
                   >
-                    <Plus className="w-3 stroke-muted-foreground" />
+                    <Plus className="w-4 dark:stroke-teal-400" />
                   </div>
                 </div>
               </div>
             </div>
             {/* Shipping info */}
-            <div className="mt-1 text-xs text-muted cursor-pointer">
-              <div className="flex items-center mb-1">
-                <span>
-                  <Truck className="w-4 inline-block text-[#01A971]" />
-                  {shippingInfo.totalFee > 0 ? (
-                    <span className="text-[#01A971] ml-1">
-                      {shippingMethod === "ITEM" ? (
-                        <>
-                          ${shippingInfo.initialFee} (first item) +&nbsp;
-                          {quantity - 1} items x ${extraShippingFee} (additional items) =
-                          ${shippingInfo.totalFee.toFixed(2)}
-                        </>
-                      ) : shippingMethod === "WEIGHT" ? (
-                        <>
-                          ${shippingFee} x {shippingInfo.weight}kg x {quantity}{" "}
-                          {quantity > 1 ? "items" : "item"} = $
-                          {shippingInfo.totalFee.toFixed(2)}
-                        </>
-                      ) : (
-                        <>Fixed Fee : ${shippingInfo.totalFee.toFixed(2)}</>
-                      )}
-                    </span>
-                  ) : (
-                    <span className="text-[#01A971] ml-1">Free Delivery</span>
-                  )}
-                </span>
+            {stock > 0 && (
+              <div className="mt-1 text-xs text-muted-foreground cursor-pointer">
+                <div className="flex items-center mb-1">
+                  <span>
+                    <Truck className="w-4 inline-block text-[#01A971]" />
+                    {shippingInfo.totalFee > 0 ? (
+                      <span className="text-[#01A971] ml-1">
+                        {shippingMethod === "ITEM" ? (
+                          <>
+                            ${shippingInfo.initialFee} (first item)
+                            {quantity > 1
+                              ? `+ 
+                              ${quantity - 1} item(s) x $${extraShippingFee} 
+                              (additional items)`
+                              : " x 1"}
+                            = ${shippingInfo.totalFee.toFixed(2)}
+                          </>
+                        ) : shippingMethod === "WEIGHT" ? (
+                          <>
+                            ${shippingFee} x {shippingInfo.weight}kg x&nbsp;
+                            {quantity} {quantity > 1 ? "items" : "item"} = $
+                            {shippingInfo.totalFee.toFixed(2)}
+                          </>
+                        ) : (
+                          <>Fixed Fee : ${shippingInfo.totalFee.toFixed(2)}</>
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-[#01A971] ml-1">Free Delivery</span>
+                    )}
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
